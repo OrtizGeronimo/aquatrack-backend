@@ -1,6 +1,5 @@
 package com.example.aquatrack_backend.model;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,13 +7,14 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class Persona {
+public class Producto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,11 +22,11 @@ public abstract class Persona {
 
     private String nombre;
 
-    private String apellido;
+    private String descripcion;
 
-    private Integer numTelefono;
+    @DateTimeFormat(pattern = "dd-MM-YYYY")
+    private LocalDateTime fechaFinVigencia;
 
-    private LocalDateTime fechaCreacion;
-
-    private LocalDateTime fechaBaja;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Precio> precios = new ArrayList<Precio>();
 }

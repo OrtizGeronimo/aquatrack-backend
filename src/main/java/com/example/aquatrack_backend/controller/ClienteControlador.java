@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ClienteControlador {
 
     @Autowired
-    private ClienteServicio service;
+    private ClienteServicio clienteServicio;
 
     @GetMapping("/login")
     public ResponseEntity<?> login(String usuario, String contraseña){

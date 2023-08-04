@@ -1,6 +1,5 @@
 package com.example.aquatrack_backend.model;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,24 +8,18 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class Persona {
+public class Precio {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nombre;
+    private Float precio;
 
-    private String apellido;
-
-    private Integer numTelefono;
-
-    private LocalDateTime fechaCreacion;
-
-    private LocalDateTime fechaBaja;
+    @DateTimeFormat(pattern = "dd-MM-YYYY")
+    private LocalDateTime fechaFinVigencia;
 }

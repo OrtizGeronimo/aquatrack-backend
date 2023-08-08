@@ -21,7 +21,7 @@ public class EstadoReparto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nombreEstadoReparto;
+    private String nombre;
 
     @DateTimeFormat(pattern = "dd-MM-YYYY")
     private LocalDateTime fechaFinVigencia;

@@ -26,7 +26,7 @@ public class Reparto {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "idEstadoReparto")
-    private EstadoEntrega estadoReparto;
+    private EstadoReparto estadoReparto;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "idEmpleado")
@@ -34,6 +34,6 @@ public class Reparto {
 
     @ManyToOne(optional = true)
     @JoinColumn(name = "idRuta")
-    private Ruta ruta
+    private Ruta ruta;
 
 }

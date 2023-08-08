@@ -21,7 +21,7 @@ public class MedioPago {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nombreMedioPago;
+    private String nombre;
 
     @DateTimeFormat(pattern = "dd-MM-YYYY")
     private LocalDateTime fechaFinVigencia;

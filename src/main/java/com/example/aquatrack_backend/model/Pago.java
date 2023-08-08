@@ -23,4 +23,8 @@ public class Pago {
 
     private float total;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "idEstadoPago")
+    private EstadoPago estadoPago;
+
 }

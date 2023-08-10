@@ -22,4 +22,8 @@ public class Precio {
 
     @DateTimeFormat(pattern = "dd-MM-YYYY")
     private LocalDateTime fechaFinVigencia;
+
+    @ManyToOne
+    @JoinColumn(name = "idProducto")
+    private Producto producto;
 }

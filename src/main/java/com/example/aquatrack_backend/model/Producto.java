@@ -27,6 +27,15 @@ public class Producto {
     @DateTimeFormat(pattern = "dd-MM-YYYY")
     private LocalDateTime fechaFinVigencia;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "producto")
     private List<Precio> precios = new ArrayList<Precio>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "producto")
+    private List<PedidoProducto> pedidoProductos = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "producto")
+    private List<DomicilioProducto> domicilioProductos = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "producto")
+    private List<EntregaDetalle> entregaDetalles = new ArrayList<>();
 }

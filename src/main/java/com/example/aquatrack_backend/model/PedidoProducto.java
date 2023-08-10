@@ -18,7 +18,7 @@ public class PedidoProducto {
 
     @ManyToOne
     @JoinColumn(name = "idPedido")
-    private PedidoExtraordinario pedidoExtraordinario;
+    private Pedido pedido;
 
     @ManyToOne
     @JoinColumn(name = "idProducto")

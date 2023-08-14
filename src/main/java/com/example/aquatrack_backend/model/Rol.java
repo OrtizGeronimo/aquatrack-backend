@@ -1,6 +1,5 @@
 package com.example.aquatrack_backend.model;
 
-
 import javax.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,32 +9,30 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class Persona {
+public class Rol {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String nombre;
-
-    private String apellido;
-
-    private Integer numTelefono;
-
+    private Boolean activo;
     @DateTimeFormat(pattern = "dd-MM-YYYY")
     private LocalDateTime fechaCreacion;
-
     @DateTimeFormat(pattern = "dd-MM-YYYY")
     private LocalDateTime fechaFinVigencia;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "persona")
-    private List<EmpresaCliente> personas;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "rol")
+    private List<PermisoRol> permisos;
 
-    @OneToOne
-    private Usuario usuario;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "rol")
+    private List<RolUsuario> rolUsuario;
+
+    @ManyToOne
+    private Empresa empresa;
+
 }

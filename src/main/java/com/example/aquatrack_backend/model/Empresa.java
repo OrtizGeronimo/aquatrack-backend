@@ -40,7 +40,7 @@ public class Empresa {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
     private List<EmpresaCliente> empresaClientes;
 
-    @OneToOne
+    @OneToOne(mappedBy = "empresa")
     private Cobertura cobertura;
 
     @OneToOne

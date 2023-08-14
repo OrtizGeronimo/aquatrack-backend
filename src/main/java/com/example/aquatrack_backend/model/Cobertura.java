@@ -17,7 +17,7 @@ public class Cobertura {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(mappedBy = "cobertura")
+    @OneToOne
     private Empresa empresa;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "cobertura")

@@ -1,13 +1,14 @@
 package com.example.aquatrack_backend.model;
 
+
 import javax.persistence.*;
+
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDateTime;
+import javax.persistence.*;
 
 @Entity
 @Getter

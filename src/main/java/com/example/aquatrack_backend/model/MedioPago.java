@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.model;
 
+
 import javax.persistence.*;
 
 import lombok.Getter;

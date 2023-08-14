@@ -38,5 +38,4 @@ public abstract class Persona {
 
     @OneToOne
     private Usuario usuario;
-
 }

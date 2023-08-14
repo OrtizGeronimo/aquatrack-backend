@@ -1,11 +1,13 @@
 package com.example.aquatrack_backend.model;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
@@ -24,16 +26,15 @@ public class Reparto {
     @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
     private LocalDateTime fechaYHoraFin;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "idEstadoReparto")
+    @ManyToOne
     private EstadoReparto estadoReparto;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "idEmpleado")
-    private Empleado empleado;
+    @ManyToOne
+    private Empleado repartidor;
 
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "idRuta")
+    @ManyToOne
     private Ruta ruta;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "reparto")
+    private List<Entrega> entregas;
 }

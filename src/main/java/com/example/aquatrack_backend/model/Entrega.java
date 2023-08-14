@@ -1,6 +1,6 @@
 package com.example.aquatrack_backend.model;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,22 +22,18 @@ public class Entrega {
     @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
     private LocalDateTime fechaHoraVisita;
 
-/*  @ManyToOne(optional = false)
-    @JoinColumn(name = "idDomicilio")
+    @ManyToOne
     private Domicilio domicilio;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "idReparto")
-    private Reparto reparto;*/
+    @ManyToOne
+    private Reparto reparto;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "idEstadoEntrega")
+    @ManyToOne
     private EstadoEntrega estadoEntrega;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "entrega")
     private List<EntregaDetalle> entregaDetalles;
 
-    /*@OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "idPago")
-    private Pago pago;*/
+    @OneToOne(cascade = CascadeType.ALL)
+    private Pago pago;
 }

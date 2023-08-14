@@ -10,21 +10,15 @@ import javax.persistence.*;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Ubicacion {
+public class DomicilioRuta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Double latitud;
-    private Double longitud;
-
-    @OneToOne(mappedBy = "ubicacion")
+    @ManyToOne
     private Domicilio domicilio;
 
-    @OneToOne(mappedBy = "ubicacion")
-    private Empresa empresa;
-
     @ManyToOne
-    private Cobertura cobertura;
+    private Ruta ruta;
 }

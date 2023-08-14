@@ -16,10 +16,8 @@ public class EmpresaCliente {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "idEmpresa")
     private Empresa empresa;
 
     @ManyToOne
-    private Persona persona;
-
+    private Cliente cliente;
 }

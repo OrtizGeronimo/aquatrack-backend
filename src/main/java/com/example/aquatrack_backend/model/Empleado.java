@@ -5,11 +5,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.TableGenerator;
+import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @NoArgsConstructor
 @Getter
@@ -33,6 +31,6 @@ public class Empleado extends Persona {
     @ManyToOne
     private TipoEmpleado tipo;
 
-    //private List<Reparto> reparto
-
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "repartidor")
+    private List<Reparto> reparto;
 }

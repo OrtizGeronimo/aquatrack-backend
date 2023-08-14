@@ -1,15 +1,14 @@
 package com.example.aquatrack_backend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import javax.persistence.*;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -25,4 +24,7 @@ public class EstadoPedido {
 
     @DateTimeFormat(pattern = "dd-MM-YYYY")
     private LocalDateTime fechaFinVigencia;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "estadoPedido")
+    private List<PedidoExtraordinario> pedidos;
 }

@@ -20,6 +20,4 @@ public class RolUsuario {
 
     @ManyToOne
     private Usuario usuario;
-
-
 }

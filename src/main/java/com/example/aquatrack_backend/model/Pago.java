@@ -1,11 +1,13 @@
 package com.example.aquatrack_backend.model;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
@@ -23,8 +25,15 @@ public class Pago {
 
     private float total;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "idEstadoPago")
+    @ManyToOne
     private EstadoPago estadoPago;
 
+    @ManyToOne
+    private MedioPago medioPago;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "pago")
+    private List<DeudaPago> deudaPagos;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private Entrega entrega;
 }

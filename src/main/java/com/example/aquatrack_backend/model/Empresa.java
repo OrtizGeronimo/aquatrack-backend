@@ -24,6 +24,7 @@ public class Empresa {
     private Integer numTelefono;
     private String email;
     private String url;
+
     @DateTimeFormat(pattern = "dd-MM-YYYY")
     private LocalDateTime fechaCreacion;
     @DateTimeFormat(pattern = "dd-MM-YYYY")
@@ -48,6 +49,4 @@ public class Empresa {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
     private List<Rol> roles;
-
-
 }

@@ -26,5 +26,4 @@ public class TipoEmpleado {
 
     @OneToMany(mappedBy = "tipo")
     private List<Empleado> empleados;
-
 }

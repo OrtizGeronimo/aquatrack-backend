@@ -24,7 +24,5 @@ public class CodigoTemporal {
     private LocalDateTime fechaExpiracion;
 
     @ManyToOne
-    @JoinColumn(name = "idEmpresa")
     private Empresa empresa;
-
 }

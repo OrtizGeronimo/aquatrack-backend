@@ -1,6 +1,6 @@
 package com.example.aquatrack_backend.model;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,11 +17,9 @@ public class DomicilioProducto {
 
     private Integer cantidad;
 
-/*  @ManyToOne
-    @JoinColumn(name = "idDomicilio")
-    private Domicilio domicilio;*/
+    @ManyToOne
+    private Domicilio domicilio;
 
     @ManyToOne
-    @JoinColumn(name = "idProducto")
     private Producto producto;
 }

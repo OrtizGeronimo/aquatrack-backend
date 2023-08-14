@@ -19,4 +19,7 @@ public class PermisoRol {
 
     @ManyToOne
     private Permiso permiso;
+
+    @ManyToOne
+    private Rol rol;
 }

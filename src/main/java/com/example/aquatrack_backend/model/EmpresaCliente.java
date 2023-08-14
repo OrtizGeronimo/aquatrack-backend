@@ -19,4 +19,7 @@ public class EmpresaCliente {
     @JoinColumn(name = "idEmpresa")
     private Empresa empresa;
 
+    @ManyToOne
+    private Persona persona;
+
 }

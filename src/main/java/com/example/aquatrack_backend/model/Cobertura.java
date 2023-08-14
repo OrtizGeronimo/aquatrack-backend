@@ -20,6 +20,6 @@ public class Cobertura {
     @OneToOne(mappedBy = "cobertura")
     private Empresa empresa;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "cobertura")
     private List<Ubicacion> ubicaciones;
 }

@@ -18,6 +18,6 @@ public class Cliente extends Persona{
 
     private Integer dni;
 
-    @OneToOne(mappedBy = "domicilio")
+    @OneToOne(mappedBy = "cliente")
     private Domicilio domicilio;
 }

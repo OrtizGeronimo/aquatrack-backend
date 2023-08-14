@@ -20,10 +20,8 @@ public class EntregaDetalle {
     private Integer cantidadRecibida;
 
     @ManyToOne
-    @JoinColumn(name = "idEntrega")
     private Entrega entrega;
 
     @ManyToOne
-    @JoinColumn(name = "idProducto")
     private Producto producto;
 }

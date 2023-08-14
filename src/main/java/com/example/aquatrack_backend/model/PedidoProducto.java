@@ -17,10 +17,8 @@ public class PedidoProducto {
     private Integer cantidad;
 
     @ManyToOne
-    @JoinColumn(name = "idPedido")
     private Pedido pedido;
 
     @ManyToOne
-    @JoinColumn(name = "idProducto")
     private Producto producto;
 }

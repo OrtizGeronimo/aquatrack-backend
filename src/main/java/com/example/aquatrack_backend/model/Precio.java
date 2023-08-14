@@ -24,6 +24,5 @@ public class Precio {
     private LocalDateTime fechaFinVigencia;
 
     @ManyToOne
-    @JoinColumn(name = "idProducto")
     private Producto producto;
 }

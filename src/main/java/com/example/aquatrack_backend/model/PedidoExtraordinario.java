@@ -18,11 +18,9 @@ public class PedidoExtraordinario extends Pedido{
     @DateTimeFormat(pattern = "dd-MM-YYYY")
     private LocalDateTime fechaCoordinadaEntrega;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "idTipoPedido")
+    @ManyToOne
     private TipoPedido tipoPedido;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "idEstadoPedido")
+    @ManyToOne
     private EstadoPedido estadoPedido;
 }

@@ -17,9 +17,8 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /*@ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "idDomicilio")
-    private Domicilio domicilio;*/
+    @ManyToOne(cascade = CascadeType.ALL)
+    private Domicilio domicilio;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "pedido")
     private List<PedidoProducto> pedidoProductos;

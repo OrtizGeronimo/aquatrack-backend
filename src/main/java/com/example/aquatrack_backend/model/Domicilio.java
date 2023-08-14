@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -29,11 +30,21 @@ public class Domicilio {
     @OneToOne
     private Ubicacion ubicacion;
 
-//    private List<ProductoDomicilio> productoDomicilios;
-//    private List<Pedido> pedidos;
-//    private List<Entrega> entregas;
-//    diaDomicilio
-//    domicilioRuta
-//    deuda
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio")
+    private List<DomicilioProducto> productoDomicilios;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio")
+    private List<Pedido> pedidos;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio")
+    private List<Entrega> entregas;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio")
+    private List<DiaDomicilio> diaDomicilios;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio")
+    private List<DomicilioRuta> domicilioRutas;
+
+    @OneToOne
+    private Deuda deuda;
 }

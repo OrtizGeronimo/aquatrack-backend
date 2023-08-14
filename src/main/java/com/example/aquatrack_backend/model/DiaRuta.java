@@ -1,10 +1,17 @@
 package com.example.aquatrack_backend.model;
 
+
+import javax.persistence.*;
+
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
 
 @Entity
 @Getter
@@ -17,11 +24,11 @@ public class DiaRuta {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "idRuta")
     private Ruta ruta;
 
     @ManyToOne
-    @JoinColumn(name = "idDiaSemana")
     private DiaSemana diaSemana;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "diaRuta")
+    List<DiaDomicilio> diaDomicilios;
 }

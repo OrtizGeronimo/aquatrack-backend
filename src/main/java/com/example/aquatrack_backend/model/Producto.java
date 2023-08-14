@@ -28,14 +28,14 @@ public class Producto {
     private LocalDateTime fechaFinVigencia;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "producto")
-    private List<Precio> precios = new ArrayList<Precio>();
+    private List<Precio> precios;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "producto")
-    private List<PedidoProducto> pedidoProductos = new ArrayList<>();
+    private List<PedidoProducto> pedidoProductos;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "producto")
-    private List<DomicilioProducto> domicilioProductos = new ArrayList<>();
+    private List<DomicilioProducto> domicilioProductos;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "producto")
-    private List<EntregaDetalle> entregaDetalles = new ArrayList<>();
+    private List<EntregaDetalle> entregaDetalles;
 }

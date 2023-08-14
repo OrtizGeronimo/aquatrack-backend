@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
@@ -25,8 +27,10 @@ public class Deuda {
 
     private float montoMaximo;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "idDomicilio")
+    @ManyToOne
     private Domicilio domicilio;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "deuda")
+    private List<DeudaPago> deudaPagos;
 
 }

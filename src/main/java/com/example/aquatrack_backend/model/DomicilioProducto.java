@@ -17,11 +17,9 @@ public class DomicilioProducto {
 
     private Integer cantidad;
 
-/*  @ManyToOne
-    @JoinColumn(name = "idDomicilio")
-    private Domicilio domicilio;*/
+    @ManyToOne
+    private Domicilio domicilio;
 
     @ManyToOne
-    @JoinColumn(name = "idProducto")
     private Producto producto;
 }

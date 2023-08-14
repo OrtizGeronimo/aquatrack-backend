@@ -5,9 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
-import javax.persistence.TableGenerator;
+import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,4 +19,7 @@ public class Cliente extends Persona{
 
     @OneToOne(mappedBy = "cliente")
     private Domicilio domicilio;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "cliente")
+    private List<EmpresaCliente> empresaClientes;
 }

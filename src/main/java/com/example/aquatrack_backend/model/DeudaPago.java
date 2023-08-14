@@ -1,5 +1,9 @@
 package com.example.aquatrack_backend.model;
 
+
+import javax.persistence.*;
+
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,11 +23,9 @@ public class DeudaPago {
     private float montoAdeudadoPago;
 
     @ManyToOne
-    @JoinColumn(name = "idDeuda")
     private Deuda deuda;
 
     @ManyToOne
-    @JoinColumn(name = "idPago")
     private Pago pago;
 
 }

@@ -1,7 +1,6 @@
 package com.example.aquatrack_backend.config;
 
 import com.example.aquatrack_backend.service.UserDetailsServiceImpl;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,7 +14,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.logging.Logger;
+import java.util.Arrays;
+import java.util.List;
 
 public class AuthTokenFilter extends OncePerRequestFilter {
     @Autowired
@@ -29,8 +29,19 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         try {
+            String requestURI = request.getRequestURI();
+
+
+            List<String> excludedUrls = Arrays.asList("/users/login", "/users/register");
+
+            if (excludedUrls.contains(requestURI)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+
             String jwt = parseJwt(request);
-            if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
+            if ((jwt != null && jwtUtils.validateJwtToken(jwt))) {
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -42,6 +53,10 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Invalid token");
+                return;
             }
         } catch (Exception e) {
             System.out.println("Cannot set user auth" + e.getMessage());

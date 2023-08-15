@@ -2,7 +2,12 @@ package com.example.aquatrack_backend.service;
 
 import com.example.aquatrack_backend.config.JwtUtils;
 import com.example.aquatrack_backend.config.UserDetailsImpl;
+import com.example.aquatrack_backend.model.PermisoRol;
+import com.example.aquatrack_backend.model.RolUsuario;
+import com.example.aquatrack_backend.model.Usuario;
+import com.example.aquatrack_backend.model.dto.CurrentUserDTO;
 import com.example.aquatrack_backend.model.dto.LoginResponseDTO;
+import com.example.aquatrack_backend.repo.UsuarioRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -10,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,6 +27,9 @@ public class UsuarioServicioImpl {
 
     @Autowired
     private JwtUtils jwtUtils;
+
+    @Autowired
+    private UsuarioRepo repo;
 
     public LoginResponseDTO login(String usuario, String contraseña) {
 
@@ -39,5 +48,40 @@ public class UsuarioServicioImpl {
         response.setRoles(roles);
         response.setToken(jwt);
         return response;
+    }
+
+    public CurrentUserDTO getCurrentUser() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+            Usuario usuario = repo.findById(userDetails.getId()).get();
+
+            CurrentUserDTO response = new CurrentUserDTO();
+//            response.setNombre(usuario.getPersona().getNombre());
+            response.setNombre("Martin Carrion");
+            response.setEmpresa("Andia Corp");
+
+
+            List<String> permisos = new ArrayList<>();
+
+            for (RolUsuario rol : usuario.getRolesUsuario()){
+                for (PermisoRol permiso: rol.getRol().getPermisos()) {
+                    if (!permisos.contains(permiso.getPermiso().getDescripcion())){
+                        permisos.add(permiso.getPermiso().getDescripcion());
+                    }
+                }
+            }
+
+            response.setPermisos(permisos);
+
+
+            return response;
+        } else {
+            throw new RuntimeException("No se pudo autenticar el usuario");
+        }
+
     }
 }

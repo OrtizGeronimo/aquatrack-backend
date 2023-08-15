@@ -25,7 +25,7 @@ public abstract class Persona {
 
     private String apellido;
 
-    private Integer numTelefono;
+    private String numTelefono;
 
     @DateTimeFormat(pattern = "dd-MM-YYYY")
     private LocalDateTime fechaCreacion;

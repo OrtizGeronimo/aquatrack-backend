@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,18 +21,21 @@ public class UserDetailsImpl implements UserDetails {
 
     private String email;
 
+    private boolean enabled;
+
     @JsonIgnore
     private String password;
 
     private Collection<? extends GrantedAuthority> authorities;
 
     public UserDetailsImpl(Long id, String email, String password,
-                           Collection<? extends GrantedAuthority> authorities) {
+                           Collection<? extends GrantedAuthority> authorities, boolean enabled) {
         this.id = id;
         this.username = email;
         this.email = email;
         this.password = password;
         this.authorities = authorities;
+        this.enabled = enabled;
     }
 
     public static UserDetailsImpl build(Usuario user) {
@@ -39,11 +43,17 @@ public class UserDetailsImpl implements UserDetails {
                 .map(role -> new SimpleGrantedAuthority(role.getRol().getNombre()))
                 .collect(Collectors.toList());
 
+        boolean enabled = true;
+
+        if (user.getFechaFinVigencia() != null && user.getFechaFinVigencia().isBefore(LocalDateTime.now())){
+            enabled = false;
+        }
+
         return new UserDetailsImpl(
                 user.getId(),
                 user.getDireccionEmail(),
                 user.getContraseña(),
-                authorities);
+                authorities, enabled);
     }
 
     @Override
@@ -86,7 +96,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
 
 }

@@ -17,7 +17,7 @@ public class UsuarioControlador {
     @Autowired
     private UsuarioServicioImpl servicio;
 
-    @PostMapping(value = "/login",consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
+    @PostMapping(value = "/login",consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> login( Usuario usuario){
         return ResponseEntity.ok().body(servicio.login(usuario.getDireccionEmail(), usuario.getContraseña()));
     }

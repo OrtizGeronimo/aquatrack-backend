@@ -1,18 +1,24 @@
 package com.example.aquatrack_backend.service;
 
 import com.example.aquatrack_backend.model.EstadoPedido;
+import com.example.aquatrack_backend.model.Pedido;
 import com.example.aquatrack_backend.repo.PedidoRepo;
 import com.example.aquatrack_backend.repo.PedidoExtraordinarioRepo;
+import com.example.aquatrack_backend.repo.RepoBase;
 import com.example.aquatrack_backend.repo.TipoPedidoRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PedidoServicioImpl implements ServicioBase {
+public class PedidoServicioImpl extends ServicioBaseImpl<Pedido> implements ServicioBase<Pedido> {
 
     @Autowired
     private PedidoRepo pedidoHabitualRepo;
     private PedidoExtraordinarioRepo pedidoRepo;
     private TipoPedidoRepo tipoPedidoRepo;
     private EstadoPedido estadoPedidoRepo;
+
+    public PedidoServicioImpl(RepoBase<Pedido> repoBase) {
+        super(repoBase);
+    }
 }

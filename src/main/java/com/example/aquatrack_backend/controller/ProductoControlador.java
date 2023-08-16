@@ -1,11 +1,17 @@
 package com.example.aquatrack_backend.controller;
 
+import com.example.aquatrack_backend.model.Producto;
 import com.example.aquatrack_backend.service.ProductoServicioImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class ProductoControlador {
+@RequestMapping(path = "/productos")
+public class ProductoControlador extends ControladorBaseImpl<Producto, ProductoServicioImpl>{
 
     @Autowired
     ProductoServicioImpl productoServicio;

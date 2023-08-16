@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface DiaSemanaRepo extends JpaRepository<DiaSemana, Long> {
+public interface DiaSemanaRepo extends RepoBase<DiaSemana> {
 
 }

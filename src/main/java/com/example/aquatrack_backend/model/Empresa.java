@@ -49,4 +49,7 @@ public class Empresa {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
     private List<Rol> roles;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
+    private List<Producto> productos;
 }

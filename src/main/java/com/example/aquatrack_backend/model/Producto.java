@@ -38,4 +38,7 @@ public class Producto {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "producto")
     private List<EntregaDetalle> entregaDetalles;
+
+    @ManyToOne
+    private Empresa empresa;
 }

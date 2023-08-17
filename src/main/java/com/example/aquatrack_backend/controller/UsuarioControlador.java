@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")
-@CrossOrigin(maxAge = 3600, origins = "*")
+//@CrossOrigin(maxAge = 3600, origins = "*")
 public class UsuarioControlador {
 
     @Autowired

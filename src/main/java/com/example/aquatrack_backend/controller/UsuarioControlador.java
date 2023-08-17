@@ -23,7 +23,6 @@ public class UsuarioControlador {
     }
 
     @GetMapping(value = "/current")
-//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getCurrentUser(){
         return ResponseEntity.ok().body(servicio.getCurrentUser());
     }

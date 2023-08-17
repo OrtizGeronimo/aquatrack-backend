@@ -40,9 +40,6 @@ public class UsuarioServicioImpl {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
 
-//        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-
-//        List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority()).collect(Collectors.toList());
 
         HashMap<String, String> response = new HashMap<>();
         response.put("token", jwt);
@@ -62,8 +59,7 @@ public class UsuarioServicioImpl {
             response.setNombre(usuario.getPersona().getNombre());
 
             Empleado empleado = (Empleado) usuario.getPersona();
-            response.setEmpresa(empleado.getNombre());
-
+            response.setEmpresa(empleado.getEmpresa().getNombre());
 
             List<String> permisos = new ArrayList<>();
 

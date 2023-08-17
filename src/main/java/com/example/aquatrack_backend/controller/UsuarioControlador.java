@@ -27,5 +27,4 @@ public class UsuarioControlador {
     public ResponseEntity<?> getCurrentUser(){
         return ResponseEntity.ok().body(servicio.getCurrentUser());
     }
-
 }

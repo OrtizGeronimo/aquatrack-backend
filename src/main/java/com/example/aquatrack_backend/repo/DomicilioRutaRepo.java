@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface DomicilioRutaRepo extends JpaRepository<DomicilioRuta, Long> {
+public interface DomicilioRutaRepo extends RepoBase<DomicilioRuta> {
 }

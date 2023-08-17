@@ -22,6 +22,4 @@ public class UsuarioControlador {
     public ResponseEntity<?> login(Usuario usuario){
         return ResponseEntity.ok().body(servicio.login(usuario.getDireccionEmail(), usuario.getContraseña()));
     }
-
-
 }

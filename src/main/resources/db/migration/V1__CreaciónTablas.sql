@@ -29,7 +29,7 @@ create table pedido_producto (id bigint not null auto_increment, cantidad intege
 create table permiso (id bigint not null auto_increment, descripcion varchar(255), fecha_fin_vigencia datetime(6), primary key (id)) engine=InnoDB;
 create table permiso_rol (id bigint not null auto_increment, permiso_id bigint, rol_id bigint, primary key (id)) engine=InnoDB;
 create table precio (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), precio float, producto_id bigint, primary key (id)) engine=InnoDB;
-create table producto (id bigint not null auto_increment, descripcion varchar(255), fecha_fin_vigencia datetime(6), nombre varchar(255), primary key (id)) engine=InnoDB;
+create table producto (id bigint not null auto_increment, descripcion varchar(255), fecha_fin_vigencia datetime(6), nombre varchar(255), empresa_id bigint, primary key (id)) engine=InnoDB;
 create table reparto (id bigint not null auto_increment, fecha_ejecucion datetime(6), fechayhora_fin datetime(6), estado_reparto_id bigint, repartidor_id bigint, ruta_id bigint, primary key (id)) engine=InnoDB;
 create table rol (id bigint not null auto_increment, activo bit, fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), nombre varchar(255), empresa_id bigint, primary key (id)) engine=InnoDB;
 create table rol_usuario (id bigint not null auto_increment, rol_id bigint, usuario_id bigint, primary key (id)) engine=InnoDB;
@@ -79,6 +79,7 @@ alter table cliente add constraint FK_id7jmosqg8hkqiqw4vf50xipm foreign key (usu
     alter table permiso_rol add constraint FKh52qkt8liov8gf01mkq9ms926 foreign key (permiso_id) references permiso (id);
     alter table permiso_rol add constraint FK4ngehdlselc6uwg9kh1xc45wq foreign key (rol_id) references rol (id);
     alter table precio add constraint FK64w86n0folwdyjw5d154b5mq foreign key (producto_id) references producto (id);
+    alter table producto add constraint FK64w86n0folwdyjw5d154b5ds foreign key (empresa_id) references empresa (id);
     alter table reparto add constraint FKtr3pnspdaqor2y5p7jyapq6a8 foreign key (estado_reparto_id) references estado_reparto (id);
     alter table reparto add constraint FK8d3n9vm8d4wm0mtof1d9v2uk2 foreign key (repartidor_id) references empleado (id);
     alter table reparto add constraint FKb3bqfs2hxwcwgmajnxn3wv9ri foreign key (ruta_id) references ruta (id);

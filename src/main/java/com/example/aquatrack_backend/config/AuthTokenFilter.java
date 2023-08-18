@@ -33,14 +33,14 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         try {
             String requestURI = request.getRequestURI();
 
-//            if (request.getMethod().equalsIgnoreCase("OPTIONS")){
-//                response.setHeader("Access-Control-Allow-Origin", "*");
-//                response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
-//                response.setHeader("Access-Control-Max-Age", "3600");
-//                response.setHeader("Access-Control-Allow-Headers", "x-requested-with, authorization");
-//                filterChain.doFilter(request, response);
-//                return;
-//            }
+            if (request.getMethod().equalsIgnoreCase("OPTIONS")){
+                response.setHeader("Access-Control-Allow-Origin", "*");
+                response.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+                response.setHeader("Access-Control-Max-Age", "3600");
+                response.setHeader("Access-Control-Allow-Headers", "x-requested-with, authorization, content-type");
+                filterChain.doFilter(request, response);
+                return;
+            }
             List<String> excludedUrls = Arrays.asList("/users/login", "/users/register");
 
             if (excludedUrls.contains(requestURI)) {

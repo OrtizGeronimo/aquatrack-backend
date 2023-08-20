@@ -1,18 +1,20 @@
 package com.example.aquatrack_backend.service;
 
 import com.example.aquatrack_backend.config.JwtUtils;
-import com.example.aquatrack_backend.config.UserDetailsImpl;
+import com.example.aquatrack_backend.config.SecurityUser;
+import com.example.aquatrack_backend.dto.CurrentUserDTO;
+import com.example.aquatrack_backend.dto.LoginResponseDTO;
 import com.example.aquatrack_backend.model.Empleado;
 import com.example.aquatrack_backend.model.PermisoRol;
 import com.example.aquatrack_backend.model.RolUsuario;
 import com.example.aquatrack_backend.model.Usuario;
-import com.example.aquatrack_backend.model.dto.CurrentUserDTO;
-import com.example.aquatrack_backend.model.dto.LoginResponseDTO;
+import com.example.aquatrack_backend.repo.PermisoRepo;
 import com.example.aquatrack_backend.repo.UsuarioRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -33,17 +35,13 @@ public class UsuarioServicioImpl {
     @Autowired
     private UsuarioRepo repo;
 
-    public HashMap<String, String> login(String usuario, String contraseña) {
+  @Autowired
+    private PermisoRepo permisoRepo;
 
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(usuario, contraseña));
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+    public LoginResponseDTO login(String direccionEmail, String contraseña) {
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(direccionEmail, contraseña));
         String jwt = jwtUtils.generateJwtToken(authentication);
-
-
-        HashMap<String, String> response = new HashMap<>();
-        response.put("token", jwt);
-        return response;
+        return LoginResponseDTO.builder().token(jwt).build();
     }
 
     public CurrentUserDTO getCurrentUser() {
@@ -51,30 +49,17 @@ public class UsuarioServicioImpl {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication != null && authentication.isAuthenticated()) {
-            UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-            Usuario usuario = repo.findById(userDetails.getId()).get();
-
-            CurrentUserDTO response = new CurrentUserDTO();
-            response.setNombre(usuario.getPersona().getNombre());
-
+            SecurityUser userDetails = (SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Usuario usuario = repo.findById(userDetails.getUsuario().getId()).get();
             Empleado empleado = (Empleado) usuario.getPersona();
-            response.setEmpresa(empleado.getEmpresa().getNombre());
-
-            List<String> permisos = new ArrayList<>();
-
-            for (RolUsuario rol : usuario.getRolesUsuario()){
-                for (PermisoRol permiso: rol.getRol().getPermisos()) {
-                    if (!permisos.contains(permiso.getPermiso().getDescripcion())){
-                        permisos.add(permiso.getPermiso().getDescripcion());
-                    }
-                }
-            }
-
-            response.setPermisos(permisos);
-
-
-            return response;
+            List<String> permisos = userDetails.getAuthorities().stream()
+                                               .map(GrantedAuthority::getAuthority)
+                                               .collect(Collectors.toList());                                          
+            return CurrentUserDTO.builder()
+                                 .nombre(usuario.getPersona().getNombre())
+                                 .empresa(empleado.getEmpresa().getNombre())
+                                 .permisos(permisos)
+                                 .build();
         } else {
             throw new RuntimeException("No se pudo autenticar el usuario");
         }

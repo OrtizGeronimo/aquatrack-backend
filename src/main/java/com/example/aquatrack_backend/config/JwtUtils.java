@@ -32,10 +32,6 @@ public class JwtUtils {
         .compact();
   }
 
-  public boolean isTokenValid(String token, UserDetails userDetails) {
-    return (userDetails.getUsername().equals(getUserNameFromJwtToken(token)) && !isTokenExpired(token));
-  }
-
   public String getUserNameFromJwtToken(String token) {
     return Jwts.parserBuilder()
         .setSigningKey(key())
@@ -47,15 +43,5 @@ public class JwtUtils {
 
   private Key key() {
     return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
-  }
-
-  private boolean isTokenExpired(String token) {
-    return Jwts.parserBuilder()
-        .setSigningKey(key())
-        .build()
-        .parseClaimsJws(token)
-        .getBody()
-        .getExpiration()
-        .before(new Date());
   }
 }

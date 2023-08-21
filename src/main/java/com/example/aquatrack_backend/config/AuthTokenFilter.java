@@ -32,24 +32,22 @@ public class AuthTokenFilter extends OncePerRequestFilter {
       throws ServletException, IOException {
     final String jwt = parseJwt(request.getHeader("Authorization"));
     if (jwt == null) {
-      handleJwtErrorResponse(response);
+      handleJwtErrorResponse(response, "Debe estar logueado para realizar esta acción.");
       return;
     }
 
-    String direccionEmail = jwtUtils.getUserNameFromJwtToken(jwt);
-    UserDetails userDetails = userDetailsService.loadUserByUsername(direccionEmail);
-    if (!jwtUtils.isTokenValid(jwt, userDetails)) {
-      handleJwtErrorResponse(response);
-      return;
+    try {
+      String direccionEmail = jwtUtils.getUserNameFromJwtToken(jwt);
+      UserDetails userDetails = userDetailsService.loadUserByUsername(direccionEmail);
+      UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails,
+          null,
+          userDetails.getAuthorities());
+      authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+      SecurityContextHolder.getContext().setAuthentication(authentication);
+      filterChain.doFilter(request, response);
+    } catch (Exception e) {
+      handleJwtErrorResponse(response, "El token proporcionado no es válido.");
     }
-
-    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails,
-        null,
-        userDetails.getAuthorities());
-    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-    SecurityContextHolder.getContext().setAuthentication(authentication);
-    filterChain.doFilter(request, response);
   }
 
   private String parseJwt(String headerAuth) {
@@ -60,12 +58,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     return null;
   }
 
-  private void handleJwtErrorResponse(HttpServletResponse response) throws IOException {
+  private void handleJwtErrorResponse(HttpServletResponse response, String message) throws IOException {
     response.setHeader("Content-Type", "application/json");
     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     response.getWriter()
         .write(new ObjectMapper().writeValueAsString(ErrorResponseDTO.builder()
-            .message("Debe estar logueado para realizar esta acción.")
+            .message(message)
             .build()));
   }
 

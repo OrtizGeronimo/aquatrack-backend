@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PedidoServicioImpl extends ServicioBaseImpl<Pedido> implements ServicioBase<Pedido> {
+public class PedidoServicio extends ServicioBase {
 
     @Autowired
     private PedidoRepo pedidoHabitualRepo;
@@ -18,7 +18,4 @@ public class PedidoServicioImpl extends ServicioBaseImpl<Pedido> implements Serv
     private TipoPedidoRepo tipoPedidoRepo;
     private EstadoPedido estadoPedidoRepo;
 
-    public PedidoServicioImpl(RepoBase<Pedido> repoBase) {
-        super(repoBase);
-    }
 }

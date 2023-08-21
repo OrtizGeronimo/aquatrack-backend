@@ -8,11 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EmpresaServicioImpl extends ServicioBaseImpl<Empresa> implements ServicioBase<Empresa>{
+public class EmpresaServicio extends ServicioBase{
     @Autowired
     private EmpresaRepo empresaRepo;
 
-    public EmpresaServicioImpl(RepoBase<Empresa> repoBase) {
-        super(repoBase);
-    }
 }

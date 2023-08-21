@@ -4,13 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.aquatrack_backend.model.Cliente;
-import com.example.aquatrack_backend.service.ClienteServicioImpl;
+import com.example.aquatrack_backend.service.ClienteServicio;
 
 @RestController
 @RequestMapping(path = "/clientes")
-public class ClienteControlador extends ControladorBaseImpl<Cliente, ClienteServicioImpl>{
+public class ClienteControlador {
 
     @Autowired
-    private ClienteServicioImpl clienteServicio;
+    private ClienteServicio clienteServicio;
 }

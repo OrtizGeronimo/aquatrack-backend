@@ -8,11 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RutaServicioImpl extends ServicioBaseImpl<Ruta> implements ServicioBase<Ruta>{
+public class RutaServicio extends ServicioBase{
 
     @Autowired
     private RutaRepo repo;
-    public RutaServicioImpl(RepoBase<Ruta> repoBase) {
-        super(repoBase);
-    }
+   
 }

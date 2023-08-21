@@ -16,6 +16,6 @@ public class RolControlador {
 
   @GetMapping(value = "")
   public ResponseEntity<?> getAll()  {
-    return ResponseEntity.ok().body(rolServicio.getAll());
+    return ResponseEntity.ok().body(rolServicio.findAll());
   }
 }

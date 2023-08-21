@@ -15,15 +15,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ProductoServicioImpl extends ServicioBaseImpl<Producto> implements ServicioBase<Producto>{
+public class ProductoServicio extends ServicioBase{
 
     @Autowired
     ProductoRepo productoRepo;
     PrecioRepo precioRepo;
-
-    public ProductoServicioImpl(RepoBase<Producto> repoBase) {
-        super(repoBase);
-    }
 
     public List<Precio> getPrecios(Long id) throws Exception{
         try{

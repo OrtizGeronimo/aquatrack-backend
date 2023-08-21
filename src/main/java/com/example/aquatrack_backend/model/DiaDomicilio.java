@@ -21,10 +21,10 @@ public class DiaDomicilio {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private DiaRuta diaRuta;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Domicilio domicilio;
 
 }

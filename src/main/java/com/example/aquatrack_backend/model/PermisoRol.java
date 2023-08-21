@@ -21,9 +21,9 @@ public class PermisoRol {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Permiso permiso;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Rol rol;
 }

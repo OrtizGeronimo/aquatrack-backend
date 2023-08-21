@@ -24,10 +24,10 @@ public class DeudaPago {
 
     private float montoAdeudadoPago;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     private Deuda deuda;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     private Pago pago;
 
 }

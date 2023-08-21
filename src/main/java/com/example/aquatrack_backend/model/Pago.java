@@ -34,15 +34,15 @@ public class Pago {
 
   private float total;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private EstadoPago estadoPago;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private MedioPago medioPago;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "pago", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "pago")
   private List<DeudaPago> deudaPagos;
 
-  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @OneToOne(cascade = CascadeType.ALL)
   private Entrega entrega;
 }

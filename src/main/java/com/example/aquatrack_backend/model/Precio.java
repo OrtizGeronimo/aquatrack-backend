@@ -30,6 +30,6 @@ public class Precio {
   @DateTimeFormat(pattern = "dd-MM-YYYY")
   private LocalDateTime fechaFinVigencia;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Producto producto;
 }

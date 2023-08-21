@@ -35,10 +35,10 @@ public class Deuda {
 
   private float montoMaximo;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Domicilio domicilio;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "deuda", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "deuda")
   private List<DeudaPago> deudaPagos;
 
 }

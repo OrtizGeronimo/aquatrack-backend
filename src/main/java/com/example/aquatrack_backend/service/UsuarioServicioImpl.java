@@ -17,11 +17,10 @@ import com.example.aquatrack_backend.dto.CurrentUserDTO;
 import com.example.aquatrack_backend.dto.LoginResponseDTO;
 import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
 import com.example.aquatrack_backend.model.Empleado;
-import com.example.aquatrack_backend.model.Usuario;
 import com.example.aquatrack_backend.repo.UsuarioRepo;
 
 @Service
-public class UsuarioServicioImpl {
+public class UsuarioServicioImpl extends ServicioBase {
 
   @Autowired
   private AuthenticationManager authenticationManager;
@@ -44,8 +43,7 @@ public class UsuarioServicioImpl {
 
     if (authentication != null && authentication.isAuthenticated()) {
       SecurityUser userDetails = (SecurityUser) authentication.getPrincipal();
-      Usuario usuario = usuarioRepo.findById(userDetails.getUsuario().getId()).get();
-      Empleado empleado = (Empleado) usuario.getPersona();
+      Empleado empleado = (Empleado) getUsuarioFromContext().getPersona();
       List<String> permisos = userDetails.getAuthorities().stream()
           .map(GrantedAuthority::getAuthority)
           .collect(Collectors.toList());

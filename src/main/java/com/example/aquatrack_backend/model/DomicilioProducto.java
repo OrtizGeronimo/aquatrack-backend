@@ -23,9 +23,9 @@ public class DomicilioProducto {
 
   private Integer cantidad;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Domicilio domicilio;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Producto producto;
 }

@@ -40,6 +40,6 @@ public abstract class Persona {
   @DateTimeFormat(pattern = "dd-MM-YYYY")
   private LocalDateTime fechaFinVigencia;
 
-  @OneToOne(fetch = FetchType.LAZY)
+  @OneToOne()
   private Usuario usuario;
 }

@@ -35,13 +35,13 @@ public class Rol {
   @DateTimeFormat(pattern = "dd-MM-YYYY")
   private LocalDateTime fechaFinVigencia;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "rol", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "rol")
   private List<PermisoRol> permisos;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "rol", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "rol")
   private List<RolUsuario> rolUsuario;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Empresa empresa;
 
 }

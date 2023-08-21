@@ -26,12 +26,12 @@ public class Ruta {
 
   private String nombre;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "ruta", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "ruta")
   private List<Reparto> repartos;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "ruta", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "ruta")
   private List<DiaRuta> diaRutas;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "ruta", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "ruta")
   private List<DomicilioRuta> domicilioRutas;
 }

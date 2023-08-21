@@ -52,7 +52,7 @@ public class UsuarioServicioImpl {
           .map(GrantedAuthority::getAuthority)
           .collect(Collectors.toList());
       return CurrentUserDTO.builder()
-          .nombre(usuario.getPersona().getNombre())
+          .nombre(empleado.getNombre() + " " + empleado.getApellido())
           .empresa(empleado.getEmpresa().getNombre())
           .permisos(permisos)
           .build();

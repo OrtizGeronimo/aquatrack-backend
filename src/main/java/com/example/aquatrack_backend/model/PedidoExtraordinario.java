@@ -1,26 +1,29 @@
 package com.example.aquatrack_backend.model;
 
-import javax.persistence.*;
+import java.time.LocalDateTime;
+
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-public class PedidoExtraordinario extends Pedido{
+public class PedidoExtraordinario extends Pedido {
 
-    @DateTimeFormat(pattern = "dd-MM-YYYY")
-    private LocalDateTime fechaCoordinadaEntrega;
+  @DateTimeFormat(pattern = "dd-MM-YYYY")
+  private LocalDateTime fechaCoordinadaEntrega;
 
-    @ManyToOne
-    private TipoPedido tipoPedido;
+  @ManyToOne(fetch = FetchType.LAZY)
+  private TipoPedido tipoPedido;
 
-    @ManyToOne
-    private EstadoPedido estadoPedido;
+  @ManyToOne(fetch = FetchType.LAZY)
+  private EstadoPedido estadoPedido;
 }

@@ -1,29 +1,36 @@
 package com.example.aquatrack_backend.controller;
 
-import com.example.aquatrack_backend.model.Usuario;
-import com.example.aquatrack_backend.model.dto.LoginResponseDTO;
-import com.example.aquatrack_backend.service.UsuarioServicioImpl;
+import java.util.logging.Logger;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.example.aquatrack_backend.dto.LoginRequestDTO;
+import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
+import com.example.aquatrack_backend.service.UsuarioServicioImpl;
 
 @RestController
 @RequestMapping("/users")
-//@CrossOrigin(maxAge = 3600, origins = "*")
 public class UsuarioControlador {
 
     @Autowired
     private UsuarioServicioImpl servicio;
 
-    @PostMapping(value = "/login",consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<?> login(@RequestBody Usuario usuario){
+    @PostMapping(value = "/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO usuario){
         return ResponseEntity.ok().body(servicio.login(usuario.getDireccionEmail(), usuario.getContraseña()));
     }
 
     @GetMapping(value = "/current")
-    public ResponseEntity<?> getCurrentUser(){
+    public ResponseEntity<?> getCurrentUser() throws FailedToAuthenticateUserException {
         return ResponseEntity.ok().body(servicio.getCurrentUser());
     }
 }

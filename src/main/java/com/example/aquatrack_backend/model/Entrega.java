@@ -1,13 +1,23 @@
 package com.example.aquatrack_backend.model;
 
-import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Getter
@@ -15,25 +25,25 @@ import java.util.List;
 @NoArgsConstructor
 public class Entrega {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
-    private LocalDateTime fechaHoraVisita;
+  @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
+  private LocalDateTime fechaHoraVisita;
 
-    @ManyToOne
-    private Domicilio domicilio;
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Domicilio domicilio;
 
-    @ManyToOne
-    private Reparto reparto;
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Reparto reparto;
 
-    @ManyToOne
-    private EstadoEntrega estadoEntrega;
+  @ManyToOne(fetch = FetchType.LAZY)
+  private EstadoEntrega estadoEntrega;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "entrega")
-    private List<EntregaDetalle> entregaDetalles;
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "entrega", fetch = FetchType.LAZY)
+  private List<EntregaDetalle> entregaDetalles;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private Pago pago;
+  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private Pago pago;
 }

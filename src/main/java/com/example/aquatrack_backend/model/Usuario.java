@@ -22,21 +22,21 @@ public class Usuario {
     private String direccionEmail;
     private String contraseña;
     private Boolean validado;
+
     @DateTimeFormat(pattern = "dd-MM-YYYY")
     private LocalDateTime fechaCreacion;
     @DateTimeFormat(pattern = "dd-MM-YYYY")
     private LocalDateTime fechaFinVigencia;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "usuario")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "usuario", fetch = FetchType.LAZY)
     private List<UsuarioCodigoValidacion> codigos;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "usuario")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "usuario", fetch = FetchType.LAZY)
     private List<RolUsuario> rolesUsuario;
 
-    @OneToOne(mappedBy = "usuario")
+    @OneToOne(mappedBy = "usuario", fetch = FetchType.LAZY)
     private Persona persona;
 
     @Transient
     private String confirmacionContraseña;
-
 }

@@ -1,15 +1,21 @@
 package com.example.aquatrack_backend.model;
 
+import java.time.LocalDateTime;
+import java.util.List;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Getter
@@ -17,15 +23,15 @@ import java.util.List;
 @NoArgsConstructor
 public class MedioPago {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String nombre;
+  private String nombre;
 
-    @DateTimeFormat(pattern = "dd-MM-YYYY")
-    private LocalDateTime fechaFinVigencia;
+  @DateTimeFormat(pattern = "dd-MM-YYYY")
+  private LocalDateTime fechaFinVigencia;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "medioPago")
-    private List<Pago> pagos;
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "medioPago", fetch = FetchType.LAZY)
+  private List<Pago> pagos;
 }

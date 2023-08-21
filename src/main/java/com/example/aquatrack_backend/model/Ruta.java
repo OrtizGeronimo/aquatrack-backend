@@ -1,16 +1,18 @@
 package com.example.aquatrack_backend.model;
 
+import java.util.List;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-
-import java.time.LocalDateTime;
-import java.util.List;
-
 
 @Entity
 @Getter
@@ -18,18 +20,18 @@ import java.util.List;
 @NoArgsConstructor
 public class Ruta {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String nombre;
+  private String nombre;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "ruta")
-    private List<Reparto> repartos;
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "ruta", fetch = FetchType.LAZY)
+  private List<Reparto> repartos;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "ruta")
-    private List<DiaRuta> diaRutas;
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "ruta", fetch = FetchType.LAZY)
+  private List<DiaRuta> diaRutas;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "ruta")
-    private List<DomicilioRuta> domicilioRutas;
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "ruta", fetch = FetchType.LAZY)
+  private List<DomicilioRuta> domicilioRutas;
 }

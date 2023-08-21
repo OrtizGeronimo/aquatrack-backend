@@ -43,9 +43,7 @@ public class UsuarioServicioImpl {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
     if (authentication != null && authentication.isAuthenticated()) {
-      SecurityUser userDetails = (SecurityUser) SecurityContextHolder.getContext()
-          .getAuthentication()
-          .getPrincipal();
+      SecurityUser userDetails = (SecurityUser) authentication.getPrincipal();
       Usuario usuario = usuarioRepo.findById(userDetails.getUsuario().getId()).get();
       Empleado empleado = (Empleado) usuario.getPersona();
       List<String> permisos = userDetails.getAuthorities().stream()
@@ -59,6 +57,5 @@ public class UsuarioServicioImpl {
     } else {
       throw new FailedToAuthenticateUserException("Error de autenticación. Intente mas tarde.");
     }
-
   }
 }

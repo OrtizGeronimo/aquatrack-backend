@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.example.aquatrack_backend.dto.ErrorResponseDTO;
+import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-  @ExceptionHandler({ InternalAuthenticationServiceException.class })
+  @ExceptionHandler({ AuthenticationException.class })
   public ResponseEntity<?> handleUnauthorizedCredentials(Exception ex) {
-    ex.printStackTrace();
     if (ex instanceof BadCredentialsException) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
           .body(ErrorResponseDTO.builder()
@@ -31,7 +31,23 @@ public class GlobalExceptionHandler {
 
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
         .body(ErrorResponseDTO.builder()
-            .message("Error de autenticación inesperado, intente mas tarde." + ex.getClass().getCanonicalName())
+            .message("Error de autenticación inesperado, intente mas tarde.")
+            .build());
+  }
+
+  @ExceptionHandler({ FailedToAuthenticateUserException.class })
+  public ResponseEntity<?> handleFailedToAuthenticate(Exception ex) {
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(ErrorResponseDTO.builder()
+            .message(ex.getMessage())
+            .build());
+  }
+
+  @ExceptionHandler({ Exception.class })
+  public ResponseEntity<?> handleUnexpectedException(Exception ex) {
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(ErrorResponseDTO.builder()
+            .message("Error inesperado del servidor, intente mas tarde.")
             .build());
   }
 }

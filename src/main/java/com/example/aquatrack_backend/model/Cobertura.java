@@ -1,11 +1,19 @@
 package com.example.aquatrack_backend.model;
 
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Getter
@@ -13,13 +21,13 @@ import java.util.List;
 @NoArgsConstructor
 public class Cobertura {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @OneToOne
-    private Empresa empresa;
+  @OneToOne(fetch = FetchType.LAZY)
+  private Empresa empresa;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "cobertura")
-    private List<Ubicacion> ubicaciones;
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "cobertura", fetch = FetchType.LAZY)
+  private List<Ubicacion> ubicaciones;
 }

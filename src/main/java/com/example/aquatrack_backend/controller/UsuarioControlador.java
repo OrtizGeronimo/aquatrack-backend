@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.aquatrack_backend.dto.LoginRequestDTO;
+import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
 import com.example.aquatrack_backend.service.UsuarioServicioImpl;
 
 @RestController
@@ -29,7 +30,7 @@ public class UsuarioControlador {
     }
 
     @GetMapping(value = "/current")
-    public ResponseEntity<?> getCurrentUser(){
+    public ResponseEntity<?> getCurrentUser() throws FailedToAuthenticateUserException {
         return ResponseEntity.ok().body(servicio.getCurrentUser());
     }
 }

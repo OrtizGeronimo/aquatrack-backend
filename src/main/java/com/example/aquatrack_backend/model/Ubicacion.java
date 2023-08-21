@@ -19,12 +19,12 @@ public class Ubicacion {
     private Double latitud;
     private Double longitud;
 
-    @OneToOne(mappedBy = "ubicacion")
+    @OneToOne(mappedBy = "ubicacion", fetch = FetchType.LAZY)
     private Domicilio domicilio;
 
-    @OneToOne(mappedBy = "ubicacion")
+    @OneToOne(mappedBy = "ubicacion", fetch = FetchType.LAZY)
     private Empresa empresa;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Cobertura cobertura;
 }

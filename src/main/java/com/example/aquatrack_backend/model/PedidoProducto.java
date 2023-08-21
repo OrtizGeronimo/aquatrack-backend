@@ -1,6 +1,12 @@
 package com.example.aquatrack_backend.model;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,15 +16,15 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class PedidoProducto {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private Integer cantidad;
+  private Integer cantidad;
 
-    @ManyToOne
-    private Pedido pedido;
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Pedido pedido;
 
-    @ManyToOne
-    private Producto producto;
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Producto producto;
 }

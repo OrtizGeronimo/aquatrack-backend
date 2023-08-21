@@ -12,53 +12,53 @@ import com.example.aquatrack_backend.model.Usuario;
 
 public class SecurityUser implements UserDetails {
 
-    private final Usuario usuario;
+  private final Usuario usuario;
 
-    private final List<String> permisos;
+  private final List<String> permisos;
 
-    public SecurityUser(Usuario usuario, List<String> permisos) {
-        this.usuario = usuario;
-        this.permisos = permisos;
-    }
+  public SecurityUser(Usuario usuario, List<String> permisos) {
+    this.usuario = usuario;
+    this.permisos = permisos;
+  }
 
-    public Usuario getUsuario(){
-      return usuario;
-    }
+  public Usuario getUsuario() {
+    return usuario;
+  }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-      return permisos.stream()
-                     .map(SimpleGrantedAuthority::new)
-                     .collect(Collectors.toList());
-    }
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return permisos.stream()
+        .map(SimpleGrantedAuthority::new)
+        .collect(Collectors.toList());
+  }
 
-    @Override
-    public String getPassword() {
-        return usuario.getContraseña();
-    }
+  @Override
+  public String getPassword() {
+    return usuario.getContraseña();
+  }
 
-    @Override
-    public String getUsername() {
-        return usuario.getDireccionEmail();
-    }
+  @Override
+  public String getUsername() {
+    return usuario.getDireccionEmail();
+  }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
+  @Override
+  public boolean isAccountNonExpired() {
+    return true;
+  }
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
+  @Override
+  public boolean isAccountNonLocked() {
+    return true;
+  }
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return true;
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return usuario.getFechaFinVigencia() == null;
-    }
+  @Override
+  public boolean isEnabled() {
+    return usuario.getFechaFinVigencia() == null;
+  }
 }

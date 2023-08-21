@@ -20,54 +20,54 @@ import com.example.aquatrack_backend.service.UserDetailsServiceImpl;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    @Bean
-    public AuthTokenFilter authenticationJwtTokenFilter() {
-        return new AuthTokenFilter();
-    }
+  @Bean
+  public AuthTokenFilter authenticationJwtTokenFilter() {
+    return new AuthTokenFilter();
+  }
 
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(new UserDetailsServiceImpl());
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
-    }
+  @Bean
+  public DaoAuthenticationProvider authenticationProvider(UserDetailsServiceImpl userDetailsService) {
+    DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+    authProvider.setUserDetailsService(userDetailsService);
+    authProvider.setPasswordEncoder(passwordEncoder());
+    return authProvider;
+  }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
-    }
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+    return authConfig.getAuthenticationManager();
+  }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.cors(cors -> {
-                          CorsConfigurationSource source = request -> {
-                            CorsConfiguration config = new CorsConfiguration();
-                            config.addAllowedOrigin("*");
-                            config.addAllowedMethod("*");
-                            config.addAllowedHeader("*");
-                            return config;
-                          };
-                          cors.configurationSource(source);
-                          })
-             .csrf(csrf -> csrf.disable())
-             .authorizeHttpRequests()
-             .antMatchers("/**")
-             .permitAll()
-             .anyRequest()
-             .authenticated()
-             .and()
-             .sessionManagement()
-             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-             .and()
-             .authenticationProvider(authenticationProvider())
-             .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
-             .httpBasic();
-        return http.build();
-    }
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http.cors(cors -> {
+      CorsConfigurationSource source = request -> {
+        CorsConfiguration config = new CorsConfiguration();
+        config.addAllowedOrigin("*");
+        config.addAllowedMethod("*");
+        config.addAllowedHeader("*");
+        return config;
+      };
+      cors.configurationSource(source);
+    })
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests()
+        .antMatchers("/**")
+        .permitAll()
+        .anyRequest()
+        .authenticated()
+        .and()
+        .sessionManagement()
+        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        .and()
+        .authenticationProvider(authenticationProvider(new UserDetailsServiceImpl()))
+        .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
+        .httpBasic();
+    return http.build();
+  }
 }

@@ -21,51 +21,58 @@ import com.example.aquatrack_backend.service.UserDetailsServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class AuthTokenFilter extends OncePerRequestFilter {
-    @Autowired
-    private JwtUtils jwtUtils;
-    
-    @Autowired
-    private UserDetailsServiceImpl userDetailsService;
+  @Autowired
+  private JwtUtils jwtUtils;
 
+  @Autowired
+  private UserDetailsServiceImpl userDetailsService;
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-        final String jwt = parseJwt(request.getHeader("Authorization"));
-        final String direccionEmail = jwtUtils.getUserNameFromJwtToken(jwt);
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(direccionEmail);
-        
-        if (jwt == null || !jwtUtils.isTokenValid(jwt, userDetails)){
-          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-          response.getWriter()
-                  .write(new ObjectMapper().writeValueAsString(ErrorResponseDTO.builder()
-                                                                               .message("Debe estar logueado para realizar esta acción.")
-                                                                               .build()));
-          return;
-        }
-
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails,
-                                                                                         null,
-                                                                                                     userDetails.getAuthorities());
-        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        filterChain.doFilter(request, response);
+  @Override
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+      throws ServletException, IOException {
+    final String jwt = parseJwt(request.getHeader("Authorization"));
+    if (jwt == null) {
+      handleJwtErrorResponse(response);
+      return;
     }
 
-    private String parseJwt(String headerAuth) {
-
-        if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-            return headerAuth.split(" ")[1];
-        }
-
-        return null;
+    String direccionEmail = jwtUtils.getUserNameFromJwtToken(jwt);
+    UserDetails userDetails = userDetailsService.loadUserByUsername(direccionEmail);
+    if (!jwtUtils.isTokenValid(jwt, userDetails)) {
+      handleJwtErrorResponse(response);
+      return;
     }
 
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-      String path = request.getRequestURI();
-      return Arrays.asList("/users/login", "/users/register")
-                   .stream().anyMatch(p -> p.equals(path));
+    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails,
+        null,
+        userDetails.getAuthorities());
+    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+    filterChain.doFilter(request, response);
+  }
+
+  private String parseJwt(String headerAuth) {
+    if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
+      return headerAuth.split(" ")[1];
     }
+
+    return null;
+  }
+
+  private void handleJwtErrorResponse(HttpServletResponse response) throws IOException {
+    response.setHeader("Content-Type", "application/json");
+    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    response.getWriter()
+        .write(new ObjectMapper().writeValueAsString(ErrorResponseDTO.builder()
+            .message("Debe estar logueado para realizar esta acción.")
+            .build()));
+  }
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    String path = request.getRequestURI();
+    return Arrays.asList("/users/login", "/users/register")
+        .stream().anyMatch(p -> p.equals(path));
+  }
 }

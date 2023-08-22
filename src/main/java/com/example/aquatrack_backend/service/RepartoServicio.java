@@ -1,16 +1,19 @@
 package com.example.aquatrack_backend.service;
 
-import com.example.aquatrack_backend.model.Producto;
-import com.example.aquatrack_backend.model.Reparto;
-import com.example.aquatrack_backend.repo.RepartoRepo;
-import com.example.aquatrack_backend.repo.RepoBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
-public class RepartoServicio extends ServicioBase {
+import com.example.aquatrack_backend.model.Reparto;
+import com.example.aquatrack_backend.repo.RepartoRepo;
+import com.example.aquatrack_backend.repo.RepoBase;
 
-    @Autowired
-    private RepartoRepo repo;
-   
+@Service
+public class RepartoServicio extends ServicioBaseImpl<Reparto> {
+
+  @Autowired
+  private RepartoRepo repartoRepo;
+
+  public RepartoServicio(RepoBase<Reparto> repoBase) {
+    super(repoBase);
+  }
 }

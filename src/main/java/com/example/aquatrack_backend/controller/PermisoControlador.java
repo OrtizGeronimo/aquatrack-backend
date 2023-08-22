@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.aquatrack_backend.dto.PermisoDTO;
-import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
 import com.example.aquatrack_backend.model.Permiso;
 import com.example.aquatrack_backend.service.PermisoServicio;
 

@@ -17,14 +17,11 @@ import com.example.aquatrack_backend.dto.CurrentUserDTO;
 import com.example.aquatrack_backend.dto.LoginResponseDTO;
 import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
 import com.example.aquatrack_backend.model.Empleado;
-import com.example.aquatrack_backend.model.Ruta;
 import com.example.aquatrack_backend.model.Usuario;
-import com.example.aquatrack_backend.repo.RepoBase;
-import com.example.aquatrack_backend.repo.RutaRepo;
 import com.example.aquatrack_backend.repo.UsuarioRepo;
 
 @Service
-public class UsuarioServicio extends ServicioBaseImpl<Usuario> {
+public class UsuarioServicio {
 
   @Autowired
   private AuthenticationManager authenticationManager;
@@ -34,10 +31,6 @@ public class UsuarioServicio extends ServicioBaseImpl<Usuario> {
 
   @Autowired
   private UsuarioRepo usuarioRepo;
-
-  public UsuarioServicio(RepoBase<Usuario> repoBase) {
-    super(repoBase);
-  }
 
   public LoginResponseDTO login(String direccionEmail, String contraseña) {
     Authentication authentication = authenticationManager
@@ -63,5 +56,12 @@ public class UsuarioServicio extends ServicioBaseImpl<Usuario> {
     } else {
       throw new FailedToAuthenticateUserException("Error de autenticación. Intente mas tarde.");
     }
+  }
+
+  private Usuario getUsuarioFromContext() {
+    return ((SecurityUser) SecurityContextHolder.getContext()
+        .getAuthentication()
+        .getPrincipal())
+        .getUsuario();
   }
 }

@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class Pago {
   @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
   private LocalDateTime fechaPago;
 
-  private float total;
+  private BigDecimal total;
 
   @ManyToOne()
   private EstadoPago estadoPago;

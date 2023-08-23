@@ -13,6 +13,15 @@ public class UbicaciónServicio {
     @Autowired
     UbicacionRepo ubicacionRepo;
 
+    public Ubicacion obtenerUbicacionUsuario(Long id) throws Exception{
+        try{
+            Optional<Ubicacion> ubi = ubicacionRepo.findById(id);
+            return ubi.get();
+        } catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
     public Ubicacion guardarUbicacion(Ubicacion ubicacion) throws Exception{
         try{
             ubicacion = ubicacionRepo.save(ubicacion);
@@ -22,12 +31,4 @@ public class UbicaciónServicio {
         }
     }
 
-    public Ubicacion obtenerUbicacionUsuario(Long id) throws Exception{
-       try{
-            Optional<Ubicacion> ubi = ubicacionRepo.findById(id);
-            return ubi.get();
-       } catch (Exception e){
-           throw new Exception(e.getMessage());
-       }
-    }
 }

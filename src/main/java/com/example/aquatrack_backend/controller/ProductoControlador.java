@@ -22,4 +22,13 @@ public class ProductoControlador extends ControladorBaseImpl<Producto, ProductoS
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\":\"Error. Por favor intente mas tarde.\"}");
         }
     }
+
+    @PostMapping("/{id}/precios")
+    public ResponseEntity<?> setPrecio(@PathVariable Long id, @RequestBody Precio precio){
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(servicio.setPrecio(id, precio));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\":\"Error. Por favor intente mas tarde.\"}");
+        }
+    }
 }

@@ -7,6 +7,7 @@ import com.example.aquatrack_backend.model.Producto;
 import com.example.aquatrack_backend.repo.PrecioRepo;
 import com.example.aquatrack_backend.repo.ProductoRepo;
 import com.example.aquatrack_backend.repo.RepoBase;
+import org.hibernate.event.spi.PreInsertEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +31,20 @@ public class ProductoServicioImpl extends ServicioBaseImpl<Producto> implements 
             Optional<Producto> producto = productoRepo.findById(id);
             List<Precio> precios = producto.get().getPrecios();
             return precios;
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    public Precio setPrecio(Long id, Precio precio) throws Exception{
+        try{
+            Optional<Producto> producto = productoRepo.findById(id);
+            Producto updateProducto = producto.get();
+            List<Precio> precios = updateProducto.getPrecios();
+            precios.add(precio);
+            updateProducto.setPrecios(precios);
+            productoRepo.save(updateProducto);
+            return precio;
         }catch (Exception e){
             throw new Exception(e.getMessage());
         }

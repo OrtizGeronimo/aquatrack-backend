@@ -13,4 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class RolControlador extends ControladorBaseImpl<Rol, RolServicioImpl>{
     @Autowired
     private RolServicioImpl rolServicio;
+
+
 }

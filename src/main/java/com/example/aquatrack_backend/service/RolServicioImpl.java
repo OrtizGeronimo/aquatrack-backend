@@ -14,4 +14,19 @@ public class RolServicioImpl extends ServicioBaseImpl<Rol> implements ServicioBa
     public RolServicioImpl(RepoBase<Rol> repoBase) {
         super(repoBase);
     }
+
+/*    @Transactional
+    public RolDTO createRol(CrearRolDTO rol) {
+        Rol rolNuevo = new Rol();
+        rolNuevo.setNombre(rol.getNombre());
+        rolNuevo.setPermisoRoles(rol.getIdPermisos()
+                .stream()
+                .map(permiso -> new PermisoRol(permisoRepo.findById(permiso).get(), rolNuevo))
+                .collect(Collectors.toList()));
+        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+        System.out.println(empresa.getNombre() + " EMPRESAA " + empresa.getNumTelefono());
+        rolNuevo.setEmpresa(empresa);
+        rolRepo.save(rolNuevo);
+        return new ModelMapper().map(rolNuevo, RolDTO.class);
+    }*/
 }

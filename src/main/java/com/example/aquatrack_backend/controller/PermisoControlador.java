@@ -23,9 +23,6 @@ public class PermisoControlador {
 
   @GetMapping(value = "")
   public ResponseEntity<?> findAll() {
-    List<Permiso> permisos = permisoServicio.findAll();
-    return ResponseEntity.ok().body(permisos.stream()
-                                            .map(permiso -> new ModelMapper().map(permiso, PermisoDTO.class))
-                                            .collect(Collectors.toList()));
+    return ResponseEntity.ok().body(permisoServicio.findAll());
   }
 }

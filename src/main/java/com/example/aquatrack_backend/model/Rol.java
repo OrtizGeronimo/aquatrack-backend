@@ -14,6 +14,7 @@ import javax.persistence.OneToMany;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,6 +22,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
 public class Rol {
 
@@ -29,19 +31,18 @@ public class Rol {
   private Long id;
 
   private String nombre;
-  private Boolean activo;
+  private Boolean activo = true;
   @DateTimeFormat(pattern = "dd-MM-YYYY")
-  private LocalDateTime fechaCreacion;
+  private LocalDateTime fechaCreacion = LocalDateTime.now();
   @DateTimeFormat(pattern = "dd-MM-YYYY")
   private LocalDateTime fechaFinVigencia;
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "rol")
-  private List<PermisoRol> permisos;
+  private List<PermisoRol> permisoRoles;
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "rol")
   private List<RolUsuario> rolUsuario;
 
   @ManyToOne()
   private Empresa empresa;
-
 }

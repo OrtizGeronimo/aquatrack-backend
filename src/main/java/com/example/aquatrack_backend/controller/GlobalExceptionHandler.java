@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.example.aquatrack_backend.dto.ErrorResponseDTO;
 import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
+import com.example.aquatrack_backend.exception.RecordNotFoundException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -38,6 +39,14 @@ public class GlobalExceptionHandler {
   @ExceptionHandler({ FailedToAuthenticateUserException.class })
   public ResponseEntity<?> handleFailedToAuthenticate(Exception ex) {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(ErrorResponseDTO.builder()
+            .message(ex.getMessage())
+            .build());
+  }
+
+  @ExceptionHandler({ RecordNotFoundException.class })
+  public ResponseEntity<?> handleRecordNotFound(Exception ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(ErrorResponseDTO.builder()
             .message(ex.getMessage())
             .build());

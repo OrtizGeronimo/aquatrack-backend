@@ -1,17 +1,16 @@
 package com.example.aquatrack_backend.controller;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.aquatrack_backend.dto.RolDTO;
-import com.example.aquatrack_backend.model.Rol;
+import com.example.aquatrack_backend.dto.CrearRolDTO;
+import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.service.RolServicio;
 
 @RestController
@@ -22,9 +21,16 @@ public class RolControlador {
 
   @GetMapping(value = "")
   public ResponseEntity<?> findAll() {
-    List<Rol> roles = rolServicio.findAll();
-    return ResponseEntity.ok().body(roles.stream()
-                                         .map(rol -> new ModelMapper().map(rol, RolDTO.class))
-                                         .collect(Collectors.toList()));
+    return ResponseEntity.ok().body(rolServicio.findAll());
+  }
+
+  @PostMapping(value = "")
+  public ResponseEntity<?> create(@RequestBody CrearRolDTO rol) {
+    return ResponseEntity.ok().body(rolServicio.createRol(rol));
+  }
+
+  @GetMapping(value = "/{id}/permisos")
+  public ResponseEntity<?> findAllPermissionsByRole(@PathVariable Long id) throws RecordNotFoundException {
+    return ResponseEntity.ok().body(rolServicio.findAllPermissionsByRole(id));
   }
 }

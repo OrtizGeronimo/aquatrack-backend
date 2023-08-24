@@ -29,9 +29,6 @@ public class UsuarioServicio {
   @Autowired
   private JwtUtils jwtUtils;
 
-  @Autowired
-  private UsuarioRepo usuarioRepo;
-
   public LoginResponseDTO login(String direccionEmail, String contraseña) {
     Authentication authentication = authenticationManager
         .authenticate(new UsernamePasswordAuthenticationToken(direccionEmail, contraseña));

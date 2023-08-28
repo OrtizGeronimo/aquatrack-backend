@@ -1,12 +1,10 @@
 package com.example.aquatrack_backend.controller;
 
-import com.example.aquatrack_backend.dto.ModificarRolDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.aquatrack_backend.dto.CrearRolDTO;
+import com.example.aquatrack_backend.dto.GuardarRolDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.service.RolServicio;
 
@@ -25,7 +23,7 @@ public class RolControlador {
     }
 
     @PostMapping(value = "")
-    public ResponseEntity<?> create(@RequestBody CrearRolDTO rol) {
+    public ResponseEntity<?> create(@RequestBody GuardarRolDTO rol) {
         return ResponseEntity.ok().body(rolServicio.createRol(rol));
     }
 
@@ -35,7 +33,7 @@ public class RolControlador {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody ModificarRolDTO rol) throws RecordNotFoundException {
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody GuardarRolDTO rol) throws RecordNotFoundException {
         return ResponseEntity.ok().body(rolServicio.update(id, rol));
     }
 

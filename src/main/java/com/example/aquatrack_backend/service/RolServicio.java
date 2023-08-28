@@ -5,7 +5,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.example.aquatrack_backend.dto.ModificarRolDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.aquatrack_backend.dto.CrearRolDTO;
+import com.example.aquatrack_backend.dto.GuardarRolDTO;
 import com.example.aquatrack_backend.dto.PermisoDTO;
 import com.example.aquatrack_backend.dto.RolDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
@@ -45,7 +44,7 @@ public class RolServicio extends ServicioBaseImpl<Rol> {
     }
 
     @Transactional
-    public RolDTO createRol(CrearRolDTO rol) {
+    public RolDTO createRol(GuardarRolDTO rol) {
         Rol rolNuevo = new Rol();
         rolNuevo.setNombre(rol.getNombre());
         rolNuevo.setPermisoRoles(rol.getIdPermisos()
@@ -70,7 +69,7 @@ public class RolServicio extends ServicioBaseImpl<Rol> {
     }
 
     @Transactional
-    public RolDTO update(Long id, ModificarRolDTO rol) throws RecordNotFoundException {
+    public RolDTO update(Long id, GuardarRolDTO rol) throws RecordNotFoundException {
         Rol rolModificado = rolRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El rol solicitado no fue encontrado"));
         rolModificado.setNombre(rol.getNombre());
 

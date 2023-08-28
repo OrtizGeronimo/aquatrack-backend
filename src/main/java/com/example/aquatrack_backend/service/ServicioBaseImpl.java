@@ -43,19 +43,6 @@ public abstract class ServicioBaseImpl<E> implements ServicioBase<E> {
 
   @Override
   @Transactional
-  public E update(Long id, E entidad) throws Exception {
-    try {
-      Optional<E> entidadOpcional = repoBase.findById(id);
-      E entidadActualizada = entidadOpcional.get();
-      entidadActualizada = repoBase.save(entidad);
-      return entidadActualizada;
-    } catch (Exception e) {
-      throw new Exception(e.getMessage());
-    }
-  }
-
-  @Override
-  @Transactional
   public boolean delete(Long id) throws Exception {
     try {
       if (repoBase.existsById(id)) {

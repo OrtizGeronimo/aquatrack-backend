@@ -2,6 +2,7 @@ package com.example.aquatrack_backend.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.aquatrack_backend.dto.GuardarRolDTO;
@@ -15,6 +16,7 @@ public class RolControlador {
     private RolServicio rolServicio;
 
     @GetMapping(value = "")
+    @PreAuthorize("hasAuthority('LISTAR_ROLES')")
     public ResponseEntity<?> findAll(@RequestParam(defaultValue = "0") int page,
                                      @RequestParam(defaultValue = "10") int size,
                                      @RequestParam(defaultValue = "false") boolean mostrar_inactivos,
@@ -23,27 +25,32 @@ public class RolControlador {
     }
 
     @PostMapping(value = "")
+    @PreAuthorize("hasAuthority('CREAR_ROLES')")
     public ResponseEntity<?> create(@RequestBody GuardarRolDTO rol) {
         return ResponseEntity.ok().body(rolServicio.createRol(rol));
     }
 
     @GetMapping(value = "/{id}/permisos")
+    @PreAuthorize("hasAuthority('LISTAR_ROLES')")
     public ResponseEntity<?> findAllPermissionsByRole(@PathVariable Long id) throws RecordNotFoundException {
         return ResponseEntity.ok().body(rolServicio.findAllPermissionsByRole(id));
     }
 
     @PutMapping(value = "/{id}")
+    @PreAuthorize("hasAuthority('EDITAR_ROLES')")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody GuardarRolDTO rol) throws RecordNotFoundException {
         return ResponseEntity.ok().body(rolServicio.update(id, rol));
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<?> disable(@PathVariable Long id) throws RecordNotFoundException {
+    @PreAuthorize("hasAuthority('ELIMINAR_ROLES')")
+    public ResponseEntity<?> disable(@PathVariable Long id) throws Exception {
         rolServicio.disable(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping(value = "/{id}/enable")
+    @PreAuthorize("hasAuthority('EDITAR_ROLES')")
     public ResponseEntity<?> enable(@PathVariable Long id) throws RecordNotFoundException {
         return ResponseEntity.ok().body(rolServicio.enable(id));
     }

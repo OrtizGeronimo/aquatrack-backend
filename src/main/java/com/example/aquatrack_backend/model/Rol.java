@@ -30,7 +30,7 @@ public class Rol {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-  
+
   private String nombre;
   private Boolean activo = true;
   @DateTimeFormat(pattern = "dd-MM-YYYY")

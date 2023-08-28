@@ -5,6 +5,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.aquatrack_backend.exception.UserWithOneRolePresentException;
+import com.example.aquatrack_backend.repo.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -21,9 +23,6 @@ import com.example.aquatrack_backend.model.Empleado;
 import com.example.aquatrack_backend.model.Empresa;
 import com.example.aquatrack_backend.model.PermisoRol;
 import com.example.aquatrack_backend.model.Rol;
-import com.example.aquatrack_backend.repo.PermisoRepo;
-import com.example.aquatrack_backend.repo.RepoBase;
-import com.example.aquatrack_backend.repo.RolRepo;
 
 @Service
 public class RolServicio extends ServicioBaseImpl<Rol> {
@@ -32,6 +31,9 @@ public class RolServicio extends ServicioBaseImpl<Rol> {
 
     @Autowired
     private PermisoRepo permisoRepo;
+
+    @Autowired
+    private RolUsuarioRepo rolUsuarioRepo;
 
     public RolServicio(RepoBase<Rol> repoBase) {
         super(repoBase);
@@ -85,8 +87,12 @@ public class RolServicio extends ServicioBaseImpl<Rol> {
     }
 
     @Transactional
-    public void disable(Long id) throws RecordNotFoundException {
+    public void disable(Long id) throws Exception {
         Rol rolDeshabilitado = rolRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El rol solicitado no fue encontrado"));
+        System.out.println("id:" + id + "cuentita: " + rolUsuarioRepo.usersWithRoleAsOnlyRole(rolDeshabilitado.getId()));
+        if (rolUsuarioRepo.usersWithRoleAsOnlyRole(rolDeshabilitado.getId()) > 0){
+            throw new UserWithOneRolePresentException("Hay al menos un usuario que tiene como único rol el que desea deshabilitar, no es posible eliminar el rol");
+        }
         rolDeshabilitado.setFechaFinVigencia(LocalDateTime.now());
         rolRepo.save(rolDeshabilitado);
     }

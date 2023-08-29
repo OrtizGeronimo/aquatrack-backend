@@ -25,4 +25,13 @@ public class ProductoControlador{
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\":\"Error. Por favor intente mas tarde.\"}");
         }
     }
+
+     @GetMapping("/active")
+    public ResponseEntity<?> getProductosActivos(){
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(productoServicio.getProductosActivos());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\":\"Error. Por favor intente mas tarde.\"}");
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.service;
 
+import com.example.aquatrack_backend.dto.UbicacionDTO;
 import com.example.aquatrack_backend.model.Ubicacion;
 import com.example.aquatrack_backend.repo.UbicacionRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,19 +14,25 @@ public class UbicaciónServicio {
     @Autowired
     UbicacionRepo ubicacionRepo;
 
-    public Ubicacion obtenerUbicacionUsuario(Long id) throws Exception{
+    public UbicacionDTO obtenerUbicacionUsuario(Long id) throws Exception{
         try{
             Optional<Ubicacion> ubi = ubicacionRepo.findById(id);
-            return ubi.get();
+            UbicacionDTO ubicacionDTO = new UbicacionDTO();
+            ubicacionDTO.setLatitud(ubi.get().getLatitud());
+            ubicacionDTO.setLongitud(ubi.get().getLongitud());
+            return ubicacionDTO;
         } catch (Exception e){
             throw new Exception(e.getMessage());
         }
     }
 
-    public Ubicacion guardarUbicacion(Ubicacion ubicacion) throws Exception{
+    public UbicacionDTO guardarUbicacion(Ubicacion ubicacion) throws Exception{
         try{
-            ubicacion = ubicacionRepo.save(ubicacion);
-            return ubicacion;
+            Ubicacion ubi = ubicacionRepo.save(ubicacion);
+            UbicacionDTO ubicacionDTO = new UbicacionDTO();
+            ubicacionDTO.setLatitud(ubi.getLatitud());
+            ubicacionDTO.setLongitud(ubi.getLongitud());
+            return ubicacionDTO;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }

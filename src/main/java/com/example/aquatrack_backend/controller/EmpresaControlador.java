@@ -1,8 +1,7 @@
 package com.example.aquatrack_backend.controller;
 
-import com.example.aquatrack_backend.dtos.DTOUbicacion;
+import com.example.aquatrack_backend.dto.UbicacionDTO;
 import com.example.aquatrack_backend.model.Empresa;
-import com.example.aquatrack_backend.model.Ubicacion;
 import com.example.aquatrack_backend.service.EmpresaServicioImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +19,7 @@ public class EmpresaControlador extends ControladorBaseImpl<Empresa, EmpresaServ
     EmpresaServicioImpl empresaServicio;
 
     @PostMapping("/cobertura/{id}")
-    public ResponseEntity<?> guardarCobertura(@PathVariable Long id, @RequestBody List<DTOUbicacion> ubicaciones){
+    public ResponseEntity<?> guardarCobertura(@PathVariable Long id, @RequestBody List<UbicacionDTO> ubicaciones){
         try{
             return ResponseEntity.status(HttpStatus.OK).body(empresaServicio.guardarCobertura(ubicaciones, id));
         }catch (Exception e){
@@ -29,7 +28,7 @@ public class EmpresaControlador extends ControladorBaseImpl<Empresa, EmpresaServ
     }
 
     @PostMapping("/cobertura/cliente")
-    public ResponseEntity<?> conocerCoberturaCercana(@RequestBody DTOUbicacion ubicacionCliente){
+    public ResponseEntity<?> conocerCoberturaCercana(@RequestBody UbicacionDTO ubicacionCliente){
         try{
             return ResponseEntity.status(HttpStatus.OK).body(empresaServicio.conocerCobertura(ubicacionCliente));
         } catch (Exception e){

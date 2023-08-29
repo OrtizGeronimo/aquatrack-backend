@@ -25,7 +25,7 @@ public class Ubicacion {
     @OneToOne(mappedBy = "ubicacion")
     private Empresa empresa;
 
-    @ManyToOne
+    @ManyToOne()
     private Cobertura cobertura;
 
     public Ubicacion(Double latitud, Double longitud, Cobertura cobertura){

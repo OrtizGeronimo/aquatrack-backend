@@ -1,19 +1,21 @@
 package com.example.aquatrack_backend.model;
 
+import java.time.LocalDateTime;
+import java.util.List;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Getter
@@ -21,15 +23,15 @@ import java.util.List;
 @NoArgsConstructor
 public class DiaSemana {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String nombre;
+  private String nombre;
 
-    @DateTimeFormat(pattern = "dd-MM-YYYY")
-    private LocalDateTime fechaFinVigencia;
+  @DateTimeFormat(pattern = "dd-MM-YYYY")
+  private LocalDateTime fechaFinVigencia;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "diaSemana")
-    private List<DiaRuta> diaRutas;
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "diaSemana")
+  private List<DiaRuta> diaRutas;
 }

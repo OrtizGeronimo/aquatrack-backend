@@ -1,8 +1,8 @@
 package com.example.aquatrack_backend.service;
 
-import com.example.aquatrack_backend.dtos.DTOCobertura;
-import com.example.aquatrack_backend.dtos.DTOEmpresa;
-import com.example.aquatrack_backend.dtos.DTOUbicacion;
+import com.example.aquatrack_backend.dto.CoberturaDTO;
+import com.example.aquatrack_backend.dto.EmpresaDTO;
+import com.example.aquatrack_backend.dto.UbicacionDTO;
 import com.example.aquatrack_backend.helpers.UbicacionHelper;
 import com.example.aquatrack_backend.model.Cobertura;
 import com.example.aquatrack_backend.model.Empresa;
@@ -27,7 +27,7 @@ public class CoberturaServicio {
     private EmpresaRepo empresaRepo;
 
     @Transactional
-    public DTOCobertura guardarCobertura(List<DTOUbicacion> ubicaciones, Long empresaId) throws Exception{
+    public CoberturaDTO guardarCobertura(List<UbicacionDTO> ubicaciones, Long empresaId) throws Exception{
         try{
             Cobertura cobertura = new Cobertura();
             cobertura.setUbicaciones(ubicaciones
@@ -38,7 +38,7 @@ public class CoberturaServicio {
             Empresa empresa = optEmpresa.get();
             cobertura.setEmpresa(empresa);
             coberturaRepo.save(cobertura);
-            DTOCobertura dtoCobertura = new DTOCobertura();
+            CoberturaDTO dtoCobertura = new CoberturaDTO();
             dtoCobertura.setId(cobertura.getId());
             dtoCobertura.setNombreEmpresa(empresa.getNombre());
             dtoCobertura.setUbicacions(ubicaciones);
@@ -50,15 +50,15 @@ public class CoberturaServicio {
     }
 
     @Transactional
-    public List<DTOEmpresa> conocerCobertura(DTOUbicacion ubicacionCliente) throws Exception{
+    public List<EmpresaDTO> conocerCobertura(UbicacionDTO ubicacionCliente) throws Exception{
         try {
             List<Cobertura> coberturas = coberturaRepo.findAll();
-            List<DTOEmpresa> empresas = new ArrayList<>();
+            List<EmpresaDTO> empresas = new ArrayList<>();
             UbicacionHelper ubicacionHelper = new UbicacionHelper();
             for (Cobertura cobertura :coberturas) {
                 boolean estaContenida = ubicacionHelper.estaContenida(ubicacionCliente, cobertura);
                 if(estaContenida){
-                    DTOEmpresa empresa = new DTOEmpresa();
+                    EmpresaDTO empresa = new EmpresaDTO();
                     Empresa empresaCober = cobertura.getEmpresa();
                     empresa.setNombre(empresaCober.getNombre());
                     empresa.setNumTelefono(empresaCober.getNumTelefono());

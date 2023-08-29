@@ -22,6 +22,7 @@ public class Usuario {
     private String direccionEmail;
     private String contraseña;
     private Boolean validado;
+
     @DateTimeFormat(pattern = "dd-MM-YYYY")
     private LocalDateTime fechaCreacion;
     @DateTimeFormat(pattern = "dd-MM-YYYY")
@@ -38,5 +39,4 @@ public class Usuario {
 
     @Transient
     private String confirmacionContraseña;
-
 }

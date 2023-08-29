@@ -1,11 +1,11 @@
-package com.example.aquatrack_backend.dtos;
+package com.example.aquatrack_backend.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class DTOUbicacion {
+public class UbicacionDTO {
 
     double latitud;
     double longitud;

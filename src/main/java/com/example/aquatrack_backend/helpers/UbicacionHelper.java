@@ -1,6 +1,6 @@
 package com.example.aquatrack_backend.helpers;
 
-import com.example.aquatrack_backend.dtos.DTOUbicacion;
+import com.example.aquatrack_backend.dto.UbicacionDTO;
 import com.example.aquatrack_backend.model.Cobertura;
 import com.example.aquatrack_backend.model.Ubicacion;
 import lombok.Data;
@@ -17,7 +17,7 @@ import java.util.List;
 @Data
 public class UbicacionHelper {
 
-    public boolean estaContenida(DTOUbicacion ubiCliente, Cobertura cobertura) throws Exception{
+    public boolean estaContenida(UbicacionDTO ubiCliente, Cobertura cobertura) throws Exception{
         try{
             List<Coordinate> vertices = new ArrayList<>();
             List<Ubicacion> ubicaciones = cobertura.getUbicaciones();

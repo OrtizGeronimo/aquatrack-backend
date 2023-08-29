@@ -1,14 +1,18 @@
 package com.example.aquatrack_backend.model;
 
 
-import javax.persistence.*;
+import java.math.BigDecimal;
 
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import javax.persistence.*;
 
 @Entity
 @Getter
@@ -20,12 +24,12 @@ public class DeudaPago {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private float montoAdeudadoPago;
+    private BigDecimal montoAdeudadoPago;
 
-    @ManyToOne
+    @ManyToOne()
     private Deuda deuda;
 
-    @ManyToOne
+    @ManyToOne()
     private Pago pago;
 
 }

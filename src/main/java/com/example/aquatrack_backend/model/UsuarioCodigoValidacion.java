@@ -26,7 +26,7 @@ public class UsuarioCodigoValidacion {
     @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
     private LocalDateTime fechaCreacion;
 
-    @ManyToOne
+    @ManyToOne()
     private Usuario usuario;
 
 }

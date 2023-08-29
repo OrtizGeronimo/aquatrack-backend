@@ -1,6 +1,11 @@
 package com.example.aquatrack_backend.service;
 
-import com.example.aquatrack_backend.model.*;
+import com.example.aquatrack_backend.config.*;
+import com.example.aquatrack_backend.config.DistanceMatrixResponse;
+import com.example.aquatrack_backend.model.Domicilio;
+import com.example.aquatrack_backend.model.DomicilioRuta;
+import com.example.aquatrack_backend.model.Reparto;
+import com.example.aquatrack_backend.model.Ruta;
 import com.example.aquatrack_backend.repo.RepartoRepo;
 import com.example.aquatrack_backend.repo.RepoBase;
 import com.example.aquatrack_backend.repo.RutaRepo;
@@ -8,7 +13,9 @@ import com.google.ortools.Loader;
 import com.google.ortools.constraintsolver.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,6 +27,12 @@ public class RepartoServicioImpl extends ServicioBaseImpl<Reparto> implements Se
     @Autowired
     private RutaRepo rutaRepo;
 
+    @Autowired
+    private BingMapsConfig bingMapsConfig;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
     public RepartoServicioImpl(RepoBase<Reparto> repoBase) {
         super(repoBase);
     }
@@ -28,7 +41,7 @@ public class RepartoServicioImpl extends ServicioBaseImpl<Reparto> implements Se
         Loader.loadNativeLibraries();
     }
 
-    public int[] crearReparto(Long id) {
+    public List<String> crearReparto(Long id) {
         Ruta ruta = rutaRepo.findById(id).orElseThrow();
 
         double[][] matrizDistancias = calcularMatrizDistancias(ruta.getDomicilioRutas());
@@ -64,7 +77,13 @@ public class RepartoServicioImpl extends ServicioBaseImpl<Reparto> implements Se
             index = solution.value(routingModel.nextVar(index));
         }
 
-        return tourIndices;
+        List<String> domicilios = new ArrayList<>();
+
+        for (int indice : tourIndices) {
+            domicilios.add(ruta.getDomicilioRutas().get(indice).getDomicilio().getDescripcion());
+        }
+
+        return domicilios;
 
     }
 
@@ -92,6 +111,24 @@ public class RepartoServicioImpl extends ServicioBaseImpl<Reparto> implements Se
             }
         }
         return matrizDistancias;
+    }
+
+    public double calculateDistanceAndTime(double originLat, double originLng, double destLat, double destLng) {
+        String apiKey = bingMapsConfig.getApiKey();
+        String url = String.format(
+                "https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?key=%s&origins=%f,%f&destinations=%f,%f&travelMode=driving",
+                apiKey, originLat, originLng, destLat, destLng
+        );
+
+        // Make an HTTP GET request to Bing Maps API
+        DistanceMatrixResponse response = restTemplate.getForObject(url, DistanceMatrixResponse.class);
+        
+        // Extract distance and time information from the response
+        double distanceInMeters = response.getResourceSets().get(0).getResources().get(0).getResults().get(0).getTravelDistance();
+        double travelTimeInSeconds = response.getResourceSets().get(0).getResources().get(0).getResults().get(0).getTravelDuration();
+        return travelTimeInSeconds;
+
+
     }
 
     private double calcularDistancia(double lat1, double lon1, double lat2, double lon2) {

@@ -11,6 +11,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -32,7 +34,6 @@ public class Rol {
   private Long id;
 
   private String nombre;
-  private Boolean activo = true;
   @DateTimeFormat(pattern = "dd-MM-YYYY")
   private LocalDateTime fechaCreacion = LocalDateTime.now();
   @DateTimeFormat(pattern = "dd-MM-YYYY")

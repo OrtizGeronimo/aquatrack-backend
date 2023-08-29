@@ -18,7 +18,6 @@ import com.example.aquatrack_backend.dto.LoginResponseDTO;
 import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
 import com.example.aquatrack_backend.model.Empleado;
 import com.example.aquatrack_backend.model.Usuario;
-import com.example.aquatrack_backend.repo.UsuarioRepo;
 
 @Service
 public class UsuarioServicio {

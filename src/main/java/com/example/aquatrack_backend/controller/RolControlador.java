@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.controller;
 
+import com.example.aquatrack_backend.helpers.ValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,6 +15,7 @@ import com.example.aquatrack_backend.service.RolServicio;
 public class RolControlador {
     @Autowired
     private RolServicio rolServicio;
+    ValidationHelper validationHelper = new ValidationHelper();
 
     @GetMapping(value = "")
     @PreAuthorize("hasAuthority('LISTAR_ROLES')")
@@ -27,6 +29,9 @@ public class RolControlador {
     @PostMapping(value = "")
     @PreAuthorize("hasAuthority('CREAR_ROLES')")
     public ResponseEntity<?> create(@RequestBody GuardarRolDTO rol) {
+        if(validationHelper.hasValidationErrors(rol)){
+            return ResponseEntity.badRequest().body(validationHelper.getValidationErrors(rol));
+        }
         return ResponseEntity.ok().body(rolServicio.createRol(rol));
     }
 

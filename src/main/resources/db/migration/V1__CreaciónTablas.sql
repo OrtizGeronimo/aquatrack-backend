@@ -31,7 +31,7 @@ create table permiso_rol (id bigint not null auto_increment, permiso_id bigint, 
 create table precio (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), precio decimal, producto_id bigint, primary key (id)) engine=InnoDB;
 create table producto (id bigint not null auto_increment, descripcion varchar(255), fecha_fin_vigencia datetime(6), nombre varchar(255), empresa_id bigint, primary key (id)) engine=InnoDB;
 create table reparto (id bigint not null auto_increment, fecha_ejecucion datetime(6), fechayhora_fin datetime(6), estado_reparto_id bigint, repartidor_id bigint, ruta_id bigint, primary key (id)) engine=InnoDB;
-create table rol (id bigint not null auto_increment, activo bit, fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), nombre varchar(255), empresa_id bigint, primary key (id)) engine=InnoDB;
+create table rol (id bigint not null auto_increment, fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), nombre varchar(255), empresa_id bigint, primary key (id)) engine=InnoDB;
 create table rol_usuario (id bigint not null auto_increment, rol_id bigint, usuario_id bigint, primary key (id)) engine=InnoDB;
 create table ruta (id bigint not null auto_increment, nombre varchar(255), primary key (id)) engine=InnoDB;
 create table tipo_empleado (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre varchar(255), primary key (id)) engine=InnoDB;

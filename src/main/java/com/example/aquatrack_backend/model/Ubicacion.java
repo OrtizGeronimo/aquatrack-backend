@@ -27,4 +27,10 @@ public class Ubicacion {
 
     @ManyToOne()
     private Cobertura cobertura;
+
+    public Ubicacion(Double latitud, Double longitud, Cobertura cobertura){
+        this.latitud = latitud;
+        this.longitud = longitud;
+        this.cobertura = cobertura;
+    }
 }

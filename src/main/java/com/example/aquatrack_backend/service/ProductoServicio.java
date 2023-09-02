@@ -23,13 +23,13 @@ public class ProductoServicio extends ServicioBaseImpl<Producto> {
     super(repoBase);
   }
 
-  public List<Precio> getPrecios(Long id) throws Exception {
-    try {
-      Optional<Producto> producto = productoRepo.findById(id);
-      List<Precio> precios = producto.get().getPrecios();
-      return precios;
-    } catch (Exception e) {
-      throw new Exception(e.getMessage());
+    public List<Precio> getPrecios(Long id) throws Exception {
+      try {
+        Optional<Producto> producto = productoRepo.findById(id);
+        List<Precio> precios = producto.get().getPrecios();
+        return precios;
+      } catch (Exception e) {
+        throw new Exception(e.getMessage());
+      }
     }
-  }
 }

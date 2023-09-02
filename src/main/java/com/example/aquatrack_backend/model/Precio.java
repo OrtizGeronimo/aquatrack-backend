@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
@@ -25,11 +26,11 @@ public class Precio {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private Float precio;
+  private BigDecimal precio;
 
   @DateTimeFormat(pattern = "dd-MM-YYYY")
   private LocalDateTime fechaFinVigencia;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Producto producto;
 }

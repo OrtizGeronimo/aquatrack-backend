@@ -21,9 +21,9 @@ public class EmpresaCliente {
   @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Empresa empresa;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Cliente cliente;
 }

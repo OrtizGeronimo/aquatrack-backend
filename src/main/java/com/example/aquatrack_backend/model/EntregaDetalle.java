@@ -25,9 +25,9 @@ public class EntregaDetalle {
 
     private Integer cantidadRecibida;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     private Entrega entrega;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     private Producto producto;
 }

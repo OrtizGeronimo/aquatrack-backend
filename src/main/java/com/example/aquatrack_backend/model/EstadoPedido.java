@@ -32,6 +32,6 @@ public class EstadoPedido {
   @DateTimeFormat(pattern = "dd-MM-YYYY")
   private LocalDateTime fechaFinVigencia;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "estadoPedido", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "estadoPedido")
   private List<PedidoExtraordinario> pedidos;
 }

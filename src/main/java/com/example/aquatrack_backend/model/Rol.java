@@ -11,16 +11,21 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.validation.annotation.Validated;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
 public class Rol {
 
@@ -29,19 +34,17 @@ public class Rol {
   private Long id;
 
   private String nombre;
-  private Boolean activo;
   @DateTimeFormat(pattern = "dd-MM-YYYY")
-  private LocalDateTime fechaCreacion;
+  private LocalDateTime fechaCreacion = LocalDateTime.now();
   @DateTimeFormat(pattern = "dd-MM-YYYY")
   private LocalDateTime fechaFinVigencia;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "rol", fetch = FetchType.LAZY)
-  private List<PermisoRol> permisos;
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "rol")
+  private List<PermisoRol> permisoRoles;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "rol", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "rol")
   private List<RolUsuario> rolUsuario;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Empresa empresa;
-
 }

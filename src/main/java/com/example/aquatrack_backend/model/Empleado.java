@@ -32,12 +32,12 @@ public class Empleado extends Persona {
   @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
   private LocalDateTime fechaFinVacaciones;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Empresa empresa;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private TipoEmpleado tipo;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "repartidor", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "repartidor")
   private List<Reparto> reparto;
 }

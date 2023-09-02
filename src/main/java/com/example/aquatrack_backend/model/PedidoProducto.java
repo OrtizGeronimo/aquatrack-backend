@@ -22,9 +22,9 @@ public class PedidoProducto {
 
   private Integer cantidad;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Pedido pedido;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Producto producto;
 }

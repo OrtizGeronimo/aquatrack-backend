@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -31,14 +32,14 @@ public class Deuda {
   @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
   private LocalDateTime fechaUltimaActualizacion;
 
-  private float monto;
+  private BigDecimal monto;
 
-  private float montoMaximo;
+  private BigDecimal montoMaximo;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Domicilio domicilio;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "deuda", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "deuda")
   private List<DeudaPago> deudaPagos;
 
 }

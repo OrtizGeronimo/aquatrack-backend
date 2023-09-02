@@ -7,6 +7,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,13 +18,18 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PermisoRol {
 
+  public PermisoRol(Permiso permiso, Rol rol) {
+    this.permiso = permiso;
+    this.rol = rol;
+  }
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Permiso permiso;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Rol rol;
 }

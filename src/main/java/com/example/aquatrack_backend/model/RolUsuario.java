@@ -21,9 +21,9 @@ public class RolUsuario {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Rol rol;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Usuario usuario;
 }

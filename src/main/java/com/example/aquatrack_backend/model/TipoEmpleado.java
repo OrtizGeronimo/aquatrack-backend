@@ -24,6 +24,6 @@ public class TipoEmpleado {
     @DateTimeFormat(pattern = "dd-MM-YYYY")
     private LocalDateTime fechaFinVigencia;
 
-    @OneToMany(mappedBy = "tipo", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "tipo")
     private List<Empleado> empleados;
 }

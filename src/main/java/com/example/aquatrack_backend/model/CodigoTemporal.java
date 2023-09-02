@@ -30,6 +30,6 @@ public class CodigoTemporal {
   @DateTimeFormat(pattern = "dd-MM-YYYY HH-mm-ss")
   private LocalDateTime fechaExpiracion;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Empresa empresa;
 }

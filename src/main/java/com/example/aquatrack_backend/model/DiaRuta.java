@@ -25,12 +25,12 @@ public class DiaRuta {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Ruta ruta;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private DiaSemana diaSemana;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "diaRuta", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "diaRuta")
   List<DiaDomicilio> diaDomicilios;
 }

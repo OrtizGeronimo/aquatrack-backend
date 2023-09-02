@@ -21,28 +21,6 @@ public abstract class ServicioBaseImpl<E> implements ServicioBase<E> {
 
   @Override
   @Transactional
-  public List<E> findAll() throws Exception {
-    try {
-      List<E> entidades = repoBase.findAll();
-      return entidades;
-    } catch (Exception e) {
-      throw new Exception(e.getMessage());
-    }
-  }
-
-  @Override
-  @Transactional
-  public Page<E> findAll(Pageable pageable) throws Exception {
-    try {
-      Page<E> entidades = repoBase.findAll(pageable);
-      return entidades;
-    } catch (Exception e) {
-      throw new Exception(e.getMessage());
-    }
-  }
-
-  @Override
-  @Transactional
   public E findById(Long id) throws Exception {
     try {
       Optional<E> entidadOpcional = repoBase.findById(id);
@@ -58,19 +36,6 @@ public abstract class ServicioBaseImpl<E> implements ServicioBase<E> {
     try {
       entidad = repoBase.save(entidad);
       return entidad;
-    } catch (Exception e) {
-      throw new Exception(e.getMessage());
-    }
-  }
-
-  @Override
-  @Transactional
-  public E update(Long id, E entidad) throws Exception {
-    try {
-      Optional<E> entidadOpcional = repoBase.findById(id);
-      E entidadActualizada = entidadOpcional.get();
-      entidadActualizada = repoBase.save(entidad);
-      return entidadActualizada;
     } catch (Exception e) {
       throw new Exception(e.getMessage());
     }

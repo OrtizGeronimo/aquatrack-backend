@@ -44,6 +44,9 @@ public class RolControlador {
     @PutMapping(value = "/{id}")
     @PreAuthorize("hasAuthority('EDITAR_ROLES')")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody GuardarRolDTO rol) throws RecordNotFoundException {
+        if(validationHelper.hasValidationErrors(rol)){
+            return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(rol));
+        }
         return ResponseEntity.ok().body(rolServicio.update(id, rol));
     }
 

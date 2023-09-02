@@ -15,7 +15,7 @@ import javax.validation.constraints.*;
 @AllArgsConstructor
 public class GuardarRolDTO {
 
-  @NotBlank()
+  @NotBlank
   private String nombre;
   @NotEmpty(message = "El rol debe contener al menos un permiso")
   private List<Long> idPermisos;

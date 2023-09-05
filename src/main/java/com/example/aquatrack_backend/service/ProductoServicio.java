@@ -1,11 +1,8 @@
 package com.example.aquatrack_backend.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,23 +12,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.aquatrack_backend.model.Empresa;
-import com.example.aquatrack_backend.model.PermisoRol;
+import com.example.aquatrack_backend.dto.GuardarProductoDTO;
+import com.example.aquatrack_backend.dto.ProductoDTO;
+import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.model.Empleado;
+import com.example.aquatrack_backend.model.Empresa;
 import com.example.aquatrack_backend.model.Precio;
 import com.example.aquatrack_backend.model.Producto;
-import com.example.aquatrack_backend.model.Rol;
 import com.example.aquatrack_backend.repo.PrecioRepo;
 import com.example.aquatrack_backend.repo.ProductoRepo;
 import com.example.aquatrack_backend.repo.RepoBase;
-import com.example.aquatrack_backend.dto.CurrentUserDTO;
-import com.example.aquatrack_backend.dto.GuardarProductoDTO;
-import com.example.aquatrack_backend.dto.GuardarRolDTO;
-import com.example.aquatrack_backend.dto.PermisoDTO;
-import com.example.aquatrack_backend.dto.ProductoDTO;
-import com.example.aquatrack_backend.dto.RolDTO;
-import com.example.aquatrack_backend.exception.RecordNotFoundException;
-import com.example.aquatrack_backend.exception.UserWithOneRolePresentException;
 
 @Service
 public class ProductoServicio extends ServicioBaseImpl<Producto> {

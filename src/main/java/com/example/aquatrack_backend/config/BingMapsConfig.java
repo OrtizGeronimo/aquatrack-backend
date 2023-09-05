@@ -6,10 +6,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class BingMapsConfig {
 
-    @Value("{bing.maps.key}")
-    private String apiKey;
+//    @Value("{bing.maps.key}")
+//    private String apiKey;
 
     public String getApiKey() {
-        return apiKey;
+        return "AvPjAjZr0WHKqHppFv1ypP1BcVFBoNKCCweh8S322AkbQ7uf-7CG_nTRYMFqbZVm";
     }
 }

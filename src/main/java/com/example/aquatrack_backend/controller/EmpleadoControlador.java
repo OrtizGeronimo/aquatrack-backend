@@ -22,6 +22,11 @@ public class EmpleadoControlador{
                                      @RequestParam(defaultValue = "10") int size,
                                      @RequestParam(defaultValue = "false") boolean mostrar_inactivos,
                                      @RequestParam(required = false) String nombre) {
-    return ResponseEntity.ok().body(empleadoServicio.findAllByEnterprise(page, size, nombre, mostrar_inactivos));
+        return ResponseEntity.ok().body(empleadoServicio.findAllByEnterprise(page, size, nombre, mostrar_inactivos));
+    }
+
+    @GetMapping(value = "/tipos")
+    public ResponseEntity<?> findAllTiposActive(){
+        return ResponseEntity.ok().body(empleadoServicio.findAllTiposActive());
     }
 }

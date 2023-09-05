@@ -1,7 +1,5 @@
 package com.example.aquatrack_backend.service;
 
-import java.util.stream.Collectors;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -10,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.aquatrack_backend.dto.EmpleadoDTO;
-import com.example.aquatrack_backend.dto.RolDTO;
 import com.example.aquatrack_backend.model.Empleado;
 import com.example.aquatrack_backend.model.Empresa;
 import com.example.aquatrack_backend.repo.EmpleadoRepo;
@@ -50,5 +47,5 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
       Long id = empresa.getId();
       Pageable paging = PageRequest.of(page, size);
       return empleadoRepo.findAllByEnterprise(id, nombre, mostrarInactivos, paging).map(empleado -> new ModelMapper().map(empleado, EmpleadoDTO.class));
-
+   }
 }

@@ -10,7 +10,7 @@ import com.example.aquatrack_backend.model.TipoEmpleado;
 @Repository
 public interface TipoEmpleadoRepo extends RepoBase<TipoEmpleado> {
 
-     @Query(value = "SELECT nombre FROM tipo_empleado WHERE fecha_fin_vigencia IS NULL",
+     @Query(value = "SELECT * FROM tipo_empleado WHERE fecha_fin_vigencia IS NULL",
             nativeQuery = true)
-     List<String> findAllActive();
+     List<TipoEmpleado> findAllActive();
 }

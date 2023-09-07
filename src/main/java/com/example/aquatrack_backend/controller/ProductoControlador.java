@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.aquatrack_backend.dto.GuardarProductoDTO;
-import com.example.aquatrack_backend.dto.GuardarRolDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.helpers.ValidationHelper;
 import com.example.aquatrack_backend.service.ProductoServicio;
@@ -57,8 +56,8 @@ public class ProductoControlador{
 
     @PutMapping(value = "/{id}")
     @PreAuthorize("hasAuthority('EDITAR_PRODUCTOS')")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody GuardarProductoDTO rol) throws RecordNotFoundException {
-        return ResponseEntity.ok().body(productoServicio.updateProducto(id, rol));
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody GuardarProductoDTO producto) throws RecordNotFoundException {
+        return ResponseEntity.ok().body(productoServicio.updateProducto(id, producto));
     }
 
     @DeleteMapping(value = "/{id}")

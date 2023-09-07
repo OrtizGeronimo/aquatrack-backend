@@ -1,6 +1,7 @@
 package com.example.aquatrack_backend.dto;
 
 import java.util.List;
+import java.math.BigDecimal;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +19,9 @@ public class GuardarProductoDTO {
   @NotBlank()
   private String nombre;
 
-  @NotBlank()
   private String descripcion;
+
+  @NotNull()
+  private BigDecimal precio;
   
 }

@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +29,7 @@ public class ProductoServicio extends ServicioBaseImpl<Producto> {
 
   @Autowired
   ProductoRepo productoRepo;
+  @Autowired
   PrecioRepo precioRepo;
 
   public ProductoServicio(RepoBase<Producto> repoBase) {
@@ -49,7 +51,17 @@ public class ProductoServicio extends ServicioBaseImpl<Producto> {
       Long id = empresa.getId();
       Pageable paging = PageRequest.of(page, size);
       // Page<Producto> productos = productoRepo.getProductosActivos(id, nombre, mostrarInactivos, paging);
-      return productoRepo.getProductosActivos(id, nombre, mostrarInactivos, paging).map(rol -> new ModelMapper().map(rol, ProductoDTO.class));
+      return productoRepo.getProductosActivos(id, nombre, mostrarInactivos, paging)
+      .map(producto -> {
+          ProductoDTO productoDTO = new ModelMapper().map(producto, ProductoDTO.class);
+          for (Precio precio : producto.getPrecios()) {
+              if (precio.getFechaFinVigencia() == null) {
+                  productoDTO.setPrecio(precio.getPrecio());
+                  break; 
+              }
+          }
+          return productoDTO;
+      });
       // List<ProductoDTO> productDTOs = new ArrayList<>();
       //   for (Producto producto : productos) {
       //       ProductoDTO productDTO = new ProductoDTO();
@@ -65,21 +77,42 @@ public class ProductoServicio extends ServicioBaseImpl<Producto> {
   @Transactional
     public ProductoDTO createProducto(GuardarProductoDTO producto) {
         Producto productoNuevo = new Producto();
+        Precio precioNuevo = new Precio();
         productoNuevo.setNombre(producto.getNombre());
         productoNuevo.setDescripcion(producto.getDescripcion());
+        precioNuevo.setPrecio(producto.getPrecio());
+        precioNuevo.setProducto(productoNuevo);
         Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
         productoNuevo.setEmpresa(empresa);
         productoRepo.save(productoNuevo);
-        return new ModelMapper().map(productoNuevo, ProductoDTO.class);
+        precioRepo.save(precioNuevo);
+        ProductoDTO productoDTO = new ModelMapper().map(productoNuevo, ProductoDTO.class);
+        productoDTO.setPrecio(precioNuevo.getPrecio());
+        return productoDTO;
     }
 
     @Transactional
     public ProductoDTO updateProducto(Long id, GuardarProductoDTO producto) throws RecordNotFoundException {
+        System.out.println("DTO ---------------------------->" + producto);
+        ProductoDTO productoDTO;
         Producto productoModificado = productoRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El producto solicitado no fue encontrado"));
         productoModificado.setNombre(producto.getNombre());
         productoModificado.setDescripcion(producto.getDescripcion());
+        Precio precioActual = precioRepo.getPrecioActivo(productoModificado.getId());
+        productoDTO = new ModelMapper().map(productoModificado, ProductoDTO.class);
+        if(producto.getPrecio() != precioActual.getPrecio()){
+          Precio precioNuevo = new Precio();
+          precioNuevo.setPrecio(producto.getPrecio());
+          precioNuevo.setProducto(productoModificado);
+          precioActual.setFechaFinVigencia(LocalDateTime.now());
+          precioRepo.save(precioActual);
+          precioRepo.save(precioNuevo);
+          productoDTO.setPrecio(precioNuevo.getPrecio());
+        } else {
+          productoDTO.setPrecio(precioActual.getPrecio());
+        }
         productoRepo.save(productoModificado);
-        return new ModelMapper().map(productoModificado, ProductoDTO.class);
+        return productoDTO;
     }
 
     @Transactional

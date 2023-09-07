@@ -16,9 +16,12 @@ import org.springframework.stereotype.Repository;
 public interface ProductoRepo extends RepoBase<Producto> {
 
     @Query(value = "SELECT * FROM producto p " +
+                 "INNER JOIN precio pr ON p.id = pr.producto_id " + 
                  "WHERE :id = p.empresa_id " +
+                 "AND pr.fecha_fin_vigencia is NULL " + 
                  "AND (p.fecha_fin_vigencia is NULL or :mostrarInactivos = true) " +
-                 "AND (:nombre IS NULL OR p.nombre LIKE %:nombre%)", 
+                 "AND (:nombre IS NULL OR p.nombre LIKE %:nombre%) " +
+                 "ORDER BY p.id", 
                  nativeQuery = true)
     Page<Producto> getProductosActivos(Long id, String nombre, boolean mostrarInactivos, Pageable pageable);
 }

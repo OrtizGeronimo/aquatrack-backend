@@ -371,3 +371,15 @@ VALUES (1,'Ortiz',CURRENT_DATE,NULL,'Gerónimo',NULL,1,NULL,NULL,NULL,NULL,2,NUL
        (2,'Saurina',CURRENT_DATE,NULL,'Nicolás',NULL,2,NULL,NULL,NULL,NULL,1,NULL),
        (3,'Juarroz',CURRENT_DATE,NULL,'Martiniano',NULL,3,NULL,NULL,NULL,NULL,4,NULL),
        (4,'Carrión',CURRENT_DATE,NULL,'Martín',NULL,4,NULL,NULL,NULL,NULL,3,NULL);
+
+INSERT INTO cliente(id, nombre, apellido, dni)
+VALUES(1, 'Nicolás', 'Saura', 123),
+      (2, 'Flor', 'Korze', 321),
+      (3, 'Gero', 'Ortiz', 456),
+      (4, 'Martin', 'Carry', 987);
+
+INSERT INTO empresa_cliente(id, cliente_id, empresa_id)
+VALUES(1,1,1),
+      (2,2,2),
+      (3,3,2),
+      (4,4,1);

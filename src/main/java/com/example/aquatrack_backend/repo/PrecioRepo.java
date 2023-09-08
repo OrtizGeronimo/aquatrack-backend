@@ -10,9 +10,9 @@ import com.example.aquatrack_backend.model.Precio;
 @Repository
 public interface PrecioRepo extends RepoBase<Precio> {
 
-     @Query(value = "SELECT * FROM precio p " +
-                 "WHERE p.fecha_fin_vigencia IS NULL " +
-                 "AND p.producto_id = :id", 
+     @Query(value = "SELECT * FROM precio " +
+                 "WHERE fecha_fin_vigencia IS NULL " +
+                 "AND producto_id = :id", 
                  nativeQuery = true)
     Precio getPrecioActivo(Long id);
 }

@@ -11,21 +11,22 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/coberturas")
-@CrossOrigin(origins = "*")
 public class CoberturaControlador {
 
     @Autowired
     CoberturaServicio coberturaServicio;
 
-    @PostMapping("/{id}")
-    public ResponseEntity<?> guardarCobertura(@PathVariable Long id, @RequestBody List<UbicacionDTO> ubicaciones){
-        try{
-            return ResponseEntity.status(HttpStatus.OK).body(coberturaServicio.guardarCobertura(ubicaciones, id));
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\":\"Error. Por favor intente mas tarde.\"}");
-        }
+    @GetMapping("")
+    public ResponseEntity<?> verCobertura() throws Exception{
+        return ResponseEntity.status(HttpStatus.OK).body(coberturaServicio.verCobertura());
     }
 
+    @PostMapping("")
+    public ResponseEntity<?> crearCobertura(@RequestBody List<UbicacionDTO> vertices) {
+        return ResponseEntity.status(HttpStatus.OK).body(coberturaServicio.guardarCobertura(vertices));
+    }
+
+/*
     @PostMapping("")
     public ResponseEntity<?> conocerCoberturaCercana(@RequestBody UbicacionDTO ubicacionCliente){
         try{
@@ -34,4 +35,6 @@ public class CoberturaControlador {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\":\"Error. Por favor intente mas tarde.\"}");
         }
     }
+ */
+
 }

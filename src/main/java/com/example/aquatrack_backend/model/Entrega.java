@@ -46,4 +46,6 @@ public class Entrega {
 
   @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private Pago pago;
+
+  private Integer ordenVisita;
 }

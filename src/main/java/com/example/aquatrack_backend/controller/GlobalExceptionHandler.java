@@ -45,6 +45,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler({ Exception.class })
   public ResponseEntity<?> handleUnexpectedException(Exception ex) {
+    ex.printStackTrace();
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(ErrorResponseDTO.builder()
             .message("Error inesperado del servidor, intente mas tarde.")

@@ -4,10 +4,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.aquatrack_backend.helpers.ValidationHelper;
+import com.example.aquatrack_backend.dto.GuardarEmpleadoDTO;
+import com.example.aquatrack_backend.dto.GuardarProductoDTO;
+import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.service.EmpleadoServicio;
 
 @RestController
@@ -15,6 +21,7 @@ import com.example.aquatrack_backend.service.EmpleadoServicio;
 public class EmpleadoControlador{
     @Autowired
     private EmpleadoServicio empleadoServicio;
+    ValidationHelper validationHelper = new ValidationHelper();
 
     @GetMapping(value= "")
     @PreAuthorize("hasAuthority('LISTAR_EMPLEADOS')")
@@ -28,5 +35,14 @@ public class EmpleadoControlador{
     @GetMapping(value = "/tipos")
     public ResponseEntity<?> findAllTiposActive(){
         return ResponseEntity.ok().body(empleadoServicio.findAllTiposActive());
+    }
+
+    @PostMapping(value = "")
+    @PreAuthorize("hasAuthority('CREAR_EMPLEADOS')")
+    public ResponseEntity<?> create(@RequestBody GuardarEmpleadoDTO empleado) throws RecordNotFoundException{
+        if(validationHelper.hasValidationErrors(empleado)){
+            return ResponseEntity.badRequest().body(validationHelper.getValidationErrors(empleado));
+        }
+        return ResponseEntity.ok().body(empleadoServicio.createEmpleado(empleado));
     }
 }

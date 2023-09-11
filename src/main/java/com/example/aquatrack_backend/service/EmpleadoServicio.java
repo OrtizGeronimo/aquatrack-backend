@@ -1,9 +1,12 @@
 package com.example.aquatrack_backend.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.hibernate.criterion.Example;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,7 +32,9 @@ import com.example.aquatrack_backend.model.Usuario;
 import com.example.aquatrack_backend.repo.EmpleadoRepo;
 import com.example.aquatrack_backend.repo.RepoBase;
 import com.example.aquatrack_backend.repo.RolRepo;
+import com.example.aquatrack_backend.repo.RolUsuarioRepo;
 import com.example.aquatrack_backend.repo.TipoEmpleadoRepo;
+import com.example.aquatrack_backend.repo.UsuarioRepo;
 
 @Service
 public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
@@ -39,6 +44,10 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
   private TipoEmpleadoRepo tipoEmpleadoRepo;
   @Autowired
   private RolRepo rolRepo;
+  @Autowired
+  private UsuarioRepo usuarioRepo;
+  @Autowired
+  private RolUsuarioRepo rolUsuarioRepo;
 
   public EmpleadoServicio(RepoBase<Empleado> repoBase) {
     super(repoBase);
@@ -55,8 +64,8 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
         empleadoDTO.setNombre((String) empleado.getNombre());
         empleadoDTO.setApellido((String) empleado.getApellido());
         empleadoDTO.setLegajo((Integer) empleado.getLegajo());
-        empleadoDTO.setFechaFinVigencia((LocalDateTime) empleado.getFechaFinVigencia());
-        empleadoDTO.setFechaIngreso((LocalDateTime) empleado.getFechaIngreso());
+        empleadoDTO.setFechaFinVigencia((LocalDate) empleado.getFechaFinVigencia());
+        empleadoDTO.setFechaIngreso((LocalDate) empleado.getFechaIngreso());
         empleadoDTO.setTipo((String) empleado.getTipo().getNombre());
         return empleadoDTO;
     });
@@ -64,28 +73,38 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
   }
 
  @Transactional
-    public EmpleadoDTO createEmpleado(GuardarEmpleadoDTO empleado) {
+    public EmpleadoDTO createEmpleado(GuardarEmpleadoDTO empleado) throws RecordNotFoundException{
+        System.out.println("Empleado --------------------------------> " + empleado);
         Empleado empleadoNuevo = new Empleado();
         Usuario usuarioNuevo = new Usuario();
         RolUsuario rolUsuario = new RolUsuario();
-        Rol rolEmpleado = rolRepo.
-        rolUsuario.setUsuario(usuarioNuevo);
-        rolUsuario.setRol(rolEmpleado);
+        TipoEmpleado tipo = tipoEmpleadoRepo.findById(empleado.getTipo()).orElseThrow(() -> new RecordNotFoundException("El tipo de empleado solicitado no fue encontrado"));
+        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+        Rol rolRepartidor = rolRepo.findByName("Repartidor", empresa.getId());
+        Rol rolOficinista = rolRepo.findByName("Oficinista", empresa.getId());
+        if(tipo.getNombre() == "Repartidor") {
+          rolUsuario.setRol(rolRepartidor); 
+        } else {
+          rolUsuario.setRol(rolOficinista);
+        };
+        // rolUsuario.setRol(rolEmpleado);
         usuarioNuevo.setDireccionEmail(empleado.getEmail());
-        usuarioNuevo.setFechaCreacion(LocalDateTime.now());
+        usuarioNuevo.setFechaCreacion(LocalDate.now());
+        rolUsuario.setUsuario(usuarioNuevo);
         empleadoNuevo.setNombre(empleado.getNombre());
         empleadoNuevo.setApellido(empleado.getApellido());
         empleadoNuevo.setLegajo(empleado.getLegajo());
         empleadoNuevo.setNumTelefono(empleado.getNumTelefono());
-        empleadoNuevo.setFechaCreacion(LocalDateTime.now());
+        empleadoNuevo.setFechaCreacion(LocalDate.now());
         empleadoNuevo.setFechaIngreso(empleado.getFechaIngreso());
-        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
         empleadoNuevo.setEmpresa(empresa);
-        TipoEmpleado tipo = tipoEmpleadoRepo.findById(empleado.getTipoId()).orElseThrow(() -> new RecordNotFoundException("El tipo de empleado solicitado no fue encontrado"));
         empleadoNuevo.setTipo(tipo);
+        empleadoNuevo.setUsuario(usuarioNuevo);
+        usuarioRepo.save(usuarioNuevo);
+        rolUsuarioRepo.save(rolUsuario);
         empleadoRepo.save(empleadoNuevo);
         EmpleadoDTO empleadoDTO = new ModelMapper().map(empleadoNuevo, EmpleadoDTO.class);
-        productoDTO.setPrecio(precioNuevo.getPrecio());
+        empleadoDTO.setTipo(tipo.getNombre());
         return empleadoDTO;
     }  
 

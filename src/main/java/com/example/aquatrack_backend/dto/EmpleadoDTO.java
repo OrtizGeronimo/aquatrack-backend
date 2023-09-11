@@ -1,6 +1,6 @@
 package com.example.aquatrack_backend.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +17,7 @@ public class EmpleadoDTO {
     private String apellido;
     private Integer legajo;
     private String tipo;
-    private LocalDateTime fechaIngreso;
-    private LocalDateTime fechaFinVigencia;
+    private LocalDate fechaIngreso;
+    private LocalDate fechaFinVigencia;
+    // private String email;
 }

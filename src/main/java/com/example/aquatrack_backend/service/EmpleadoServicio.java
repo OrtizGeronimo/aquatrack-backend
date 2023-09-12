@@ -211,6 +211,8 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
         Usuario usuario = empleadoRehabilitado.getUsuario();
         usuario.setFechaFinVigencia(null);
         usuarioRepo.save(usuario);
-        return new ModelMapper().map(empleadoRehabilitado, EmpleadoDTO.class);
+        EmpleadoDTO response = new ModelMapper().map(empleadoRehabilitado, EmpleadoDTO.class)
+        response.setTipo(empleadoRehabilitado.getTipo().getNombre());
+        return response;
     }
 }

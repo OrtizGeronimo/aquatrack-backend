@@ -51,7 +51,7 @@ public class RepartoServicioImpl extends ServicioBaseImpl<Reparto> implements Se
         Loader.loadNativeLibraries();
     }
 
-    public List<String> crearReparto(Long id) {
+    public Reparto crearReparto(Long id) {
         Ruta ruta = rutaRepo.findById(id).orElseThrow();
 
 
@@ -107,7 +107,7 @@ public class RepartoServicioImpl extends ServicioBaseImpl<Reparto> implements Se
             entregas.add(entrega);
         }
 
-        return null;
+        return reparto;
 
     }
 

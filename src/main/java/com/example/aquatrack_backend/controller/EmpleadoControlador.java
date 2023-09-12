@@ -41,6 +41,28 @@ public class EmpleadoControlador{
         return ResponseEntity.ok().body(empleadoServicio.createEmpleado(empleado));
     }
 
+    @PostMapping(value = "/update/{id}")
+    @PreAuthorize("hasAuthority('EDITAR_EMPLEADOS')")
+    public ResponseEntity<?> update(@RequestBody GuardarEmpleadoDTO empleado, @PathVariable("id") Long id) throws RecordNotFoundException{
+        if(validationHelper.hasValidationErrors(empleado)){
+            return ResponseEntity.badRequest().body(validationHelper.getValidationErrors(empleado));
+        }
+        return ResponseEntity.ok().body(empleadoServicio.update(id, empleado));
+    }
+
+    @DeleteMapping(value = "/{id}")
+    @PreAuthorize("hasAuthority('ELIMINAR_EMPLEADOS')")
+    public ResponseEntity<?> disable(@PathVariable Long id) throws Exception {
+        empleadoServicio.disable(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping(value = "/{id}/enable")
+    @PreAuthorize("hasAuthority('EDITAR_EMPLEADOS')")
+    public ResponseEntity<?> enable(@PathVariable Long id) throws RecordNotFoundException {
+        return ResponseEntity.ok().body(empleadoServicio.enable(id));
+    }
+
     @GetMapping(value = "/{id}")
     @PreAuthorize("hasAuthority('LISTAR_EMPLEADOS')")
     public ResponseEntity<?> detail(@PathVariable("id") Long id) throws RecordNotFoundException {

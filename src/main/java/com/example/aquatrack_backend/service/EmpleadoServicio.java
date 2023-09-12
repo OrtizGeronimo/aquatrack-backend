@@ -165,8 +165,47 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
       empleadoExistente.setApellido(empleado.getApellido());
       empleadoExistente.setNumTelefono(empleado.getNumTelefono());
       empleadoExistente.getUsuario().setDireccionEmail(empleado.getUsuario().getDireccionEmail());
+      empleadoExistente.setFechaIngreso(empleado.getFechaIngreso());
 
+      List<Long> rolesActuales = empleadoExistente.getUsuario().getRolesUsuario().stream().map(rolUsuario -> rolUsuario.getRol().getId()).collect(Collectors.toList());
 
+      List<Long> rolesRevocados = rolesActuales.stream().filter(idRol -> !empleado.getUsuario().getRoles().contains(idRol)).collect(Collectors.toList());
+
+      List<Long> rolesNuevos = empleado.getUsuario().getRoles().stream().filter(idRol -> !rolesActuales.contains(idRol)).collect(Collectors.toList());
+
+      empleadoExistente.getUsuario().getRolesUsuario().removeIf(rolUsuario -> rolesRevocados.contains(rolUsuario.getRol().getId()));
+
+      for (Long rol: rolesNuevos) {
+          RolUsuario rolUsuario = new RolUsuario();
+          rolUsuario.setUsuario(usuarioRepo.findById(empleadoExistente.getUsuario().getId()).get());
+          rolUsuario.setRol(rolRepo.findById(rol).get());
+          empleadoExistente.getUsuario().getRolesUsuario().add(rolUsuario);
+      }
+
+      Empleado empleadoGuardado = empleadoRepo.save(empleadoExistente);
+
+      return mapper.map(empleadoGuardado, EmpleadoDTO.class);
 
   }
+
+    @Transactional
+    public void disable(Long id) throws Exception {
+        Empleado empleadoDeshabilitado = empleadoRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El empleado solicitado no fue encontrado"));
+        Usuario usuarioDeshabilitado = empleadoDeshabilitado.getUsuario();
+        usuarioDeshabilitado.setFechaFinVigencia(LocalDate.now());
+        empleadoDeshabilitado.setFechaFinVigencia(LocalDate.now());
+        empleadoRepo.save(empleadoDeshabilitado);
+        usuarioRepo.save(usuarioDeshabilitado);
+    }
+
+    @Transactional
+    public EmpleadoDTO enable(Long id) throws RecordNotFoundException {
+        Empleado empleadoRehabilitado = empleadoRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El empleado solicitado no fue encontrado"));
+        empleadoRehabilitado.setFechaFinVigencia(null);
+        empleadoRepo.save(empleadoRehabilitado);
+        Usuario usuario = empleadoRehabilitado.getUsuario();
+        usuario.setFechaFinVigencia(null);
+        usuarioRepo.save(usuario);
+        return new ModelMapper().map(empleadoRehabilitado, EmpleadoDTO.class);
+    }
 }

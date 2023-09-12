@@ -189,7 +189,7 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
 
       EmpleadoDTO empleadoDTO = mapper.map(empleadoGuardado, EmpleadoDTO.class);
       empleadoDTO.setTipo(tipo);
-      return mapper.map(empleadoGuardado, EmpleadoDTO.class);
+      return empleadoDTO;
 
   }
 

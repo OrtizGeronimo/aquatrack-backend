@@ -146,10 +146,27 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
 //      response.getUsuario().setRoles(roles);
         List<Long> roles = new ArrayList<>();
         for (RolUsuario rol : rolesUsuario) {
-            roles.add(rol.getId());
+            roles.add(rol.getRol().getId());
         }
       response.getUsuario().setRoles(roles);
 
       return response;
+  }
+
+  public EmpleadoDTO update(Long id, GuardarEmpleadoDTO empleado) throws RecordNotFoundException {
+
+      Empleado empleadoExistente = empleadoRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El empleado no fue encontrado"));
+
+      empleadoExistente.setTipo(tipoEmpleadoRepo.findById(empleado.getTipo()).get());
+
+      empleadoExistente.setLegajo(empleado.getLegajo());
+      empleadoExistente.setFechaIngreso(empleado.getFechaIngreso());
+      empleadoExistente.setNombre(empleado.getNombre());
+      empleadoExistente.setApellido(empleado.getApellido());
+      empleadoExistente.setNumTelefono(empleado.getNumTelefono());
+      empleadoExistente.getUsuario().setDireccionEmail(empleado.getUsuario().getDireccionEmail());
+
+
+
   }
 }

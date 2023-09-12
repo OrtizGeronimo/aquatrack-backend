@@ -46,7 +46,6 @@ public class ProductoServicio extends ServicioBaseImpl<Producto> {
       }
     }
 
-  }
 
   public Page<ProductoDTO> getProductosActivos(int page, int size, String nombre, boolean mostrarInactivos) {
       Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();

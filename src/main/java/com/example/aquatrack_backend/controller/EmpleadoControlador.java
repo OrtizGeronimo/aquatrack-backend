@@ -41,7 +41,7 @@ public class EmpleadoControlador{
         return ResponseEntity.ok().body(empleadoServicio.createEmpleado(empleado));
     }
 
-    @PostMapping(value = "/update/{id}")
+    @PutMapping(value = "/{id}")
     @PreAuthorize("hasAuthority('EDITAR_EMPLEADOS')")
     public ResponseEntity<?> update(@RequestBody GuardarEmpleadoDTO empleado, @PathVariable("id") Long id) throws RecordNotFoundException{
         if(validationHelper.hasValidationErrors(empleado)){

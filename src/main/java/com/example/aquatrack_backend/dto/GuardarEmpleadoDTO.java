@@ -29,6 +29,6 @@ public class GuardarEmpleadoDTO {
 
   private Long tipo;
 
-  private String email;
+  private UsuarioDTO usuario;
   
 }

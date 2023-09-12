@@ -16,6 +16,7 @@ public class UsuarioDTO {
     private Long id;
 
     private String direccionEmail;
+    private String contraseña;
     private Boolean validado;
 
     @DateTimeFormat(pattern = "dd-MM-YYYY")

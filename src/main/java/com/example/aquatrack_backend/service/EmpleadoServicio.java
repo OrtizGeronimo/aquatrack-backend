@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +46,9 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
   private UsuarioRepo usuarioRepo;
   @Autowired
   private RolUsuarioRepo rolUsuarioRepo;
+
+  @Autowired
+  private PasswordEncoder encoder;
 
   private ModelMapper mapper = new ModelMapper();
 
@@ -85,9 +89,10 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
           rolUsuario.setRol(rolRepartidor); 
         } else {
           rolUsuario.setRol(rolOficinista);
-        };
+        }
         // rolUsuario.setRol(rolEmpleado);
-        usuarioNuevo.setDireccionEmail(empleado.getEmail());
+        usuarioNuevo.setDireccionEmail(empleado.getUsuario().getDireccionEmail());
+        usuarioNuevo.setContraseña(encoder.encode(empleado.getUsuario().getContraseña()));
         usuarioNuevo.setFechaCreacion(LocalDate.now());
         rolUsuario.setUsuario(usuarioNuevo);
         empleadoNuevo.setNombre(empleado.getNombre());

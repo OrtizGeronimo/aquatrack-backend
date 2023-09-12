@@ -80,21 +80,31 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
         System.out.println("Empleado --------------------------------> " + empleado);
         Empleado empleadoNuevo = new Empleado();
         Usuario usuarioNuevo = new Usuario();
-        RolUsuario rolUsuario = new RolUsuario();
+//        RolUsuario rolUsuario = new RolUsuario();
         TipoEmpleado tipo = tipoEmpleadoRepo.findById(empleado.getTipo()).orElseThrow(() -> new RecordNotFoundException("El tipo de empleado solicitado no fue encontrado"));
         Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
-        Rol rolRepartidor = rolRepo.findByName("Repartidor", empresa.getId());
-        Rol rolOficinista = rolRepo.findByName("Oficinista", empresa.getId());
-        if(tipo.getNombre() == "Repartidor") {
-          rolUsuario.setRol(rolRepartidor); 
-        } else {
-          rolUsuario.setRol(rolOficinista);
-        }
+//        Rol rolRepartidor = rolRepo.findByName("Repartidor", empresa.getId());
+//        Rol rolOficinista = rolRepo.findByName("Oficinista", empresa.getId());
+//        if(tipo.getNombre() == "Repartidor") {
+//          rolUsuario.setRol(rolRepartidor);
+//        } else {
+//          rolUsuario.setRol(rolOficinista);
+//        }
+         usuarioNuevo.setDireccionEmail(empleado.getUsuario().getDireccionEmail());
+         usuarioNuevo.setContraseña(encoder.encode(empleado.getUsuario().getContrasenia()));
+         usuarioNuevo.setFechaCreacion(LocalDate.now());
+         List<RolUsuario> roles = new ArrayList<>();
+         for (Long idRol : empleado.getUsuario().getRoles()) {
+             Rol rol = rolRepo.findById(idRol).get();
+             RolUsuario nuevoRolUsuario = new RolUsuario();
+             nuevoRolUsuario.setRol(rol);
+             nuevoRolUsuario.setUsuario(usuarioNuevo);
+             roles.add(nuevoRolUsuario);
+         }
+         usuarioNuevo.setRolesUsuario(roles);
         // rolUsuario.setRol(rolEmpleado);
-        usuarioNuevo.setDireccionEmail(empleado.getUsuario().getDireccionEmail());
-        usuarioNuevo.setContraseña(encoder.encode(empleado.getUsuario().getContraseña()));
-        usuarioNuevo.setFechaCreacion(LocalDate.now());
-        rolUsuario.setUsuario(usuarioNuevo);
+
+//        rolUsuario.setUsuario(usuarioNuevo);
         empleadoNuevo.setNombre(empleado.getNombre());
         empleadoNuevo.setApellido(empleado.getApellido());
         empleadoNuevo.setLegajo(empleado.getLegajo());
@@ -103,9 +113,10 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
         empleadoNuevo.setFechaIngreso(empleado.getFechaIngreso());
         empleadoNuevo.setEmpresa(empresa);
         empleadoNuevo.setTipo(tipo);
-        empleadoNuevo.setUsuario(usuarioNuevo);
+
         usuarioRepo.save(usuarioNuevo);
-        rolUsuarioRepo.save(rolUsuario);
+        empleadoNuevo.setUsuario(usuarioNuevo);
+//        rolUsuarioRepo.save(rolUsuario);
         empleadoRepo.save(empleadoNuevo);
         EmpleadoDTO empleadoDTO = new ModelMapper().map(empleadoNuevo, EmpleadoDTO.class);
         empleadoDTO.setTipo(tipo.getNombre());

@@ -29,6 +29,6 @@ public class GuardarEmpleadoDTO {
 
   private Long tipo;
 
-  private UsuarioDTO usuario;
+  private UsuarioAddEmpleadoDTO usuario;
   
 }

@@ -184,6 +184,11 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
 
       Empleado empleadoGuardado = empleadoRepo.save(empleadoExistente);
 
+
+      String tipo = empleadoGuardado.getTipo().getNombre();
+
+      EmpleadoDTO empleadoDTO = mapper.map(empleadoGuardado, EmpleadoDTO.class);
+      empleadoDTO.setTipo(tipo);
       return mapper.map(empleadoGuardado, EmpleadoDTO.class);
 
   }

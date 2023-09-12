@@ -18,5 +18,5 @@ public class EmpleadoDetailDTO {
     private TipoEmpleadoDTO tipo;
     private LocalDate fechaIngreso;
     private LocalDate fechaFinVigencia;
-    private UsuarioDTO usuario;
+    private UsuarioAddEmpleadoDTO usuario;
 }

@@ -134,12 +134,16 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
       Empleado empleado = empleadoRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El empleado no fue encontrado"));
       EmpleadoDetailDTO response = mapper.map(empleado, EmpleadoDetailDTO.class);
       response.getUsuario().setRoles(null);
-      List<RolDTO> roles = new ArrayList<>();
+//      List<RolDTO> roles = new ArrayList<>();
+//        for (RolUsuario rol : empleado.getUsuario().getRolesUsuario()) {
+//            roles.add(mapper.map(rol.getRol(), RolDTO.class));
+//        }
+//      response.getUsuario().setRoles(roles);
+        List<Long> roles = new ArrayList<>();
         for (RolUsuario rol : empleado.getUsuario().getRolesUsuario()) {
-            roles.add(mapper.map(rol.getRol(), RolDTO.class));
+            roles.add(rol.getId());
         }
       response.getUsuario().setRoles(roles);
-
 
       return response;
   }

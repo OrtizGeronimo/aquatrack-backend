@@ -2,10 +2,12 @@ package com.example.aquatrack_backend.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.example.aquatrack_backend.dto.*;
 import org.hibernate.criterion.Example;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.aquatrack_backend.dto.EmpleadoDTO;
-import com.example.aquatrack_backend.dto.GuardarEmpleadoDTO;
-import com.example.aquatrack_backend.dto.GuardarProductoDTO;
-import com.example.aquatrack_backend.dto.ProductoDTO;
-import com.example.aquatrack_backend.dto.TipoEmpleadoDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.model.Empleado;
 import com.example.aquatrack_backend.model.Empresa;
@@ -48,6 +45,8 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
   private UsuarioRepo usuarioRepo;
   @Autowired
   private RolUsuarioRepo rolUsuarioRepo;
+
+  private ModelMapper mapper = new ModelMapper();
 
   public EmpleadoServicio(RepoBase<Empleado> repoBase) {
     super(repoBase);
@@ -111,8 +110,21 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
   public List<TipoEmpleadoDTO> findAllTiposActive(){
      return tipoEmpleadoRepo.findAllActive()
         .stream()
-        .map(tipoEmpleado -> new ModelMapper().map(tipoEmpleado, TipoEmpleadoDTO.class))
+        .map(tipoEmpleado -> mapper.map(tipoEmpleado, TipoEmpleadoDTO.class))
         .collect(Collectors.toList());
   }
 
+    public EmpleadoDetailDTO detail(Long id) throws RecordNotFoundException {
+      Empleado empleado = empleadoRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El empleado no fue encontrado"));
+      EmpleadoDetailDTO response = mapper.map(empleado, EmpleadoDetailDTO.class);
+      response.getUsuario().setRoles(null);
+      List<RolDTO> roles = new ArrayList<>();
+        for (RolUsuario rol : empleado.getUsuario().getRolesUsuario()) {
+            roles.add(mapper.map(rol.getRol(), RolDTO.class));
+        }
+      response.getUsuario().setRoles(roles);
+
+
+      return response;
+  }
 }

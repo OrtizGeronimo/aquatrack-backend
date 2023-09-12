@@ -35,6 +35,8 @@ public class RolServicio extends ServicioBaseImpl<Rol> {
     @Autowired
     private RolUsuarioRepo rolUsuarioRepo;
 
+    private ModelMapper mapper = new ModelMapper();
+
     public RolServicio(RepoBase<Rol> repoBase) {
         super(repoBase);
     }
@@ -65,7 +67,7 @@ public class RolServicio extends ServicioBaseImpl<Rol> {
 
         return rol.getPermisoRoles()
                 .stream()
-                .map(permisoRol -> new ModelMapper().map(permisoRol.getPermiso(), PermisoDTO.class))
+                .map(permisoRol -> mapper.map(permisoRol.getPermiso(), PermisoDTO.class))
                 .sorted(Comparator.comparing(PermisoDTO::getId))
                 .collect(Collectors.toList());
     }

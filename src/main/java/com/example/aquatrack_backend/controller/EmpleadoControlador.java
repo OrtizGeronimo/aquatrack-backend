@@ -3,12 +3,7 @@ package com.example.aquatrack_backend.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.aquatrack_backend.helpers.ValidationHelper;
 import com.example.aquatrack_backend.dto.GuardarEmpleadoDTO;
@@ -44,5 +39,11 @@ public class EmpleadoControlador{
             return ResponseEntity.badRequest().body(validationHelper.getValidationErrors(empleado));
         }
         return ResponseEntity.ok().body(empleadoServicio.createEmpleado(empleado));
+    }
+
+    @GetMapping(value = "/{id}")
+    @PreAuthorize("hasAuthority('LISTAR_EMPLEADOS')")
+    public ResponseEntity<?> detail(@PathVariable("id") Long id) throws RecordNotFoundException {
+        return ResponseEntity.ok(empleadoServicio.detail(id));
     }
 }

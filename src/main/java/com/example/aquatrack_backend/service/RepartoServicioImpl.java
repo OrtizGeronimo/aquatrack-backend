@@ -57,11 +57,11 @@ public class RepartoServicioImpl extends ServicioBaseImpl<Reparto> implements Se
 
         LocalDateTime now = LocalDateTime.now();
 
-        // Obtener el día de la semana actual
+
         DayOfWeek dayOfWeek = now.getDayOfWeek();
 
-        // Obtener el nombre del día en español
-        Locale spanishLocale = new Locale("es", "ES"); // Configurar el locale a español
+
+        Locale spanishLocale = new Locale("es", "ES");
         String nombreDia = dayOfWeek.getDisplayName(TextStyle.FULL, spanishLocale);
 
 
@@ -106,6 +106,8 @@ public class RepartoServicioImpl extends ServicioBaseImpl<Reparto> implements Se
             entrega.setOrdenVisita(i);
             entregas.add(entrega);
         }
+
+        reparto.setEntregas(entregas);
 
         return reparto;
 

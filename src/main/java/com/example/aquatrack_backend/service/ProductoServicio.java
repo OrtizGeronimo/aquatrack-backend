@@ -36,14 +36,16 @@ public class ProductoServicio extends ServicioBaseImpl<Producto> {
     super(repoBase);
   }
 
-  public List<Precio> getPrecios(Long id) throws Exception {
-    try {
-      Optional<Producto> producto = productoRepo.findById(id);
-      List<Precio> precios = producto.get().getPrecios();
-      return precios;
-    } catch (Exception e) {
-      throw new Exception(e.getMessage());
+    public List<Precio> getPrecios(Long id) throws Exception {
+      try {
+        Optional<Producto> producto = productoRepo.findById(id);
+        List<Precio> precios = producto.get().getPrecios();
+        return precios;
+      } catch (Exception e) {
+        throw new Exception(e.getMessage());
+      }
     }
+
   }
 
   public Page<ProductoDTO> getProductosActivos(int page, int size, String nombre, boolean mostrarInactivos) {
@@ -132,4 +134,5 @@ public class ProductoServicio extends ServicioBaseImpl<Producto> {
         productoRepo.save(productoRehabilitado);
         return new ModelMapper().map(productoRehabilitado, ProductoDTO.class);
     }
+
 }

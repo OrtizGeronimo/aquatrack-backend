@@ -75,6 +75,11 @@
             <artifactId>flyway-mysql</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.locationtech.jts</groupId>
+            <artifactId>jts-core</artifactId>
+            <version>1.19.0</version>
+        </dependency>
+        <dependency>
           <groupId>org.modelmapper</groupId>
           <artifactId>modelmapper</artifactId>
           <version>3.0.0</version>

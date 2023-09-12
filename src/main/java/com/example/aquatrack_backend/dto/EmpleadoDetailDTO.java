@@ -15,7 +15,8 @@ public class EmpleadoDetailDTO {
     private String nombre;
     private String apellido;
     private Integer legajo;
-    private TipoEmpleadoDTO tipo;
+    private String numTelefono;
+    private Long tipo;
     private LocalDate fechaIngreso;
     private LocalDate fechaFinVigencia;
     private UsuarioAddEmpleadoDTO usuario;

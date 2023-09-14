@@ -1,6 +1,8 @@
 package com.example.aquatrack_backend.model;
 
 
+import java.math.BigDecimal;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -22,12 +24,12 @@ public class DeudaPago {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private float montoAdeudadoPago;
+    private BigDecimal montoAdeudadoPago;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     private Deuda deuda;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     private Pago pago;
 
 }

@@ -25,6 +25,6 @@ public class Cliente extends Persona {
   @OneToOne(mappedBy = "cliente")
   private Domicilio domicilio;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "cliente", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "cliente")
   private List<EmpresaCliente> empresaClientes;
 }

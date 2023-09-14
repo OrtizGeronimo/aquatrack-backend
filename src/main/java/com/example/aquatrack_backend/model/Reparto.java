@@ -35,15 +35,15 @@ public class Reparto {
   @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
   private LocalDateTime fechaYHoraFin;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private EstadoReparto estadoReparto;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Empleado repartidor;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Ruta ruta;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "reparto", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "reparto")
   private List<Entrega> entregas;
 }

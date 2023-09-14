@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -39,21 +38,21 @@ public class Domicilio {
   @OneToOne
   private Ubicacion ubicacion;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio")
   private List<DomicilioProducto> productoDomicilios;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio")
   private List<Pedido> pedidos;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio")
   private List<Entrega> entregas;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio")
   private List<DiaDomicilio> diaDomicilios;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio")
   private List<DomicilioRuta> domicilioRutas;
 
-  @OneToOne(fetch = FetchType.LAZY)
+  @OneToOne()
   private Deuda deuda;
 }

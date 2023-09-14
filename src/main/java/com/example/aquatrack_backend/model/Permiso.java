@@ -32,6 +32,6 @@ public class Permiso {
   @DateTimeFormat(pattern = "dd-MM-YYYY")
   private LocalDateTime fechaFinVigencia;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "permiso", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "permiso")
   private List<PermisoRol> permisoRoles;
 }

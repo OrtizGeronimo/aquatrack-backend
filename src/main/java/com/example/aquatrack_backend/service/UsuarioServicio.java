@@ -18,19 +18,15 @@ import com.example.aquatrack_backend.dto.LoginResponseDTO;
 import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
 import com.example.aquatrack_backend.model.Empleado;
 import com.example.aquatrack_backend.model.Usuario;
-import com.example.aquatrack_backend.repo.UsuarioRepo;
 
 @Service
-public class UsuarioServicioImpl {
+public class UsuarioServicio {
 
   @Autowired
   private AuthenticationManager authenticationManager;
 
   @Autowired
   private JwtUtils jwtUtils;
-
-  @Autowired
-  private UsuarioRepo usuarioRepo;
 
   public LoginResponseDTO login(String direccionEmail, String contraseña) {
     Authentication authentication = authenticationManager
@@ -44,8 +40,7 @@ public class UsuarioServicioImpl {
 
     if (authentication != null && authentication.isAuthenticated()) {
       SecurityUser userDetails = (SecurityUser) authentication.getPrincipal();
-      Usuario usuario = usuarioRepo.findById(userDetails.getUsuario().getId()).get();
-      Empleado empleado = (Empleado) usuario.getPersona();
+      Empleado empleado = (Empleado) getUsuarioFromContext().getPersona();
       List<String> permisos = userDetails.getAuthorities().stream()
           .map(GrantedAuthority::getAuthority)
           .collect(Collectors.toList());
@@ -57,5 +52,12 @@ public class UsuarioServicioImpl {
     } else {
       throw new FailedToAuthenticateUserException("Error de autenticación. Intente mas tarde.");
     }
+  }
+
+  private Usuario getUsuarioFromContext() {
+    return ((SecurityUser) SecurityContextHolder.getContext()
+        .getAuthentication()
+        .getPrincipal())
+        .getUsuario();
   }
 }

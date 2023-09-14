@@ -25,9 +25,9 @@ public class Cobertura {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @OneToOne(fetch = FetchType.LAZY)
+  @OneToOne()
   private Empresa empresa;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "cobertura", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "cobertura")
   private List<Ubicacion> ubicaciones;
 }

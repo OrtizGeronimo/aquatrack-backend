@@ -21,9 +21,9 @@ public class PedidoExtraordinario extends Pedido {
   @DateTimeFormat(pattern = "dd-MM-YYYY")
   private LocalDateTime fechaCoordinadaEntrega;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private TipoPedido tipoPedido;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private EstadoPedido estadoPedido;
 }

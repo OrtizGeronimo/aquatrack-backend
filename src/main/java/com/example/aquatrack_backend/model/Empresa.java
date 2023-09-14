@@ -41,24 +41,24 @@ public class Empresa {
   @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
   private LocalDateTime horaActualizacion;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
   private List<CodigoTemporal> codigos;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
   private List<Empleado> empleados;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
   private List<EmpresaCliente> empresaClientes;
 
-  @OneToOne(mappedBy = "empresa", fetch = FetchType.LAZY)
+  @OneToOne(mappedBy = "empresa")
   private Cobertura cobertura;
 
-  @OneToOne(fetch = FetchType.LAZY)
+  @OneToOne()
   private Ubicacion ubicacion;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa", fetch = FetchType.EAGER)
   private List<Rol> roles;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
   private List<Producto> productos;
 }

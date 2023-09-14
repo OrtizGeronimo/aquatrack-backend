@@ -1,11 +1,15 @@
 package com.example.aquatrack_backend.model;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.TableGenerator;
@@ -20,24 +24,28 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@TableGenerator(name = "employee_gen", table = "sequence_generator", pkColumnName = "sequence_name", valueColumnName = "next_val", allocationSize = 1)
+// @TableGenerator(name = "employee_gen", table = "sequence_generator", pkColumnName = "sequence_name", valueColumnName = "next_val", allocationSize = 1)
 public class Empleado extends Persona {
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
   private Integer legajo;
-  @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
-  private LocalDateTime fechaIngreso;
+  @DateTimeFormat(pattern = "dd-MM-YYYY")
+  private LocalDate fechaIngreso;
   @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
   private LocalDateTime fechaInicioVacaciones;
 
   @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
   private LocalDateTime fechaFinVacaciones;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Empresa empresa;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private TipoEmpleado tipo;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "repartidor", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "repartidor")
   private List<Reparto> reparto;
 }

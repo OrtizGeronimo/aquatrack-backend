@@ -35,18 +35,18 @@ public class Producto {
   @DateTimeFormat(pattern = "dd-MM-YYYY")
   private LocalDateTime fechaFinVigencia;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "producto", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "producto")
   private List<Precio> precios;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "producto", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "producto")
   private List<PedidoProducto> pedidoProductos;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "producto", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "producto")
   private List<DomicilioProducto> domicilioProductos;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "producto", fetch = FetchType.LAZY)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "producto")
   private List<EntregaDetalle> entregaDetalles;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne()
   private Empresa empresa;
 }

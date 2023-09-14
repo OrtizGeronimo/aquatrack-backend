@@ -1,14 +1,22 @@
 package com.example.aquatrack_backend.controller;
 
+import java.util.Calendar;
+
 import com.example.aquatrack_backend.model.Precio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-
-import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.example.aquatrack_backend.dto.GuardarProductoDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
@@ -43,7 +51,11 @@ public class ProductoControlador{
 
     @PostMapping(value = "")
     @PreAuthorize("hasAuthority('CREAR_PRODUCTOS')")
-    public ResponseEntity<?> create(@RequestBody GuardarProductoDTO producto) {
+    public ResponseEntity<?> create(@RequestBody GuardarProductoDTO producto, @RequestParam("archivo") MultipartFile archivo ) {
+        int index = archivo.getOriginalFilename().indexOf(".");
+        String extension = "." + archivo.getOriginalFilename().substring(index+1);
+        String nombre = Calendar.getInstance().getTimeInMillis() + extension;
+        Path ruta = 
         if(validationHelper.hasValidationErrors(producto)){
             return ResponseEntity.badRequest().body(validationHelper.getValidationErrors(producto));
         }

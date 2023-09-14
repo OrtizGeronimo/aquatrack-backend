@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ public class RepartoServicioImpl extends ServicioBaseImpl<Reparto> implements Se
         Ruta ruta = rutaRepo.findById(id).orElseThrow();
 
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDate now = LocalDate.now();
 
 
         DayOfWeek dayOfWeek = now.getDayOfWeek();
@@ -65,13 +66,13 @@ public class RepartoServicioImpl extends ServicioBaseImpl<Reparto> implements Se
         String nombreDia = dayOfWeek.getDisplayName(TextStyle.FULL, spanishLocale);
 
 
-        List<DomicilioRuta> domiciliosARepartir = new ArrayList<>();
+        List<Domicilio> domiciliosARepartir = new ArrayList<>();
 
         domiciliosLoop:
         for (DomicilioRuta domicilio: ruta.getDomicilioRutas()) {
             for (DiaDomicilio dia: domicilio.getDomicilio().getDiaDomicilios()) {
                 if (dia.getDiaRuta().getDiaSemana().getNombre().equals(nombreDia)){
-                    domiciliosARepartir.add(domicilio);
+                    domiciliosARepartir.add(domicilio.getDomicilio());
                     continue domiciliosLoop;
                 }
             }
@@ -81,10 +82,17 @@ public class RepartoServicioImpl extends ServicioBaseImpl<Reparto> implements Se
 
         Reparto reparto = new Reparto();
 
+        List<Entrega> entregasExistentes = new ArrayList<>();
+
         for (Reparto repartoExistente: ruta.getRepartos()) {
-            if (repartoExistente.getEstadoReparto().equals(estadoAnticipado)){
+            if (repartoExistente.getEstadoReparto().equals(estadoAnticipado) && repartoExistente.getFechaEjecucion().equals(now)){
                 reparto = repartoExistente;
+                entregasExistentes = reparto.getEntregas();
             }
+        }
+
+        for (Entrega entrega: entregasExistentes) {
+            domiciliosARepartir.add(entrega.getDomicilio());
         }
 
         List<Ubicacion> rutaOptima = calcularRutaOptima(domiciliosARepartir);
@@ -99,12 +107,12 @@ public class RepartoServicioImpl extends ServicioBaseImpl<Reparto> implements Se
         List<Entrega> entregas = new ArrayList<>();
 
         for (int i = 0; i < rutaOptima.size(); i++) {
-            Entrega entrega = new Entrega();
-            entrega.setDomicilio(rutaOptima.get(i).getDomicilio());
-            entrega.setEstadoEntrega(estadoEntrega);
-            entrega.setReparto(reparto);
-            entrega.setOrdenVisita(i);
-            entregas.add(entrega);
+                Entrega entrega = new Entrega();
+                entrega.setDomicilio(rutaOptima.get(i).getDomicilio());
+                entrega.setEstadoEntrega(estadoEntrega);
+                entrega.setReparto(reparto);
+                entrega.setOrdenVisita(i);
+                entregas.add(entrega);
         }
 
         reparto.setEntregas(entregas);
@@ -113,7 +121,7 @@ public class RepartoServicioImpl extends ServicioBaseImpl<Reparto> implements Se
 
     }
 
-    private List<Ubicacion> calcularRutaOptima(List<DomicilioRuta> domicilioRutas) {
+    private List<Ubicacion> calcularRutaOptima(List<Domicilio> domicilioRutas) {
         String apiKey = bingMapsConfig.getApiKey();
         try {
         StringBuilder urlBuilder = new StringBuilder("https://dev.virtualearth.net/REST/v1/Routes/Driving?");
@@ -121,7 +129,7 @@ public class RepartoServicioImpl extends ServicioBaseImpl<Reparto> implements Se
         String coordenadasInicio = null;
             for (int i = 0; i < domicilioRutas.size(); i++) {
 
-                Domicilio domicilio1 = domicilioRutas.get(i).getDomicilio();
+                Domicilio domicilio1 = domicilioRutas.get(i);
                 String nombre = domicilio1.getDescripcion();
                 double lat1 = domicilio1.getUbicacion().getLatitud();
                 double lon1 = domicilio1.getUbicacion().getLongitud();
@@ -176,9 +184,9 @@ public class RepartoServicioImpl extends ServicioBaseImpl<Reparto> implements Se
 
                 Integer indiceCoordenada = Integer.parseInt(numeroString);
 
-                ubicacionesOrdenadas.add(domicilioRutas.get(indiceCoordenada).getDomicilio().getUbicacion());
+                ubicacionesOrdenadas.add(domicilioRutas.get(indiceCoordenada).getUbicacion());
             }
-            ubicacionesOrdenadas.add(domicilioRutas.get(0).getDomicilio().getUbicacion());
+            ubicacionesOrdenadas.add(domicilioRutas.get(0).getUbicacion());
 
 
         connection.disconnect();

@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class Reparto {
   private Long id;
 
   @DateTimeFormat(pattern = "dd-MM-YYYY")
-  private LocalDateTime fechaEjecucion;
+  private LocalDate fechaEjecucion;
 
   @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
   private LocalDateTime fechaYHoraFin;

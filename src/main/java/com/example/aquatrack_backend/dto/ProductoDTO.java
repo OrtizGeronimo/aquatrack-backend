@@ -18,4 +18,6 @@ public class ProductoDTO {
     private String descripcion;
     private BigDecimal precio;
     private LocalDateTime fechaFinVigencia;
+    private String codigo;
+    private String imagen;
 }

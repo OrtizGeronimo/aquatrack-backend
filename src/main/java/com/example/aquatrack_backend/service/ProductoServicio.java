@@ -1,7 +1,11 @@
 package com.example.aquatrack_backend.service;
 
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.aquatrack_backend.dto.GuardarProductoDTO;
 import com.example.aquatrack_backend.dto.ProductoDTO;
@@ -46,16 +51,19 @@ public class ProductoServicio extends ServicioBaseImpl<Producto> {
       }
     }
 
-  }
-
-  public Page<ProductoDTO> getProductosActivos(int page, int size, String nombre, boolean mostrarInactivos) {
+  public Page<ProductoDTO> getProductosActivos(int page, int size, String nombre, boolean mostrarInactivos, int precio1, int precio2) {
       Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
       Long id = empresa.getId();
       Pageable paging = PageRequest.of(page, size);
       // Page<Producto> productos = productoRepo.getProductosActivos(id, nombre, mostrarInactivos, paging);
-      return productoRepo.getProductosActivos(id, nombre, mostrarInactivos, paging)
+      return productoRepo.getProductosActivos(id, nombre, mostrarInactivos, precio1, precio2, paging)
       .map(producto -> {
           ProductoDTO productoDTO = new ModelMapper().map(producto, ProductoDTO.class);
+          String ruta = "C://aquatrack/imagenes"; // Change to your image storage path
+          String imagenFileName = producto.getImagen();
+          if (imagenFileName != null) {
+              productoDTO.setImagen(ruta + "/" + imagenFileName);
+          }
           for (Precio precio : producto.getPrecios()) {
               if (precio.getFechaFinVigencia() == null) {
                   productoDTO.setPrecio(precio.getPrecio());
@@ -77,11 +85,33 @@ public class ProductoServicio extends ServicioBaseImpl<Producto> {
   }
 
   @Transactional
+  public String uploadImage(MultipartFile imagen, String codigo){
+    try{
+        String ruta = "C://aquatrack/imagenes";
+        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+        Producto producto = productoRepo.findByCode(codigo, empresa.getId());
+        int index = imagen.getOriginalFilename().indexOf(".");
+        String extension = "." + imagen.getOriginalFilename().substring(index+1);
+        String nombre = Calendar.getInstance().getTimeInMillis() + extension;
+        Path rutaAbsoluta = producto.getImagen() != null ?  Paths.get(ruta + "//"+producto.getImagen()) : 
+                                                            Paths.get(ruta + "//"+nombre);
+        Files.write(rutaAbsoluta, imagen.getBytes());
+        producto.setImagen(nombre);
+        productoRepo.save(producto);
+        return "Exito";
+    } catch (Exception e){
+        return e.getMessage();
+    }
+  }
+
+  @Transactional
     public ProductoDTO createProducto(GuardarProductoDTO producto) {
         Producto productoNuevo = new Producto();
         Precio precioNuevo = new Precio();
         productoNuevo.setNombre(producto.getNombre());
         productoNuevo.setDescripcion(producto.getDescripcion());
+        productoNuevo.setCodigo(producto.getCodigo());
+        // pruductoNuevo.setImagen(producto.getImagen());
         precioNuevo.setPrecio(producto.getPrecio());
         precioNuevo.setProducto(productoNuevo);
         Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();

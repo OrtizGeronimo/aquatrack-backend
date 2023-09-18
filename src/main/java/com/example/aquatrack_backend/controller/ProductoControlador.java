@@ -1,5 +1,8 @@
 package com.example.aquatrack_backend.controller;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Calendar;
 
 import com.example.aquatrack_backend.model.Precio;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.aquatrack_backend.dto.GuardarProductoDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
@@ -45,17 +49,21 @@ public class ProductoControlador{
     public ResponseEntity<?> getProductosActivos(@RequestParam(defaultValue = "0") int page,
                                      @RequestParam(defaultValue = "10") int size,
                                      @RequestParam(defaultValue = "false") boolean mostrar_inactivos,
-                                     @RequestParam(required = false) String nombre) {
-    return ResponseEntity.ok().body(productoServicio.getProductosActivos(page, size, nombre, mostrar_inactivos));
+                                     @RequestParam(required = false) String nombre,
+                                     @RequestParam(defaultValue = "0") int precio1,
+                                     @RequestParam(defaultValue = "20000") int precio2) {
+    return ResponseEntity.ok().body(productoServicio.getProductosActivos(page, size, nombre, mostrar_inactivos, precio1, precio2));
     }
+
+    @PutMapping("/uploadImage/{codigo}")
+    public ResponseEntity<?> uploadImagen(@RequestParam("imagen") MultipartFile imagen, @PathVariable String codigo) {     
+        productoServicio.uploadImage(imagen, codigo);
+        return ResponseEntity.noContent().build();    
+     }
 
     @PostMapping(value = "")
     @PreAuthorize("hasAuthority('CREAR_PRODUCTOS')")
-    public ResponseEntity<?> create(@RequestBody GuardarProductoDTO producto, @RequestParam("archivo") MultipartFile archivo ) {
-        int index = archivo.getOriginalFilename().indexOf(".");
-        String extension = "." + archivo.getOriginalFilename().substring(index+1);
-        String nombre = Calendar.getInstance().getTimeInMillis() + extension;
-        Path ruta = 
+    public ResponseEntity<?> create(@RequestBody GuardarProductoDTO producto) {
         if(validationHelper.hasValidationErrors(producto)){
             return ResponseEntity.badRequest().body(validationHelper.getValidationErrors(producto));
         }

@@ -16,8 +16,15 @@ public interface ProductoRepo extends RepoBase<Producto> {
                  "AND pr.fecha_fin_vigencia is NULL " + 
                  "AND (producto.fecha_fin_vigencia is NULL or :mostrarInactivos = true) " +
                  "AND (:nombre IS NULL OR producto.nombre LIKE %:nombre%) " + 
+                 "AND :precio1 <= pr.precio AND :precio2 >= pr.precio " + 
                  "ORDER BY producto.id", 
                  nativeQuery = true)
-    Page<Producto> getProductosActivos(Long id, String nombre, boolean mostrarInactivos, Pageable pageable);
+    Page<Producto> getProductosActivos(Long id, String nombre, boolean mostrarInactivos, int precio1, int precio2, Pageable pageable);
+
+    @Query(value = "SELECT * FROM producto " + 
+                   "WHERE codigo LIKE %:code% " + 
+                   "AND empresa_id = :id",
+                   nativeQuery=true)
+    Producto findByCode(String code, Long id);
 }
 

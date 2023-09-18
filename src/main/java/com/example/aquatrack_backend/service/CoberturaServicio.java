@@ -50,8 +50,9 @@ public class CoberturaServicio {
     }
 
     @Transactional
-    public List<EmpresaDTO> conocerCobertura(UbicacionDTO ubicacionCliente) throws Exception{
+    public List<EmpresaDTO> conocerCobertura(double latitud, double longitud) throws Exception{
         try {
+            UbicacionDTO ubicacionCliente = UbicacionDTO.builder().latitud(latitud).longitud(longitud).build();
             List<Cobertura> coberturas = coberturaRepo.findAll();
             List<EmpresaDTO> empresas = new ArrayList<>();
             UbicacionHelper ubicacionHelper = new UbicacionHelper();

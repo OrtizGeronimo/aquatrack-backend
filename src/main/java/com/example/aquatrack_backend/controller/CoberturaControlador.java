@@ -26,10 +26,10 @@ public class CoberturaControlador {
         }
     }
 
-    @PostMapping("")
-    public ResponseEntity<?> conocerCoberturaCercana(@RequestBody UbicacionDTO ubicacionCliente){
+    @GetMapping("/conocer_cercana")
+    public ResponseEntity<?> conocerCoberturaCercana(@RequestParam double latitud, @RequestParam double longitud){
         try{
-            return ResponseEntity.status(HttpStatus.OK).body(coberturaServicio.conocerCobertura(ubicacionCliente));
+            return ResponseEntity.status(HttpStatus.OK).body(coberturaServicio.conocerCobertura(latitud, longitud));
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\":\"Error. Por favor intente mas tarde.\"}");
         }

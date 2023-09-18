@@ -29,6 +29,4 @@ public class CoberturaControlador {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\":\"Error. Por favor intente mas tarde.\"}");
         }
     }
- */
-
 }

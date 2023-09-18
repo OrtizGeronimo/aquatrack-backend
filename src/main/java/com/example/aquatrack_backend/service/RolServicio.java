@@ -35,14 +35,21 @@ public class RolServicio extends ServicioBaseImpl<Rol> {
     @Autowired
     private RolUsuarioRepo rolUsuarioRepo;
 
+    private ModelMapper mapper = new ModelMapper();
+
     public RolServicio(RepoBase<Rol> repoBase) {
         super(repoBase);
     }
 
-    public Page<RolDTO> findAll(int page, int size, String nombre, boolean mostrarInactivos) {
+    public Page<RolDTO> findAllPaged(int page, int size, String nombre, boolean mostrarInactivos) {
         Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
         Pageable paging = PageRequest.of(page, size);
-        return rolRepo.findAllByEmpresa(empresa.getId(), nombre, mostrarInactivos, paging).map(rol -> new ModelMapper().map(rol, RolDTO.class));
+        return rolRepo.findAllByEmpresaPaged(empresa.getId(), nombre, mostrarInactivos, paging).map(rol -> new ModelMapper().map(rol, RolDTO.class));
+    }
+
+    public List<RolDTO> findAll(String nombre, boolean mostrarInactivos) {
+        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+        return rolRepo.findAllByEmpresa(empresa.getId(), nombre, mostrarInactivos).stream().map(rol -> new ModelMapper().map(rol, RolDTO.class)).collect(Collectors.toList());
     }
 
     @Transactional
@@ -65,7 +72,7 @@ public class RolServicio extends ServicioBaseImpl<Rol> {
 
         return rol.getPermisoRoles()
                 .stream()
-                .map(permisoRol -> new ModelMapper().map(permisoRol.getPermiso(), PermisoDTO.class))
+                .map(permisoRol -> mapper.map(permisoRol.getPermiso(), PermisoDTO.class))
                 .sorted(Comparator.comparing(PermisoDTO::getId))
                 .collect(Collectors.toList());
     }

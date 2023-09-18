@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.controller;
 
+import com.example.aquatrack_backend.exception.EmpresaSinCoberturaException;
 import com.example.aquatrack_backend.exception.UserWithOneRolePresentException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +52,11 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponseDTO.builder()
                         .message(ex.getMessage())
                         .build());
+    }
+
+    @ExceptionHandler({EmpresaSinCoberturaException.class})
+    public ResponseEntity<?> handleSinCobertura(Exception ex) {
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @ExceptionHandler({UserWithOneRolePresentException.class})

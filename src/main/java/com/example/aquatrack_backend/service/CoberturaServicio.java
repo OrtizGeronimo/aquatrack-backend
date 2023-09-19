@@ -3,12 +3,14 @@ package com.example.aquatrack_backend.service;
 import com.example.aquatrack_backend.dto.CoberturaDTO;
 import com.example.aquatrack_backend.dto.EmpresaDTO;
 import com.example.aquatrack_backend.dto.UbicacionDTO;
+import com.example.aquatrack_backend.exception.EmpresaSinCoberturaException;
 import com.example.aquatrack_backend.helpers.UbicacionHelper;
-import com.example.aquatrack_backend.model.Cobertura;
-import com.example.aquatrack_backend.model.Empresa;
-import com.example.aquatrack_backend.model.Ubicacion;
+import com.example.aquatrack_backend.model.*;
 import com.example.aquatrack_backend.repo.CoberturaRepo;
 import com.example.aquatrack_backend.repo.EmpresaRepo;
+import com.example.aquatrack_backend.repo.RepoBase;
+import com.example.aquatrack_backend.repo.UbicacionRepo;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,39 +21,63 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class CoberturaServicio {
+public class CoberturaServicio extends ServicioBaseImpl<Cobertura> {
 
-    @Autowired
-    private CoberturaRepo coberturaRepo;
-    @Autowired
-    private EmpresaRepo empresaRepo;
+  @Autowired
+  private CoberturaRepo coberturaRepo;
 
-    @Transactional
-    public CoberturaDTO guardarCobertura(List<UbicacionDTO> ubicaciones, Long empresaId) throws Exception{
-        try{
-            Cobertura cobertura = new Cobertura();
-            cobertura.setUbicaciones(ubicaciones
-                    .stream()
-                    .map(ubicacion -> new Ubicacion(ubicacion.getLatitud(), ubicacion.getLongitud(), cobertura))
-                    .collect(Collectors.toList()));
-            Optional<Empresa> optEmpresa = empresaRepo.findById(empresaId);
-            Empresa empresa = optEmpresa.get();
-            cobertura.setEmpresa(empresa);
-            coberturaRepo.save(cobertura);
-            CoberturaDTO dtoCobertura = new CoberturaDTO();
-            dtoCobertura.setId(cobertura.getId());
-            dtoCobertura.setNombreEmpresa(empresa.getNombre());
-            dtoCobertura.setUbicacions(ubicaciones);
-            return dtoCobertura;
-        } catch (Exception e){
-            e.printStackTrace();
-            throw e;
-        }
+  @Autowired
+  private UbicacionRepo ubicacionRepo;
+
+  @Autowired
+  public CoberturaServicio(RepoBase<Cobertura> repoBase) {
+    super(repoBase);
+  }
+
+  @Transactional
+  public CoberturaDTO verCobertura() throws Exception {
+    Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+    Cobertura cobertura = coberturaRepo.findCoberturaByEmpresa(empresa)
+        .orElseThrow(() -> new EmpresaSinCoberturaException(""));
+    List<UbicacionDTO> vertices = cobertura.getUbicaciones().stream()
+        .map(ubicacion -> UbicacionDTO.builder().latitud(ubicacion.getLatitud()).longitud(ubicacion.getLongitud())
+            .build())
+        .collect(Collectors.toList());
+    return CoberturaDTO.builder().id(cobertura.getId()).nombreEmpresa(empresa.getNombre()).vertices(vertices).build();
+  }
+
+  @Transactional
+  public CoberturaDTO guardarCobertura(List<UbicacionDTO> ubicaciones) {
+    Cobertura cobertura;
+    Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+    Optional coberturaExistente = coberturaRepo.findCoberturaByEmpresa(empresa);
+    if (coberturaExistente.isPresent()) {
+      cobertura = (Cobertura) coberturaExistente.get();
+      cobertura.getUbicaciones().clear();
+      cobertura.getUbicaciones().addAll(ubicaciones
+          .stream()
+          .map(ubicacion -> new Ubicacion(ubicacion.getLatitud(), ubicacion.getLongitud(), cobertura))
+          .collect(Collectors.toList()));
+    } else {
+      cobertura = new Cobertura();
+      cobertura.setUbicaciones(ubicaciones
+          .stream()
+          .map(ubicacion -> new Ubicacion(ubicacion.getLatitud(), ubicacion.getLongitud(), cobertura))
+          .collect(Collectors.toList()));
+      cobertura.setEmpresa(empresa);
     }
+    coberturaRepo.save(cobertura);
+    CoberturaDTO dtoCobertura = new CoberturaDTO();
+    dtoCobertura.setId(cobertura.getId());
+    dtoCobertura.setNombreEmpresa(empresa.getNombre());
+    dtoCobertura.setVertices(ubicaciones);
+    return dtoCobertura;
+  }
 
     @Transactional
-    public List<EmpresaDTO> conocerCobertura(UbicacionDTO ubicacionCliente) throws Exception{
+    public List<EmpresaDTO> conocerCobertura(double latitud, double longitud) throws Exception{
         try {
+            UbicacionDTO ubicacionCliente = UbicacionDTO.builder().latitud(latitud).longitud(longitud).build();
             List<Cobertura> coberturas = coberturaRepo.findAll();
             List<EmpresaDTO> empresas = new ArrayList<>();
             UbicacionHelper ubicacionHelper = new UbicacionHelper();

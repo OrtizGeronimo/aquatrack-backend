@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UbicacionDTO {
-    double latitud;
-    double longitud;
+public class TipoEmpleadoDTO {
+    private Long id;
+    private String nombre;
 }

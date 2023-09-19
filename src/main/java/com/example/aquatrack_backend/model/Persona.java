@@ -1,6 +1,6 @@
 package com.example.aquatrack_backend.model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -35,10 +35,10 @@ public abstract class Persona {
   private String numTelefono;
 
   @DateTimeFormat(pattern = "dd-MM-YYYY")
-  private LocalDateTime fechaCreacion;
+  private LocalDate fechaCreacion;
 
   @DateTimeFormat(pattern = "dd-MM-YYYY")
-  private LocalDateTime fechaFinVigencia;
+  private LocalDate fechaFinVigencia;
 
   @OneToOne()
   private Usuario usuario;

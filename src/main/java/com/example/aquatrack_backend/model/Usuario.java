@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @NoArgsConstructor
@@ -24,9 +24,9 @@ public class Usuario {
     private Boolean validado;
 
     @DateTimeFormat(pattern = "dd-MM-YYYY")
-    private LocalDateTime fechaCreacion;
+    private LocalDate fechaCreacion;
     @DateTimeFormat(pattern = "dd-MM-YYYY")
-    private LocalDateTime fechaFinVigencia;
+    private LocalDate fechaFinVigencia;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "usuario")
     private List<UsuarioCodigoValidacion> codigos;

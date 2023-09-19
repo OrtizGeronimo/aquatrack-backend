@@ -11,25 +11,20 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/coberturas")
-@CrossOrigin(origins = "*")
 public class CoberturaControlador {
 
     @Autowired
     CoberturaServicio coberturaServicio;
 
-    @PostMapping("/{id}")
-    public ResponseEntity<?> guardarCobertura(@PathVariable Long id, @RequestBody List<UbicacionDTO> ubicaciones){
-        try{
-            return ResponseEntity.status(HttpStatus.OK).body(coberturaServicio.guardarCobertura(ubicaciones, id));
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\":\"Error. Por favor intente mas tarde.\"}");
-        }
+    @GetMapping("")
+    public ResponseEntity<?> verCobertura() throws Exception{
+        return ResponseEntity.status(HttpStatus.OK).body(coberturaServicio.verCobertura());
     }
 
-    @PostMapping("")
-    public ResponseEntity<?> conocerCoberturaCercana(@RequestBody UbicacionDTO ubicacionCliente){
+    @GetMapping("/conocer_cercana")
+    public ResponseEntity<?> conocerCoberturaCercana(@RequestParam double latitud, @RequestParam double longitud){
         try{
-            return ResponseEntity.status(HttpStatus.OK).body(coberturaServicio.conocerCobertura(ubicacionCliente));
+            return ResponseEntity.status(HttpStatus.OK).body(coberturaServicio.conocerCobertura(latitud, longitud));
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\":\"Error. Por favor intente mas tarde.\"}");
         }

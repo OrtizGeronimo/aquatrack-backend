@@ -17,13 +17,20 @@ public class RolControlador {
     private RolServicio rolServicio;
     ValidationHelper validationHelper = new ValidationHelper();
 
-    @GetMapping(value = "")
+    @GetMapping(value = "/paged")
     @PreAuthorize("hasAuthority('LISTAR_ROLES')")
-    public ResponseEntity<?> findAll(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<?> findAllPaged(@RequestParam(defaultValue = "0") int page,
                                      @RequestParam(defaultValue = "10") int size,
                                      @RequestParam(defaultValue = "false") boolean mostrar_inactivos,
                                      @RequestParam(required = false) String nombre) {
-        return ResponseEntity.ok().body(rolServicio.findAll(page, size, nombre, mostrar_inactivos));
+        return ResponseEntity.ok().body(rolServicio.findAllPaged(page, size, nombre, mostrar_inactivos));
+    }
+
+    @GetMapping(value = "")
+    @PreAuthorize("hasAuthority('LISTAR_ROLES')")
+    public ResponseEntity<?> findAll(@RequestParam(defaultValue = "false") boolean mostrar_inactivos,
+                                     @RequestParam(required = false) String nombre) {
+        return ResponseEntity.ok().body(rolServicio.findAll(nombre, mostrar_inactivos));
     }
 
     @PostMapping(value = "")

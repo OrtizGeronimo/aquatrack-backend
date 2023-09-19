@@ -1,12 +1,10 @@
 package com.example.aquatrack_backend.service;
 
-import com.example.aquatrack_backend.dto.ClienteDTO;
-import com.example.aquatrack_backend.dto.GuardarClienteDTO;
-import com.example.aquatrack_backend.dto.GuardarRolDTO;
-import com.example.aquatrack_backend.dto.RolDTO;
+import com.example.aquatrack_backend.dto.*;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.UserWithOneRolePresentException;
 import com.example.aquatrack_backend.model.*;
+import com.example.aquatrack_backend.repo.EmpresaRepo;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,6 +17,7 @@ import com.example.aquatrack_backend.repo.RepoBase;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +26,11 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
 
   @Autowired
   private ClienteRepo clienteRepo;
+
+  @Autowired
+  private CodigoTemporalServicio codigoTemporalServicio;
+  @Autowired
+  private EmpresaRepo empresaRepo;
 
   public ClienteServicio(RepoBase<Cliente> repoBase) {
     super(repoBase);
@@ -68,16 +72,44 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
   }
 
   @Transactional
-  public ClienteDTO createFromApp(GuardarClienteDTO cliente){
-    if(clienteRepo.existsByDni(cliente.getDni()) > 0){
-      return new ClienteDTO();
+  public EmpresaDTO altaEmpresa(CodigoDTO codigo) throws RecordNotFoundException{
+    Long empresa_id = codigoTemporalServicio.obtenerEmpresaPorCodigo(codigo.getCodigo());
+    Empresa empresa = empresaRepo.findById(empresa_id).orElseThrow(() -> new RecordNotFoundException("La empresa solicitado no fue encontrado"));
+
+    EmpresaDTO empresaDTO = new EmpresaDTO();
+    empresaDTO.setId(empresa_id);
+    empresaDTO.setNombre(empresa.getNombre());
+    return empresaDTO;
+  }
+
+  @Transactional
+  public ClienteDTO createFromApp(GuardarClienteDTO cliente, Long empresa_id) throws RecordNotFoundException{
+    Long id = clienteRepo.findByDni(cliente.getDni());
+    if(id != null){
+      return updateCliente(cliente, id);
     }
+    Empresa empresa = empresaRepo.findById(empresa_id).orElseThrow(()->new RecordNotFoundException("No se encontro la empresa"));
     Cliente clienteNuevo = new Cliente();
     clienteNuevo.setNombre(cliente.getNombre());
     clienteNuevo.setApellido(cliente.getApellido());
     clienteNuevo.setDni(cliente.getDni());
     clienteNuevo.setNumTelefono(cliente.getNum_telefono());
+    List<EmpresaCliente> empresaClientes = new ArrayList<>();
+    empresaClientes.add(new EmpresaCliente(empresa, clienteNuevo));
+    clienteNuevo.setEmpresaClientes(empresaClientes);
     clienteRepo.save(clienteNuevo);
     return new ModelMapper().map(clienteNuevo, ClienteDTO.class);
+  }
+
+  @Transactional
+  public boolean altaNuevaEmpresa(Long idC, CodigoDTO codigo) throws RecordNotFoundException{
+   Cliente cliente = clienteRepo.findById(idC).orElseThrow(() -> new RecordNotFoundException("El cliente no fue encontrado"));
+   Long idE = codigoTemporalServicio.obtenerEmpresaPorCodigo(codigo.getCodigo());
+   Empresa empresa = empresaRepo.findById(idE).orElseThrow(() -> new RecordNotFoundException("La empresa no fue encontrada"));
+   List<EmpresaCliente> empresaClientes = cliente.getEmpresaClientes();
+   empresaClientes.add(new EmpresaCliente(empresa, cliente));
+   cliente.setEmpresaClientes(empresaClientes);
+   clienteRepo.save(cliente);
+   return true;
   }
 }

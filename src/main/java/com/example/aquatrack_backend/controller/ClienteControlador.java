@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.controller;
 
+import com.example.aquatrack_backend.dto.CodigoDTO;
 import com.example.aquatrack_backend.dto.GuardarClienteDTO;
 import com.example.aquatrack_backend.dto.GuardarRolDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
@@ -31,7 +32,7 @@ public class ClienteControlador {
     @PutMapping(value = "/{id}")
     @PreAuthorize("hasAuthority('EDITAR_CLIENTES')")
     public ResponseEntity<?> updateCliente(@RequestBody GuardarClienteDTO cliente, @PathVariable Long id) throws RecordNotFoundException {
-        if(validationHelper.hasValidationErrors(cliente)){
+        if (validationHelper.hasValidationErrors(cliente)) {
             return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(cliente));
         }
         return ResponseEntity.ok().body(clienteServicio.updateCliente(cliente, id));
@@ -39,20 +40,32 @@ public class ClienteControlador {
 
     @DeleteMapping(value = "/{id}")
     @PreAuthorize("hasAuthority('ELIMINAR_CLIENTES')")
-    public ResponseEntity<?> disableCliente(@PathVariable Long id) throws Exception{
+    public ResponseEntity<?> disableCliente(@PathVariable Long id) throws Exception {
         clienteServicio.disableCliente(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping(value = "/{id}/enable")
     @PreAuthorize("hasAuthority('EDITAR_CLIENTES')")
-    public ResponseEntity<?> enableCliente(@PathVariable Long id) throws Exception{
+    public ResponseEntity<?> enableCliente(@PathVariable Long id) throws Exception {
         return ResponseEntity.ok().body(clienteServicio.enableCliente(id));
     }
 
-    @PostMapping(value = "")
+    @PostMapping(value = "/codigo")
+    @PreAuthorize("hasAuthority('CREAR_CLIENTES')")
+    public ResponseEntity<?> altaEmpresa(@RequestBody CodigoDTO codigo) throws RecordNotFoundException {
+        return ResponseEntity.ok().body(clienteServicio.altaEmpresa(codigo));
+    }
+
+    @PostMapping(value = "/{empresa_id}")
     @PreAuthorize("hasAuthority('EDITAR_CLIENTES')")
-    public ResponseEntity<?> createFromApp(@RequestBody GuardarClienteDTO cliente){
-        return ResponseEntity.ok().body(clienteServicio.createFromApp(cliente));
+    public ResponseEntity<?> createFromApp(@RequestBody GuardarClienteDTO cliente, @PathVariable Long empresa_id) throws RecordNotFoundException {
+        return ResponseEntity.ok().body(clienteServicio.createFromApp(cliente, empresa_id));
+    }
+
+    @PostMapping(value = "/{id}/codigo")
+    @PreAuthorize("hasAuthority('CREAR_CLIENTES')")
+    public ResponseEntity<?> altaEmpresa(@RequestBody CodigoDTO codigo, @PathVariable Long id) throws RecordNotFoundException {
+        return ResponseEntity.ok().body(clienteServicio.altaNuevaEmpresa(id, codigo));
     }
 }

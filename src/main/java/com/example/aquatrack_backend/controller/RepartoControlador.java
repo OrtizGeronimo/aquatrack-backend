@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.controller;
 
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,12 +15,14 @@ import com.example.aquatrack_backend.service.RepartoServicio;
 public class RepartoControlador{
 
     @Autowired
-    private RepartoServicioImpl repartoServicio;
+    private RepartoServicio servicio;
 
 
     @GetMapping("/{id}/crear")
     public ResponseEntity<?> crearReparto(@PathVariable("id") Long id){
         return ResponseEntity.ok().body(servicio.crearReparto(id));
     }
-    private RepartoServicio repartoServicio;
+
+
+
 }

@@ -1,11 +1,13 @@
 package com.example.aquatrack_backend.service;
 
 import com.example.aquatrack_backend.config.BingMapsConfig;
+import com.example.aquatrack_backend.dto.RepartoDTO;
 import com.example.aquatrack_backend.model.*;
 import com.example.aquatrack_backend.repo.*;
 import com.google.ortools.Loader;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -50,15 +52,14 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
     @Autowired
     private RestTemplate restTemplate;
 
-    public RepartoServicioImpl(RepoBase<Reparto> repoBase) {
-        super(repoBase);
-    }
+    private ModelMapper mapper = new ModelMapper();
+
 
     static {
         Loader.loadNativeLibraries();
     }
 
-    public Reparto crearReparto(Long id) {
+    public RepartoDTO crearReparto(Long id) {
         Ruta ruta = rutaRepo.findById(id).orElseThrow();
 
 
@@ -72,13 +73,15 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         String nombreDia = dayOfWeek.getDisplayName(TextStyle.FULL, spanishLocale);
 
 
-        List<Domicilio> domiciliosARepartir = new ArrayList<>();
+        List<Entrega> entregasARepartir = new ArrayList<>();
 
         domiciliosLoop:
         for (DomicilioRuta domicilio: ruta.getDomicilioRutas()) {
             for (DiaDomicilio dia: domicilio.getDomicilio().getDiaDomicilios()) {
-                if (dia.getDiaRuta().getDiaSemana().getNombre().equals(nombreDia)){
-                    domiciliosARepartir.add(domicilio.getDomicilio());
+                if (dia.getDiaRuta().getDiaSemana().getNombre().equalsIgnoreCase(nombreDia)){
+                    Entrega entrega = new Entrega();
+                    entrega.setDomicilio(domicilio.getDomicilio());
+                    entregasARepartir.add(entrega);
                     continue domiciliosLoop;
                 }
             }
@@ -97,11 +100,9 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
             }
         }
 
-        for (Entrega entrega: entregasExistentes) {
-            domiciliosARepartir.add(entrega.getDomicilio());
-        }
+        entregasARepartir.addAll(entregasExistentes);
 
-        List<Ubicacion> rutaOptima = calcularRutaOptima(domiciliosARepartir);
+        List<Entrega> rutaOptima = calcularRutaOptima(entregasARepartir);
 
         EstadoReparto estado = estadoRepartoRepo.findByNombre("Pendiente de Asignación");
         EstadoEntrega estadoEntrega = estadoEntregaRepo.findByNombreEstadoEntrega("Programada");
@@ -113,8 +114,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         List<Entrega> entregas = new ArrayList<>();
 
         for (int i = 0; i < rutaOptima.size(); i++) {
-                Entrega entrega = new Entrega();
-                entrega.setDomicilio(rutaOptima.get(i).getDomicilio());
+                Entrega entrega = rutaOptima.get(i);
                 entrega.setEstadoEntrega(estadoEntrega);
                 entrega.setReparto(reparto);
                 entrega.setOrdenVisita(i);
@@ -123,11 +123,13 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
         reparto.setEntregas(entregas);
 
-        return reparto;
+        repartoRepo.save(reparto);
+
+        return mapper.map(reparto, RepartoDTO.class);
 
     }
 
-    private List<Ubicacion> calcularRutaOptima(List<Domicilio> domicilioRutas) {
+    private List<Entrega> calcularRutaOptima(List<Entrega> domicilioRutas) {
         String apiKey = bingMapsConfig.getApiKey();
         try {
         StringBuilder urlBuilder = new StringBuilder("https://dev.virtualearth.net/REST/v1/Routes/Driving?");
@@ -135,8 +137,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         String coordenadasInicio = null;
             for (int i = 0; i < domicilioRutas.size(); i++) {
 
-                Domicilio domicilio1 = domicilioRutas.get(i);
-                String nombre = domicilio1.getDescripcion();
+                Domicilio domicilio1 = domicilioRutas.get(i).getDomicilio();
                 double lat1 = domicilio1.getUbicacion().getLatitud();
                 double lon1 = domicilio1.getUbicacion().getLongitud();
                 String originLatitude = Double.toString(lat1).replace(',', '.');
@@ -173,7 +174,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         reader.close();
 
 
-        List<Ubicacion> ubicacionesOrdenadas = new ArrayList<>();
+        List<Entrega> ubicacionesOrdenadas = new ArrayList<>();
 
         JSONObject jsonResponse = new JSONObject(response.toString());
         JSONArray coordinates = jsonResponse.getJSONArray("resourceSets")
@@ -190,9 +191,9 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
                 Integer indiceCoordenada = Integer.parseInt(numeroString);
 
-                ubicacionesOrdenadas.add(domicilioRutas.get(indiceCoordenada).getUbicacion());
+                ubicacionesOrdenadas.add(domicilioRutas.get(indiceCoordenada));
             }
-            ubicacionesOrdenadas.add(domicilioRutas.get(0).getUbicacion());
+//            ubicacionesOrdenadas.add(domicilioRutas.get(0));
 
 
         connection.disconnect();

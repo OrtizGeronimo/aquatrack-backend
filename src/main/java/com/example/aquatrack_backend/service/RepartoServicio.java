@@ -2,6 +2,8 @@ package com.example.aquatrack_backend.service;
 
 import com.example.aquatrack_backend.config.BingMapsConfig;
 import com.example.aquatrack_backend.dto.RepartoDTO;
+import com.example.aquatrack_backend.exception.RecordNotFoundException;
+import com.example.aquatrack_backend.exception.ValidacionException;
 import com.example.aquatrack_backend.model.*;
 import com.example.aquatrack_backend.repo.*;
 import com.google.ortools.Loader;
@@ -59,8 +61,8 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         Loader.loadNativeLibraries();
     }
 
-    public RepartoDTO crearReparto(Long id) {
-        Ruta ruta = rutaRepo.findById(id).orElseThrow();
+    public RepartoDTO crearReparto(Long id) throws RecordNotFoundException, ValidacionException {
+        Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("La ruta no fue encontrada"));
 
 
         LocalDate now = LocalDate.now();
@@ -101,7 +103,9 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         }
 
         entregasARepartir.addAll(entregasExistentes);
-
+        if (entregasARepartir == null || entregasARepartir.isEmpty()){
+            throw new ValidacionException("La ruta no contiene entregas a realizar");
+        }
         List<Entrega> rutaOptima = calcularRutaOptima(entregasARepartir);
 
         EstadoReparto estado = estadoRepartoRepo.findByNombre("Pendiente de Asignación");
@@ -129,7 +133,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
     }
 
-    private List<Entrega> calcularRutaOptima(List<Entrega> domicilioRutas) {
+    private List<Entrega> calcularRutaOptima(List<Entrega> domicilioRutas) throws ValidacionException {
         String apiKey = bingMapsConfig.getApiKey();
         try {
         StringBuilder urlBuilder = new StringBuilder("https://dev.virtualearth.net/REST/v1/Routes/Driving?");
@@ -201,7 +205,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         } catch (Exception e){
             System.out.println(e.getMessage());
             e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
+            throw new ValidacionException("Hubo un error al optimizar la ruta");
         }
 
     }

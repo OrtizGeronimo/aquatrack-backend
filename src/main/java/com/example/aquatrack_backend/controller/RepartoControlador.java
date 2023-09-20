@@ -1,5 +1,7 @@
 package com.example.aquatrack_backend.controller;
 
+import com.example.aquatrack_backend.exception.RecordNotFoundException;
+import com.example.aquatrack_backend.exception.ValidacionException;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +21,8 @@ public class RepartoControlador{
 
 
     @GetMapping("/{id}/crear")
-    public ResponseEntity<?> crearReparto(@PathVariable("id") Long id){
-        return ResponseEntity.ok().body(servicio.crearReparto(id));
+    public ResponseEntity<?> crearReparto(@PathVariable("id") Long id) throws RecordNotFoundException, ValidacionException {
+            return ResponseEntity.ok().body(servicio.crearReparto(id));
     }
 
 

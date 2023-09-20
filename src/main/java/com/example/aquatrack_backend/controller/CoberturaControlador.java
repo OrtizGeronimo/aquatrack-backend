@@ -21,6 +21,11 @@ public class CoberturaControlador {
         return ResponseEntity.status(HttpStatus.OK).body(coberturaServicio.verCobertura());
     }
 
+    @PostMapping("")
+    public ResponseEntity<?> crearCobertura(@RequestBody List<UbicacionDTO> vertices) {
+        return ResponseEntity.status(HttpStatus.OK).body(coberturaServicio.guardarCobertura(vertices));
+    }
+
     @GetMapping("/conocer_cercana")
     public ResponseEntity<?> conocerCoberturaCercana(@RequestParam double latitud, @RequestParam double longitud){
         try{

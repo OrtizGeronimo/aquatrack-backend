@@ -1,9 +1,9 @@
 INSERT INTO empresa(id, direccion, email, fecha_creacion, nombre, num_telefono, url)
 VALUES
-    (1, 'Severo del Castillo 1520', "saura@gmail.com", CURRENT_DATE, 'Saura SA', '2614193591', 'http://saurasa.com'),
-    (2, 'Barrio Santa Ana', "gero@gmail.com", CURRENT_DATE, 'Gerardo Soderos', '2613219806', 'http://gersodas.com'),
-    (3, 'Barrio Los Frutales', "carrion@gmail.com", CURRENT_DATE, 'Carrión Aguas', '2613459654', 'http://caraguas.com'),
-    (4, 'Barrio Dalvian', "juarroz@gmail.com", CURRENT_DATE, 'Distribuidora Juarroz', '2612314562', 'http://distjuarroz.com');
+    (1, 'Severo del Castillo 1520', 'saura@gmail.com', CURRENT_DATE, 'Saura SA', '2614193591', 'http://saurasa.com'),
+    (2, 'Barrio Santa Ana', 'gero@gmail.com', CURRENT_DATE, 'Gerardo Soderos', '2613219806', 'http://gersodas.com'),
+    (3, 'Barrio Los Frutales', 'carrion@gmail.com', CURRENT_DATE, 'Carrión Aguas', '2613459654', 'http://caraguas.com'),
+    (4, 'Barrio Dalvian', 'juarroz@gmail.com', CURRENT_DATE, 'Distribuidora Juarroz', '2612314562', 'http://distjuarroz.com');
 
 INSERT INTO dia_semana(id, nombre)
 VALUES

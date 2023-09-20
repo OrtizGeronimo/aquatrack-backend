@@ -1,4 +1,4 @@
-create table cliente (id bigint not null, apellido varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), nombre varchar(255), num_telefono varchar(255), usuario_id bigint, dni integer, primary key (id)) engine=InnoDB;
+create table cliente (id bigint not null, apellido varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), nombre varchar(255), num_telefono varchar(255), usuario_id bigint, empresa_id bigint, dni integer, primary key (id)) engine=InnoDB;
 create table cobertura (id bigint not null auto_increment, empresa_id bigint, primary key (id)) engine=InnoDB;
 create table codigo_temporal (id bigint not null auto_increment, codigo varchar(255), fecha_expiracion datetime(6), empresa_id bigint, primary key (id)) engine=InnoDB;
 create table deuda (id bigint not null auto_increment, fecha_ultima_actualizacion datetime(6), monto decimal not null, monto_maximo decimal not null, domicilio_id bigint, primary key (id)) engine=InnoDB;
@@ -39,6 +39,7 @@ create table ubicacion (id bigint not null auto_increment, latitud double precis
 create table usuario (id bigint not null auto_increment, contraseña varchar(255), direccion_email varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), validado bit, primary key (id)) engine=InnoDB;
 create table usuario_codigo_validacion (id bigint not null auto_increment, codigo varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), usuario_id bigint, primary key (id)) engine=InnoDB;
 alter table cliente add constraint FK_id7jmosqg8hkqiqw4vf50xipm foreign key (usuario_id) references usuario (id);
+    alter table cliente add constraint FK_id7jmosqg8hkqiqw4vf52axzq foreign key (empresa_id) references usuario (id);
     alter table cobertura add constraint FKb27p91f7hiunb5hdih43dthp6 foreign key (empresa_id) references empresa (id);
     alter table codigo_temporal add constraint FKc13itnhg09x7be6gawnwx5ya4 foreign key (empresa_id) references empresa (id);
     alter table deuda add constraint FKf0o1s8woy0y0sy1yu8e4eh2w8 foreign key (domicilio_id) references domicilio (id);

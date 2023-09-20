@@ -62,10 +62,4 @@ public class ClienteControlador {
     public ResponseEntity<?> createFromApp(@RequestBody GuardarClienteDTO cliente, @PathVariable Long empresa_id) throws RecordNotFoundException {
         return ResponseEntity.ok().body(clienteServicio.createFromApp(cliente, empresa_id));
     }
-
-    @PostMapping(value = "/{id}/codigo")
-    @PreAuthorize("hasAuthority('CREAR_CLIENTES')")
-    public ResponseEntity<?> altaEmpresa(@RequestBody CodigoDTO codigo, @PathVariable Long id) throws RecordNotFoundException {
-        return ResponseEntity.ok().body(clienteServicio.altaNuevaEmpresa(id, codigo));
-    }
 }

@@ -11,8 +11,7 @@ create table domicilio_producto (id bigint not null auto_increment, cantidad int
 create table domicilio_ruta (id bigint not null auto_increment, domicilio_id bigint, ruta_id bigint, primary key (id)) engine=InnoDB;
 create table empleado (id bigint not null, apellido varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), nombre varchar(255), num_telefono varchar(255), usuario_id bigint, fecha_fin_vacaciones datetime(6), fecha_ingreso datetime(6), fecha_inicio_vacaciones datetime(6), legajo integer, empresa_id bigint, tipo_id bigint, primary key (id)) engine=InnoDB;
 create table empresa (id bigint not null auto_increment, direccion varchar(255), email varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), hora_actualizacion datetime(6), nombre varchar(255), num_telefono varchar(255), url varchar(255), ubicacion_id bigint, primary key (id)) engine=InnoDB;
-create table empresa_cliente (id bigint not null, cliente_id bigint, empresa_id bigint, primary key (id)) engine=InnoDB;
-create table entrega (id bigint not null auto_increment, fecha_hora_visita datetime(6), domicilio_id bigint, estado_entrega_id bigint, pago_id bigint, reparto_id bigint, primary key (id)) engine=InnoDB;
+create table entrega (id bigint not null auto_increment, orden_visita bigint, fecha_hora_visita datetime(6), domicilio_id bigint, estado_entrega_id bigint, pago_id bigint, reparto_id bigint, primary key (id)) engine=InnoDB;
 create table entrega_detalle (id bigint not null auto_increment, cantidad_entregada integer, cantidad_recibida integer, entrega_id bigint, producto_id bigint, primary key (id)) engine=InnoDB;
 create table estado_entrega (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre_estado_entrega varchar(255), primary key (id)) engine=InnoDB;
 create table estado_pago (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre varchar(255), primary key (id)) engine=InnoDB;
@@ -60,8 +59,6 @@ alter table cliente add constraint FK_id7jmosqg8hkqiqw4vf50xipm foreign key (usu
     alter table empleado add constraint FKebgcoxq3trs1htrteotw9hbrs foreign key (tipo_id) references tipo_empleado (id);
     alter table empleado add constraint FK_6ff36el6hfqwrtnvk0y9jd6sh foreign key (usuario_id) references usuario (id);
     alter table empresa add constraint FK5t0tdt455qee1cjkmctb3nds9 foreign key (ubicacion_id) references ubicacion (id);
-    alter table empresa_cliente add constraint FK2gphddsnki8xfc98toonf77qt foreign key (cliente_id) references cliente (id);
-    alter table empresa_cliente add constraint FKofopph9bpu33cvgeityic99sh foreign key (empresa_id) references empresa (id);
     alter table entrega add constraint FKck82ob5xmq55mh6w1mqpeah0b foreign key (domicilio_id) references domicilio (id);
     alter table entrega add constraint FKlq5bi6ct62v3aame1pixcmjtb foreign key (estado_entrega_id) references estado_entrega (id);
     alter table entrega add constraint FK50y7nb267nyd6p383v6x0rhqa foreign key (pago_id) references pago (id);

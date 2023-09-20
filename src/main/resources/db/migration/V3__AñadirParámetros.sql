@@ -1,9 +1,9 @@
-INSERT INTO empresa(id, direccion, fecha_creacion, nombre, num_telefono, url)
+INSERT INTO empresa(id, direccion, email, fecha_creacion, nombre, num_telefono, url)
 VALUES
-    (1, 'Severo del Castillo 1520', CURRENT_DATE, 'Saura SA', '2614193591', 'http://saurasa.com'),
-    (2, 'Barrio Santa Ana', CURRENT_DATE, 'Gerardo Soderos', '2613219806', 'http://gersodas.com'),
-    (3, 'Barrio Los Frutales', CURRENT_DATE, 'Carrión Aguas', '2613459654', 'http://caraguas.com'),
-    (4, 'Barrio Dalvian', CURRENT_DATE, 'Distribuidora Juarroz', '2612314562', 'http://distjuarroz.com');
+    (1, 'Severo del Castillo 1520', "saura@gmail.com", CURRENT_DATE, 'Saura SA', '2614193591', 'http://saurasa.com'),
+    (2, 'Barrio Santa Ana', "gero@gmail.com", CURRENT_DATE, 'Gerardo Soderos', '2613219806', 'http://gersodas.com'),
+    (3, 'Barrio Los Frutales', "carrion@gmail.com", CURRENT_DATE, 'Carrión Aguas', '2613459654', 'http://caraguas.com'),
+    (4, 'Barrio Dalvian', "juarroz@gmail.com", CURRENT_DATE, 'Distribuidora Juarroz', '2612314562', 'http://distjuarroz.com');
 
 INSERT INTO dia_semana(id, nombre)
 VALUES
@@ -374,12 +374,6 @@ VALUES (1,'Ortiz',CURRENT_DATE,NULL,'Gerónimo',NULL,1,NULL,NULL,NULL,NULL,2,NUL
 
 INSERT INTO cliente(id, nombre, apellido, dni)
 VALUES(1, 'Nicolás', 'Saura', 123),
-      (2, 'Flor', 'Korze', 321),
+      (2, 'Marti', 'Juarroz', 321),
       (3, 'Gero', 'Ortiz', 456),
       (4, 'Martin', 'Carry', 987);
-
-INSERT INTO empresa_cliente(id, cliente_id, empresa_id)
-VALUES(1,1,1),
-      (2,2,2),
-      (3,3,2),
-      (4,4,1);

@@ -47,8 +47,6 @@ public class Empresa {
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
   private List<Empleado> empleados;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
-  private List<EmpresaCliente> empresaClientes;
 
   @OneToOne(mappedBy = "empresa")
   private Cobertura cobertura;
@@ -61,4 +59,7 @@ public class Empresa {
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
   private List<Producto> productos;
+
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
+  private List<Cliente> clientes;
 }

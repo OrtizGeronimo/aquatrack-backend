@@ -16,6 +16,7 @@ import com.example.aquatrack_backend.repo.ClienteRepo;
 import com.example.aquatrack_backend.repo.RepoBase;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +51,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     clienteModificado.setNombre(cliente.getNombre());
     clienteModificado.setApellido(cliente.getApellido());
     clienteModificado.setDni(cliente.getDni());
-    clienteModificado.setNumTelefono(cliente.getNum_telefono());
+    clienteModificado.setNumTelefono(cliente.getNumTelefono());
 
     clienteRepo.save(clienteModificado);
     return new ModelMapper().map(clienteModificado, ClienteDTO.class);
@@ -59,7 +60,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
   @Transactional
   public void disableCliente(Long id) throws Exception {
     Cliente clienteDeshabilitado = clienteRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El cliente solicitado no fue encontrado"));
-    clienteDeshabilitado.setFechaFinVigencia(LocalDateTime.now());
+    clienteDeshabilitado.setFechaFinVigencia(LocalDate.now());
     clienteRepo.save(clienteDeshabilitado);
   }
 
@@ -83,33 +84,29 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
   }
 
   @Transactional
-  public ClienteDTO createFromApp(GuardarClienteDTO cliente, Long empresa_id) throws RecordNotFoundException{
+  public ClienteDTO createFromApp(GuardarClienteDTO cliente, Long empresaId) throws RecordNotFoundException{
     Long id = clienteRepo.findByDni(cliente.getDni());
     if(id != null){
       return updateCliente(cliente, id);
     }
-    Empresa empresa = empresaRepo.findById(empresa_id).orElseThrow(()->new RecordNotFoundException("No se encontro la empresa"));
+    Empresa empresa = empresaRepo.findById(empresaId).orElseThrow(()->new RecordNotFoundException("No se encontro la empresa"));
+    Usuario usuario = new Usuario();
+    usuario.setDireccionEmail(cliente.getNombreUsuario());
+    usuario.setContraseña(cliente.getPassword());
     Cliente clienteNuevo = new Cliente();
     clienteNuevo.setNombre(cliente.getNombre());
     clienteNuevo.setApellido(cliente.getApellido());
     clienteNuevo.setDni(cliente.getDni());
-    clienteNuevo.setNumTelefono(cliente.getNum_telefono());
-    List<EmpresaCliente> empresaClientes = new ArrayList<>();
-    empresaClientes.add(new EmpresaCliente(empresa, clienteNuevo));
-    clienteNuevo.setEmpresaClientes(empresaClientes);
+    clienteNuevo.setNumTelefono(cliente.getNumTelefono());
+    clienteNuevo.setEmpresa(empresa);
+
     clienteRepo.save(clienteNuevo);
     return new ModelMapper().map(clienteNuevo, ClienteDTO.class);
   }
 
-  @Transactional
-  public boolean altaNuevaEmpresa(Long idC, CodigoDTO codigo) throws RecordNotFoundException{
-   Cliente cliente = clienteRepo.findById(idC).orElseThrow(() -> new RecordNotFoundException("El cliente no fue encontrado"));
-   Long idE = codigoTemporalServicio.obtenerEmpresaPorCodigo(codigo.getCodigo());
-   Empresa empresa = empresaRepo.findById(idE).orElseThrow(() -> new RecordNotFoundException("La empresa no fue encontrada"));
-   List<EmpresaCliente> empresaClientes = cliente.getEmpresaClientes();
-   empresaClientes.add(new EmpresaCliente(empresa, cliente));
-   cliente.setEmpresaClientes(empresaClientes);
-   clienteRepo.save(cliente);
-   return true;
-  }
+/*  @Transactional
+  public ClienteDTO crearClienteExistente(GuardarClienteDTO cliente, Long idCliente, Long idEmpresa) throws RecordNotFoundException{
+
+
+  }*/
 }

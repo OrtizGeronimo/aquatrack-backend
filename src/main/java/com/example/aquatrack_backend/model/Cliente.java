@@ -2,12 +2,7 @@ package com.example.aquatrack_backend.model;
 
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.TableGenerator;
+import javax.persistence.*;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +20,6 @@ public class Cliente extends Persona {
   @OneToOne(mappedBy = "cliente")
   private Domicilio domicilio;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "cliente")
-  private List<EmpresaCliente> empresaClientes;
+  @ManyToOne()
+  private Empresa empresa;
 }

@@ -91,8 +91,8 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     }
     Empresa empresa = empresaRepo.findById(empresaId).orElseThrow(()->new RecordNotFoundException("No se encontro la empresa"));
     Usuario usuario = new Usuario();
-    usuario.setDireccionEmail(cliente.getNombreUsuario());
-    usuario.setContraseña(cliente.getPassword());
+ /*   usuario.setDireccionEmail(cliente.getNombreUsuario());
+    usuario.setContraseña(cliente.getPassword());*/
     Cliente clienteNuevo = new Cliente();
     clienteNuevo.setNombre(cliente.getNombre());
     clienteNuevo.setApellido(cliente.getApellido());

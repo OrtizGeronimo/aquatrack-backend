@@ -16,8 +16,7 @@ import com.example.aquatrack_backend.model.Cliente;
 public interface ClienteRepo extends RepoBase<Cliente> {
 
     @Query(value = "SELECT * FROM cliente c " +
-            "INNER JOIN (SELECT * FROM empresa_cliente WHERE empresa_id = :empresa_id ) ce " +
-            "ON ce.cliente_id = c.id",
+            "WHERE empresa_id = :empresa_id",
             nativeQuery = true)
     Page<Cliente> findAllByEmpresa(@Param("empresa_id") Long empresaId, /*@Param("nombre") String nombre, @Param("mostrar_inactivos") boolean mostrarInactivos,*/ Pageable pageable);
 

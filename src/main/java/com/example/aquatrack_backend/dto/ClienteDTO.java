@@ -16,8 +16,8 @@ public class ClienteDTO {
     private String nombre;
     private String apellido;
     private Integer dni;
-    private LocalDateTime fecha_creacion;
-    private LocalDateTime fecha_fin_vigencia;
-    private String num_telefono;
+    private LocalDateTime fechaCreacion;
+    private LocalDateTime fechaFinVigencia;
+    private String numTelefono;
     private Long usuario_id;
 }

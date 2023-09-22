@@ -17,6 +17,6 @@ public class EmpresaDTO {
     private String numTelefono;
     private String urlEmpresa;
     private String direccionEmail;
-    private Ubicacion ubicacion;
+    private UbicacionDTO ubicacion;
     private List<RolDTO> roles;
 }

@@ -1,6 +1,7 @@
 package com.example.aquatrack_backend.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,21 +10,32 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.aquatrack_backend.config.JwtUtils;
 import com.example.aquatrack_backend.config.SecurityUser;
+import com.example.aquatrack_backend.dto.ChangePasswordDTO;
 import com.example.aquatrack_backend.dto.CurrentUserDTO;
 import com.example.aquatrack_backend.dto.LoginResponseDTO;
 import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
 import com.example.aquatrack_backend.model.Empleado;
 import com.example.aquatrack_backend.model.Usuario;
+import com.example.aquatrack_backend.repo.UsuarioRepo;
 
 @Service
 public class UsuarioServicio {
 
   @Autowired
   private AuthenticationManager authenticationManager;
+  @Autowired
+  UsuarioRepo usuarioRepo;
+  private final PasswordEncoder passwordEncoder;
+
+  @Autowired
+  public UsuarioServicio(PasswordEncoder passwordEncoder) {
+      this.passwordEncoder = passwordEncoder;
+  }
 
   @Autowired
   private JwtUtils jwtUtils;
@@ -60,4 +72,19 @@ public class UsuarioServicio {
         .getPrincipal())
         .getUsuario();
   }
+
+  public ChangePasswordDTO updatePassword(ChangePasswordDTO dto){
+    Optional<Usuario> usuarioOpt = usuarioRepo.findByTokenPassword(dto.getTokenPassword());
+    Usuario usuario = usuarioOpt.get();
+    if (usuarioOpt.isPresent()) {
+      String password = passwordEncoder.encode(dto.getPassword());
+      usuario.setContraseña(password);
+      usuario.setTokenPassword(null);
+      usuarioRepo.save(usuario);
+      return dto;
+    } else {
+      throw new IllegalArgumentException("No se encontró el usuario correspondiente al token");
+    }
+  }
+
 }

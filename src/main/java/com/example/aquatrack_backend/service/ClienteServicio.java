@@ -37,11 +37,10 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     super(repoBase);
   }
 
-  public Page<ClienteDTO> findAll(int page, int size, String nombre, boolean mostrarInactivos) {
+  public Page<ClienteDTO> findAll(int page, int size, String texto, boolean mostrarInactivos) {
     Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
     Pageable paging = PageRequest.of(page, size);
-    Page<Cliente> clienteDTOS1 = clienteRepo.findAllByEmpresa(empresa.getId(), paging);
-    Page<ClienteDTO> clienteDTOS = clienteRepo.findAllByEmpresa(empresa.getId(),/* nombre, mostrarInactivos,*/ paging).map(cliente -> new ModelMapper().map(cliente, ClienteDTO.class));
+    Page<ClienteDTO> clienteDTOS = clienteRepo.findAllByEmpresaPaged(empresa.getId(), texto, mostrarInactivos, paging).map(cliente -> new ModelMapper().map(cliente, ClienteDTO.class));
     return clienteDTOS;
   }
 

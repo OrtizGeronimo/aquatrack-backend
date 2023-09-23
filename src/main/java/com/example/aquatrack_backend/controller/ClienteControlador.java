@@ -25,8 +25,9 @@ public class ClienteControlador {
     public ResponseEntity<?> findAll(@RequestParam(defaultValue = "0") int page,
                                      @RequestParam(defaultValue = "10") int size,
                                      @RequestParam(defaultValue = "false") boolean mostrar_inactivos,
-                                     @RequestParam(required = false) String nombre) {
-        return ResponseEntity.ok().body(clienteServicio.findAll(page, size, nombre, mostrar_inactivos));
+                                     @RequestParam(required = false) String texto)
+    {
+        return ResponseEntity.ok().body(clienteServicio.findAll(page, size, texto, mostrar_inactivos));
     }
 
     @PutMapping(value = "/{id}")

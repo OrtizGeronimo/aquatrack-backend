@@ -91,7 +91,10 @@ public class CoberturaServicio extends ServicioBaseImpl<Cobertura> {
                     empresa.setNumTelefono(empresaCober.getNumTelefono());
                     empresa.setUrlEmpresa(empresaCober.getUrl());
                     empresa.setDireccionEmail(empresaCober.getEmail());
-                    empresa.setUbicacion(empresaCober.getUbicacion());
+                    empresa.setUbicacion(UbicacionDTO.builder().latitud(empresaCober.getUbicacion().getLatitud()).longitud(empresaCober.getUbicacion().getLongitud()).build());
+                    empresa.setDireccionEmail(empresaCober.getEmail());
+                    empresa.setUrlEmpresa(empresaCober.getUrl());
+                    empresa.setUbicacion(UbicacionDTO.builder().latitud(empresaCober.getUbicacion().getLatitud()).longitud(empresaCober.getUbicacion().getLongitud()).build());
                     empresas.add(empresa);
                 }
             }

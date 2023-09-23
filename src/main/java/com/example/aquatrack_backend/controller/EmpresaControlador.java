@@ -22,7 +22,7 @@ public class EmpresaControlador{
     @Autowired
     CodigoTemporalServicio codigoTemporalServicio;
 
-    @GetMapping(path = "/codigo")
+    @GetMapping(path = "/obtener_codigo")
     @PreAuthorize("hasAuthority('CREAR_CLIENTES')")
     public ResponseEntity<?> obtenerCodigoAlta(){
         return ResponseEntity.ok().body(codigoTemporalServicio.generarCodigoAlta());

@@ -32,6 +32,8 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
   private CodigoTemporalServicio codigoTemporalServicio;
   @Autowired
   private EmpresaRepo empresaRepo;
+  @Autowired
+  private UsuarioServicio usuarioServicio;
 
   public ClienteServicio(RepoBase<Cliente> repoBase) {
     super(repoBase);
@@ -86,26 +88,33 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
   public ClienteDTO createFromApp(GuardarClienteDTO cliente, Long empresaId) throws RecordNotFoundException{
     Long id = clienteRepo.findByDni(cliente.getDni());
     if(id != null){
-      return updateCliente(cliente, id);
+      return createExistingClientFromApp(cliente, id, empresaId);
     }
     Empresa empresa = empresaRepo.findById(empresaId).orElseThrow(()->new RecordNotFoundException("No se encontro la empresa"));
-    Usuario usuario = new Usuario();
- /*   usuario.setDireccionEmail(cliente.getNombreUsuario());
-    usuario.setContraseña(cliente.getPassword());*/
+    Usuario usuario = usuarioServicio.createUserClient(cliente.getMail(), cliente.getPassword(), empresaId);
     Cliente clienteNuevo = new Cliente();
     clienteNuevo.setNombre(cliente.getNombre());
     clienteNuevo.setApellido(cliente.getApellido());
     clienteNuevo.setDni(cliente.getDni());
     clienteNuevo.setNumTelefono(cliente.getNumTelefono());
     clienteNuevo.setEmpresa(empresa);
+    clienteNuevo.setUsuario(usuario);
 
     clienteRepo.save(clienteNuevo);
     return new ModelMapper().map(clienteNuevo, ClienteDTO.class);
   }
 
-/*  @Transactional
-  public ClienteDTO crearClienteExistente(GuardarClienteDTO cliente, Long idCliente, Long idEmpresa) throws RecordNotFoundException{
+  @Transactional
+  public ClienteDTO createExistingClientFromApp(GuardarClienteDTO cliente, Long id, Long empresaId) throws RecordNotFoundException {
+    Cliente clienteModificado = clienteRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El cliente solicitado no fue encontrado"));
+    clienteModificado.setNombre(cliente.getNombre());
+    clienteModificado.setApellido(cliente.getApellido());
+    clienteModificado.setDni(cliente.getDni());
+    clienteModificado.setNumTelefono(cliente.getNumTelefono());
+    Usuario usuario = usuarioServicio.createUserClient(cliente.getMail(), cliente.getPassword(), empresaId);
+    clienteModificado.setUsuario(usuario);
 
-
-  }*/
+    clienteRepo.save(clienteModificado);
+    return new ModelMapper().map(clienteModificado, ClienteDTO.class);
+  }
 }

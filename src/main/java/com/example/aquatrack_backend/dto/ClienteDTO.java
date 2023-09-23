@@ -19,5 +19,5 @@ public class ClienteDTO {
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaFinVigencia;
     private String numTelefono;
-    private Long usuario_id;
+    private String mail;
 }

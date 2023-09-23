@@ -1,8 +1,14 @@
 package com.example.aquatrack_backend.service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.aquatrack_backend.model.Rol;
+import com.example.aquatrack_backend.model.RolUsuario;
+import com.example.aquatrack_backend.repo.RolRepo;
+import com.example.aquatrack_backend.repo.UsuarioRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,15 +24,19 @@ import com.example.aquatrack_backend.dto.LoginResponseDTO;
 import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
 import com.example.aquatrack_backend.model.Empleado;
 import com.example.aquatrack_backend.model.Usuario;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UsuarioServicio {
 
   @Autowired
   private AuthenticationManager authenticationManager;
-
+  @Autowired
+  private UsuarioRepo usuarioRepo;
   @Autowired
   private JwtUtils jwtUtils;
+  @Autowired
+  private RolRepo rolRepo;
 
   public LoginResponseDTO login(String direccionEmail, String contraseña) {
     Authentication authentication = authenticationManager
@@ -52,6 +62,21 @@ public class UsuarioServicio {
     } else {
       throw new FailedToAuthenticateUserException("Error de autenticación. Intente mas tarde.");
     }
+  }
+
+  @Transactional
+  public Usuario createUserClient(String email, String password, Long empresaId){
+    Usuario usuario = new Usuario();
+    usuario.setDireccionEmail(email);
+    usuario.setContraseña(password);
+    usuario.setFechaCreacion(LocalDate.now());
+    usuario.setValidado(true);
+    Rol rol = rolRepo.findClientRolByEmpresa(empresaId);
+    List<RolUsuario> rolUsuarios = new ArrayList<>();
+    rolUsuarios.add(new RolUsuario(rol, usuario));
+    usuario.setRolesUsuario(rolUsuarios);
+    usuarioRepo.save(usuario);
+    return usuario;
   }
 
   private Usuario getUsuarioFromContext() {

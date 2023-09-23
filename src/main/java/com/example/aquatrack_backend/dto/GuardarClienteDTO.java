@@ -14,6 +14,6 @@ public class GuardarClienteDTO {
     private String apellido;
     private Integer dni;
     private String numTelefono;
-/*    private String nombreUsuario;
-    private String password;*/
+    private String mail;
+    private String password;
 }

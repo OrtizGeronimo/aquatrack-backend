@@ -27,11 +27,7 @@ public class CoberturaControlador {
     }
 
     @GetMapping("/conocer_cercana")
-    public ResponseEntity<?> conocerCoberturaCercana(@RequestParam double latitud, @RequestParam double longitud){
-        try{
-            return ResponseEntity.status(HttpStatus.OK).body(coberturaServicio.conocerCobertura(latitud, longitud));
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\":\"Error. Por favor intente mas tarde.\"}");
-        }
+    public ResponseEntity<?> conocerCoberturaCercana(@RequestParam double latitud, @RequestParam double longitud) throws Exception{
+      return ResponseEntity.status(HttpStatus.OK).body(coberturaServicio.conocerCobertura(latitud, longitud));
     }
 }

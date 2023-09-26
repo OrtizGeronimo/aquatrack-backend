@@ -53,7 +53,6 @@ public class ClienteControlador {
     }
 
     @PostMapping(value = "/codigo")
-    @PreAuthorize("hasAuthority('CREAR_CLIENTES')")
     public ResponseEntity<?> altaEmpresa(@RequestBody CodigoDTO codigo) throws RecordNotFoundException {
         return ResponseEntity.ok().body(clienteServicio.altaEmpresa(codigo));
     }

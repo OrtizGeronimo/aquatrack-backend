@@ -5,10 +5,7 @@ import com.example.aquatrack_backend.exception.ValidacionException;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.aquatrack_backend.service.RepartoServicio;
 
@@ -23,6 +20,27 @@ public class RepartoControlador{
     @GetMapping("/{id}/crear")
     public ResponseEntity<?> crearReparto(@PathVariable("id") Long id) throws RecordNotFoundException, ValidacionException {
             return ResponseEntity.ok().body(servicio.crearReparto(id));
+    }
+
+    @GetMapping("/{id}/crearManual")
+    public ResponseEntity<?> crearRepartoManual(@PathVariable("id") Long id) throws RecordNotFoundException, ValidacionException {
+        return ResponseEntity.ok().body(servicio.crearRepartoManual(id));
+    }
+
+    @GetMapping("")
+    public ResponseEntity<?> listarRepartos(@RequestParam(required = false) String nombreRuta,
+                                            @RequestParam(required = false) Integer cantidadEntregasDesde,
+                                            @RequestParam(required = false) Integer cantidadEntregasHasta,
+                                            @RequestParam(required = false) Integer estado,
+                                            @RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "10") int size) throws RecordNotFoundException {
+        return ResponseEntity.ok().body(servicio.listarRepartos(nombreRuta, cantidadEntregasDesde, cantidadEntregasHasta, estado, page, size));
+    }
+
+    @GetMapping("/desginarHorario")
+    public ResponseEntity<?> desginarHorarioGeneracionAutomatica(@RequestParam Integer hora, @RequestParam Integer minuto) throws ValidacionException {
+        servicio.designarHoraGeneracionAutomaticaReparto(hora, minuto);
+        return ResponseEntity.ok().build();
     }
 
 

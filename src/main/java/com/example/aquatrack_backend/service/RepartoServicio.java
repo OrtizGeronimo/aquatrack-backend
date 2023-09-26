@@ -11,7 +11,13 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
@@ -20,24 +26,17 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.example.aquatrack_backend.model.Reparto;
-import com.example.aquatrack_backend.repo.RepartoRepo;
-import com.example.aquatrack_backend.repo.RepoBase;
 
 @Service
 public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
     @Autowired
-    private RepartoRepo repo;
+    private RepartoRepo repartoRepo;
 
     @Autowired
     private RutaRepo rutaRepo;
@@ -52,15 +51,58 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
     private BingMapsConfig bingMapsConfig;
 
     @Autowired
+    private EmpresaRepo empresaRepo;
+
+    @Autowired
     private RestTemplate restTemplate;
 
     private ModelMapper mapper = new ModelMapper();
+
+
+    public RepartoServicio(RepoBase<Reparto> repoBase) {
+        super(repoBase);
+    }
 
 
     static {
         Loader.loadNativeLibraries();
     }
 
+    @Scheduled(cron = "0 * * * * 1-6")
+    @Transactional
+    public void generacionAutomaticaRepartos() throws RecordNotFoundException, ValidacionException {
+
+        LocalTime now = LocalTime.now();
+
+        LocalTime today = LocalTime.of(now.getHour(), now.getMinute());
+
+        List<Empresa> empresas = empresaRepo.findAll();
+
+        for (Empresa empresa: empresas) {
+            if (empresa.getHoraGeneracionReparto().equals(today)){
+                crearReparto(empresa.getId());
+            }
+        }
+    }
+
+    @Transactional
+    public void designarHoraGeneracionAutomaticaReparto(Integer hora, Integer minuto) throws ValidacionException {
+
+        if ((hora < 0 || hora > 23) || (minuto < 0 || minuto > 59)){
+            throw new ValidacionException("Debe ingresar un horario válido");
+        }
+
+        LocalTime horario = LocalTime.of(hora, minuto);
+
+        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+
+        empresa.setHoraGeneracionReparto(horario);
+
+        empresaRepo.save(empresa);
+
+    }
+
+    @Transactional
     public RepartoDTO crearReparto(Long id) throws RecordNotFoundException, ValidacionException {
         Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("La ruta no fue encontrada"));
 
@@ -104,10 +146,9 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
         entregasARepartir.addAll(entregasExistentes);
         if (entregasARepartir == null || entregasARepartir.isEmpty()){
-            throw new ValidacionException("La ruta no contiene entregas a realizar");
+            throw new ValidacionException("La ruta no contiene entregas a realizar en el dia");
         }
         List<Entrega> rutaOptima = calcularRutaOptima(entregasARepartir);
-
         EstadoReparto estado = estadoRepartoRepo.findByNombre("Pendiente de Asignación");
         EstadoEntrega estadoEntrega = estadoEntregaRepo.findByNombreEstadoEntrega("Programada");
 
@@ -211,11 +252,40 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
     }
 
 
+    public Page<RepartoDTO> listarRepartos(String nombreRuta, Integer cantidadEntregaDesde, Integer cantidadEntregaHasta, Integer estado, int page, int size) throws RecordNotFoundException {
 
-  @Autowired
-  private RepartoRepo repartoRepo;
+        Pageable pageable = PageRequest.of(page, size/*, Sort.by("er.id, ru.nombre")*/);
 
-  public RepartoServicio(RepoBase<Reparto> repoBase) {
-    super(repoBase);
-  }
+        Page<Reparto> repartos = repartoRepo.search(nombreRuta, cantidadEntregaDesde, cantidadEntregaHasta, estado, pageable);
+
+        if (repartos == null || repartos.isEmpty()){
+            throw new RecordNotFoundException("No se encontraron repartos");
+        }
+
+        return repartos.map(reparto -> mapper.map(reparto, RepartoDTO.class));
+
+    }
+
+
+    @Transactional
+    public RepartoDTO crearRepartoManual(Long id) throws RecordNotFoundException, ValidacionException {
+        Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("La ruta no fue encontrada"));
+
+        EstadoReparto pendienteAsignacion = estadoRepartoRepo.findByNombre("Pendiente de Asignación");
+        EstadoReparto pendienteEjecucion = estadoRepartoRepo.findByNombre("Pendiente de Ejecución");
+        EstadoReparto enEjecucion = estadoRepartoRepo.findByNombre("En Ejecución");
+
+        if (ruta.getRepartos() != null && !ruta.getRepartos().isEmpty()){
+            LocalDate now = LocalDate.now();
+            for (Reparto repartoExistente: ruta.getRepartos()) {
+                if (repartoExistente.getFechaEjecucion().equals(now)){
+                    if (repartoExistente.getEstadoReparto().equals(pendienteAsignacion) || repartoExistente.getEstadoReparto().equals(pendienteEjecucion) || repartoExistente.getEstadoReparto().equals(enEjecucion)){
+                        throw new ValidacionException("Ya existe un reparto para la ruta indicada que aún no ha finalizado");
+                    }
+                }
+            }
+        }
+        return crearReparto(ruta.getId());
+    }
 }
+

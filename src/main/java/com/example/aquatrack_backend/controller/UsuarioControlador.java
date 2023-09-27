@@ -1,6 +1,7 @@
 package com.example.aquatrack_backend.controller;
 
 import com.example.aquatrack_backend.dto.RegisterRequestDTO;
+import com.example.aquatrack_backend.helpers.ValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,15 +20,22 @@ public class UsuarioControlador {
 
   @Autowired
   private UsuarioServicio usuarioServicio;
+  private ValidationHelper validationHelper = new ValidationHelper<>();
 
   @PostMapping(value = "/login")
   public ResponseEntity<?> login(@RequestBody LoginRequestDTO usuario) {
+    if(validationHelper.hasValidationErrors(usuario)){
+      return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(usuario));
+    }
     return ResponseEntity.ok().body(usuarioServicio.login(usuario.getDireccionEmail(), usuario.getContraseña()));
   }
 
   @PostMapping(value="/register")
   public ResponseEntity<?> register(@RequestBody RegisterRequestDTO usuario){
-    return ResponseEntity.ok().body(usuarioServicio.register(usuario.getDireccionEmail(), usuario.getContraseña(), usuario.getConfirmacionContraseña(), usuario.getIdEmpresa()));
+    if(validationHelper.hasValidationErrors(usuario)){
+      return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(usuario));
+    }
+    return ResponseEntity.ok().body(usuarioServicio.clientRegister(usuario));
   }
 
   @GetMapping(value = "/current")

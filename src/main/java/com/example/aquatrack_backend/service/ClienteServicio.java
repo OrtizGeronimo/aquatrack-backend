@@ -94,7 +94,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
           ClienteDTO clienteDto = new ModelMapper().map(cliente, ClienteDTO.class);
           clienteDto.setEmpresaId(validacion.getEmpresaId());
           clienteDto.setUsuarioId(validacion.getUsuarioId());
-          clienteDto.setId(clienteDto.getId());
+/*          clienteDto.setId(clienteDto.getId());*/
       }
       ClienteDTO clienteDTO = new ClienteDTO();
       clienteDTO.setDni(validacion.getDni());
@@ -117,18 +117,4 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     clienteRepo.save(clienteNuevo);
     return new ModelMapper().map(clienteNuevo, ClienteDTO.class);
   }
-
-/*  @Transactional
-  public ClienteDTO createExistingClientFromApp(GuardarClienteDTO cliente, Long id, Long empresaId) throws RecordNotFoundException {
-    Cliente clienteModificado = clienteRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El cliente solicitado no fue encontrado"));
-    clienteModificado.setNombre(cliente.getNombre());
-    clienteModificado.setApellido(cliente.getApellido());
-    clienteModificado.setDni(cliente.getDni());
-    clienteModificado.setNumTelefono(cliente.getNumTelefono());
-    Usuario usuario = usuarioServicio.createUserClient(cliente.getMail(), cliente.getPassword(), empresaId);
-    clienteModificado.setUsuario(usuario);
-
-    clienteRepo.save(clienteModificado);
-    return new ModelMapper().map(clienteModificado, ClienteDTO.class);
-  }*/
 }

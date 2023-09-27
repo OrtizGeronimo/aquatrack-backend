@@ -30,6 +30,6 @@ public interface RolRepo extends RepoBase<Rol> {
     Rol findByName(String nombre, Long empresaId);
 
     @Query(value = "SELECT * FROM rol WHERE nombre LIKE 'ROLE_CLIENTE' " +
-            "AND empresa_id = null", nativeQuery = true)
+            "AND empresa_id is null", nativeQuery = true)
     Rol findClientRole();
 }

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.aquatrack_backend.dto.RegisterRequestDTO;
 import com.example.aquatrack_backend.dto.RegisterResponseDTO;
 import com.example.aquatrack_backend.model.Rol;
 import com.example.aquatrack_backend.model.RolUsuario;
@@ -40,7 +41,7 @@ public class UsuarioServicio {
   private JwtUtils jwtUtils;
   @Autowired
   private RolRepo rolRepo;
-  private BCryptPasswordEncoder bCryptPasswordEncoder;
+  private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
   public LoginResponseDTO login(String direccionEmail, String contraseña) {
     Authentication authentication = authenticationManager
@@ -49,19 +50,25 @@ public class UsuarioServicio {
     return LoginResponseDTO.builder().token(jwt).build();
   }
 
-  public RegisterResponseDTO register(String mail, String password, String confirmacionPassword, Long idEmpresa){
+  private Usuario createUser(String mail, String password, String confirmacionPassword){
     Usuario usuario = new Usuario();
     usuario.setDireccionEmail(mail);
     usuario.setContraseña(bCryptPasswordEncoder.encode(password));
     usuario.setConfirmacionContraseña(bCryptPasswordEncoder.encode(confirmacionPassword));
     usuario.setValidado(true);
     usuario.setFechaCreacion(LocalDate.now());
+    return usuario;
+  }
+
+  @Transactional
+  public RegisterResponseDTO clientRegister(RegisterRequestDTO register){
+    Usuario usuario = createUser(register.getDireccionEmail(), register.getContraseña(), register.getConfirmacionContraseña());
     Rol rol = rolRepo.findClientRole();
     List<RolUsuario> rolUsuarios = new ArrayList<>();
     rolUsuarios.add(new RolUsuario(rol, usuario));
     usuario.setRolesUsuario(rolUsuarios);
     Usuario usuarioGuardado = usuarioRepo.save(usuario);
-    return new RegisterResponseDTO(idEmpresa, usuarioGuardado.getId());
+    return new RegisterResponseDTO(register.getIdEmpresa(), usuarioGuardado.getId());
   }
 
   public CurrentUserDTO getCurrentUser() throws FailedToAuthenticateUserException {

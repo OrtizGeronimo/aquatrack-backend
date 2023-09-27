@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -16,10 +18,11 @@ public class ClienteDTO {
     private String nombre;
     private String apellido;
     private Integer dni;
-    private LocalDateTime fechaCreacion;
-    private LocalDateTime fechaFinVigencia;
+    @DateTimeFormat(pattern = "dd-MM-YYYY")
+    private LocalDate fechaCreacion;
+    @DateTimeFormat(pattern = "dd-MM-YYYY")
+    private LocalDate fechaFinVigencia;
     private String numTelefono;
-    private String mail;
     private Long empresaId;
     private Long usuarioId;
 }

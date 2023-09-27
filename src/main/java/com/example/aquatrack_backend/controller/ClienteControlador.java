@@ -63,8 +63,11 @@ public class ClienteControlador {
         return ResponseEntity.ok().body(clienteServicio.validarDni(validacion));
     }
 
-    @PostMapping(value = "/")
+    @PostMapping(value = "")
     public ResponseEntity<?> createFromApp(@RequestBody GuardarClienteDTO cliente) throws RecordNotFoundException {
+        if(validationHelper.hasValidationErrors(cliente)){
+            return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(cliente));
+        }
         return ResponseEntity.ok().body(clienteServicio.createClientFromApp(cliente));
     }
 }

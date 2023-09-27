@@ -5,16 +5,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.aquatrack_backend.dto.RegisterResponseDTO;
 import com.example.aquatrack_backend.model.Rol;
 import com.example.aquatrack_backend.model.RolUsuario;
 import com.example.aquatrack_backend.repo.RolRepo;
 import com.example.aquatrack_backend.repo.UsuarioRepo;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.aquatrack_backend.config.JwtUtils;
@@ -37,12 +40,28 @@ public class UsuarioServicio {
   private JwtUtils jwtUtils;
   @Autowired
   private RolRepo rolRepo;
+  private BCryptPasswordEncoder bCryptPasswordEncoder;
 
   public LoginResponseDTO login(String direccionEmail, String contraseña) {
     Authentication authentication = authenticationManager
         .authenticate(new UsernamePasswordAuthenticationToken(direccionEmail, contraseña));
     String jwt = jwtUtils.generateJwtToken(authentication);
     return LoginResponseDTO.builder().token(jwt).build();
+  }
+
+  public RegisterResponseDTO register(String mail, String password, String confirmacionPassword, Long idEmpresa){
+    Usuario usuario = new Usuario();
+    usuario.setDireccionEmail(mail);
+    usuario.setContraseña(bCryptPasswordEncoder.encode(password));
+    usuario.setConfirmacionContraseña(bCryptPasswordEncoder.encode(confirmacionPassword));
+    usuario.setValidado(true);
+    usuario.setFechaCreacion(LocalDate.now());
+    Rol rol = rolRepo.findClientRole();
+    List<RolUsuario> rolUsuarios = new ArrayList<>();
+    rolUsuarios.add(new RolUsuario(rol, usuario));
+    usuario.setRolesUsuario(rolUsuarios);
+    Usuario usuarioGuardado = usuarioRepo.save(usuario);
+    return new RegisterResponseDTO(idEmpresa, usuarioGuardado.getId());
   }
 
   public CurrentUserDTO getCurrentUser() throws FailedToAuthenticateUserException {
@@ -68,10 +87,10 @@ public class UsuarioServicio {
   public Usuario createUserClient(String email, String password, Long empresaId){
     Usuario usuario = new Usuario();
     usuario.setDireccionEmail(email);
-    usuario.setContraseña(password);
+    usuario.setContraseña(bCryptPasswordEncoder.encode(password));
     usuario.setFechaCreacion(LocalDate.now());
     usuario.setValidado(true);
-    Rol rol = rolRepo.findClientRolByEmpresa(empresaId);
+    Rol rol = rolRepo.findClientRole();
     List<RolUsuario> rolUsuarios = new ArrayList<>();
     rolUsuarios.add(new RolUsuario(rol, usuario));
     usuario.setRolesUsuario(rolUsuarios);

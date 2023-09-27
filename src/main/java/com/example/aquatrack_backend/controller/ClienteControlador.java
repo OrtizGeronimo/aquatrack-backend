@@ -3,6 +3,7 @@ package com.example.aquatrack_backend.controller;
 import com.example.aquatrack_backend.dto.CodigoDTO;
 import com.example.aquatrack_backend.dto.GuardarClienteDTO;
 import com.example.aquatrack_backend.dto.GuardarRolDTO;
+import com.example.aquatrack_backend.dto.ValidarDniDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.helpers.ValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,14 +54,17 @@ public class ClienteControlador {
     }
 
     @PostMapping(value = "/codigo")
-    @PreAuthorize("hasAuthority('CREAR_CLIENTES')")
     public ResponseEntity<?> altaEmpresa(@RequestBody CodigoDTO codigo) throws RecordNotFoundException {
         return ResponseEntity.ok().body(clienteServicio.altaEmpresa(codigo));
     }
+    
+    @PostMapping(value= "/dni")
+    public ResponseEntity<?> validarDni(@RequestBody ValidarDniDTO validacion) throws RecordNotFoundException{
+        return ResponseEntity.ok().body(clienteServicio.validarDni(validacion));
+    }
 
-    @PostMapping(value = "/{empresa_id}")
-    @PreAuthorize("hasAuthority('EDITAR_CLIENTES')")
-    public ResponseEntity<?> createFromApp(@RequestBody GuardarClienteDTO cliente, @PathVariable Long empresa_id) throws RecordNotFoundException {
-        return ResponseEntity.ok().body(clienteServicio.createFromApp(cliente, empresa_id));
+    @PostMapping(value = "/")
+    public ResponseEntity<?> createFromApp(@RequestBody GuardarClienteDTO cliente) throws RecordNotFoundException {
+        return ResponseEntity.ok().body(clienteServicio.createClientFromApp(cliente));
     }
 }

@@ -5,6 +5,7 @@ import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.UserWithOneRolePresentException;
 import com.example.aquatrack_backend.model.*;
 import com.example.aquatrack_backend.repo.EmpresaRepo;
+import com.example.aquatrack_backend.repo.UsuarioRepo;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,13 +28,14 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
 
   @Autowired
   private ClienteRepo clienteRepo;
-
   @Autowired
   private CodigoTemporalServicio codigoTemporalServicio;
   @Autowired
   private EmpresaRepo empresaRepo;
   @Autowired
   private UsuarioServicio usuarioServicio;
+  @Autowired
+  private UsuarioRepo usuarioRepo;
 
   public ClienteServicio(RepoBase<Cliente> repoBase) {
     super(repoBase);
@@ -85,26 +87,38 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
   }
 
   @Transactional
-  public ClienteDTO createFromApp(GuardarClienteDTO cliente, Long empresaId) throws RecordNotFoundException{
-    Long id = clienteRepo.findByDni(cliente.getDni());
-    if(id != null){
-      return createExistingClientFromApp(cliente, id, empresaId);
+  public ClienteDTO validarDni(ValidarDniDTO validacion) throws RecordNotFoundException{
+      Long id = clienteRepo.findByDni(validacion.getDni());
+      if(id != null){
+          Cliente cliente = clienteRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El cliente solicitado no fue encontrado"));
+          ClienteDTO clienteDto = new ModelMapper().map(cliente, ClienteDTO.class);
+          clienteDto.setEmpresaId(validacion.getEmpresaId());
+          clienteDto.setUsuarioId(validacion.getUsuarioId());
+          clienteDto.setId(clienteDto.getId());
+      }
+      ClienteDTO clienteDTO = new ClienteDTO();
+      clienteDTO.setDni(validacion.getDni());
+      clienteDTO.setEmpresaId(validacion.getEmpresaId());
+      clienteDTO.setUsuarioId(validacion.getUsuarioId());
+      return clienteDTO;
+  }
+
+  @Transactional
+  public ClienteDTO createClientFromApp(GuardarClienteDTO cliente) throws RecordNotFoundException{
+    Empresa empresa = empresaRepo.findById(cliente.getEmpresaId()).orElseThrow(()->new RecordNotFoundException("No se encontro la empresa"));
+    Usuario usuario = usuarioRepo.findById(cliente.getUsuarioId()).orElseThrow(()->new RecordNotFoundException("No se encontro el usuario"));
+    if(cliente.getId() != null){
+      clienteRepo.findById(cliente.getId()).orElseThrow(()->new RecordNotFoundException("No se encontro el cliente"));
     }
-    Empresa empresa = empresaRepo.findById(empresaId).orElseThrow(()->new RecordNotFoundException("No se encontro la empresa"));
-    Usuario usuario = usuarioServicio.createUserClient(cliente.getMail(), cliente.getPassword(), empresaId);
-    Cliente clienteNuevo = new Cliente();
-    clienteNuevo.setNombre(cliente.getNombre());
-    clienteNuevo.setApellido(cliente.getApellido());
-    clienteNuevo.setDni(cliente.getDni());
-    clienteNuevo.setNumTelefono(cliente.getNumTelefono());
+    Cliente clienteNuevo = new ModelMapper().map(cliente, Cliente.class);
+    clienteNuevo.setFechaCreacion(LocalDate.now());
     clienteNuevo.setEmpresa(empresa);
     clienteNuevo.setUsuario(usuario);
-
     clienteRepo.save(clienteNuevo);
     return new ModelMapper().map(clienteNuevo, ClienteDTO.class);
   }
 
-  @Transactional
+/*  @Transactional
   public ClienteDTO createExistingClientFromApp(GuardarClienteDTO cliente, Long id, Long empresaId) throws RecordNotFoundException {
     Cliente clienteModificado = clienteRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El cliente solicitado no fue encontrado"));
     clienteModificado.setNombre(cliente.getNombre());
@@ -116,5 +130,5 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
 
     clienteRepo.save(clienteModificado);
     return new ModelMapper().map(clienteModificado, ClienteDTO.class);
-  }
+  }*/
 }

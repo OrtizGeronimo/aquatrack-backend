@@ -20,4 +20,6 @@ public class ClienteDTO {
     private LocalDateTime fechaFinVigencia;
     private String numTelefono;
     private String mail;
+    private Long empresaId;
+    private Long usuarioId;
 }

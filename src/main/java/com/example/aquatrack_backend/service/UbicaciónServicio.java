@@ -14,7 +14,7 @@ public class UbicaciónServicio {
     @Autowired
     UbicacionRepo ubicacionRepo;
 
-    public UbicacionDTO obtenerUbicacionUsuario(Long id) throws Exception{
+    public UbicacionDTO obtenerUbicacion(Long id) throws Exception{
         try{
             Optional<Ubicacion> ubi = ubicacionRepo.findById(id);
             UbicacionDTO ubicacionDTO = new UbicacionDTO();

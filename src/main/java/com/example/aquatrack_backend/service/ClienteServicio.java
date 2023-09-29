@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 @Service
 public class ClienteServicio extends ServicioBaseImpl<Cliente> {
@@ -36,6 +37,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
   private UsuarioServicio usuarioServicio;
   @Autowired
   private UsuarioRepo usuarioRepo;
+  private ModelMapper modelMapper = new ModelMapper();
 
   public ClienteServicio(RepoBase<Cliente> repoBase) {
     super(repoBase);
@@ -57,7 +59,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     clienteModificado.setNumTelefono(cliente.getNumTelefono());
 
     clienteRepo.save(clienteModificado);
-    return new ModelMapper().map(clienteModificado, ClienteDTO.class);
+    return modelMapper.map(clienteModificado, ClienteDTO.class);
   }
 
   @Transactional
@@ -72,7 +74,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     Cliente cliente = clienteRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El cliente solicitado no fue encontrado"));
     cliente.setFechaFinVigencia(null);
     clienteRepo.save(cliente);
-    return new ModelMapper().map(cliente, ClienteDTO.class);
+    return modelMapper.map(cliente, ClienteDTO.class);
   }
 
   @Transactional
@@ -88,33 +90,39 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
 
   @Transactional
   public ClienteDTO validarDni(ValidarDniDTO validacion) throws RecordNotFoundException{
-      Long id = clienteRepo.findByDni(validacion.getDni());
-      if(id != null){
-          Cliente cliente = clienteRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El cliente solicitado no fue encontrado"));
-          ClienteDTO clienteDto = new ModelMapper().map(cliente, ClienteDTO.class);
-          clienteDto.setEmpresaId(validacion.getEmpresaId());
-          clienteDto.setUsuarioId(validacion.getUsuarioId());
-/*          clienteDto.setId(clienteDto.getId());*/
+    ClienteDTO clienteDTO = new ClienteDTO();
+    Cliente cliente = clienteRepo.findByDni(validacion.getDni());
+      if(cliente != null){
+          clienteDTO = modelMapper.map(cliente, ClienteDTO.class);
+      } else {
+          clienteDTO.setDni(validacion.getDni());
       }
-      ClienteDTO clienteDTO = new ClienteDTO();
-      clienteDTO.setDni(validacion.getDni());
       clienteDTO.setEmpresaId(validacion.getEmpresaId());
       clienteDTO.setUsuarioId(validacion.getUsuarioId());
       return clienteDTO;
   }
 
   @Transactional
-  public ClienteDTO createClientFromApp(GuardarClienteDTO cliente) throws RecordNotFoundException{
+  public UbicacionDTO createClientFromApp(GuardarClienteDTO cliente) throws RecordNotFoundException{
     Empresa empresa = empresaRepo.findById(cliente.getEmpresaId()).orElseThrow(()->new RecordNotFoundException("No se encontro la empresa"));
     Usuario usuario = usuarioRepo.findById(cliente.getUsuarioId()).orElseThrow(()->new RecordNotFoundException("No se encontro el usuario"));
-    if(cliente.getId() != null){
-      clienteRepo.findById(cliente.getId()).orElseThrow(()->new RecordNotFoundException("No se encontro el cliente"));
-    }
     Cliente clienteNuevo = new ModelMapper().map(cliente, Cliente.class);
     clienteNuevo.setFechaCreacion(LocalDate.now());
     clienteNuevo.setEmpresa(empresa);
     clienteNuevo.setUsuario(usuario);
+    Domicilio domicilio = new Domicilio();
+    UbicacionDTO ubicacionDTO = new UbicacionDTO();
+    if(cliente.getId() != null){
+      Cliente clienteExist = clienteRepo.findById(cliente.getId()).orElseThrow(()->new RecordNotFoundException("No se encontro el cliente"));
+      domicilio = clienteExist.getDomicilio();
+      Ubicacion ubicacion = domicilio.getUbicacion();
+      ubicacionDTO = modelMapper.map(ubicacion, UbicacionDTO.class);
+    }
+    domicilio.setCalle(cliente.getCalle());
+    domicilio.setNumero(cliente.getNumero());
+    domicilio.setPisoDepartamento(cliente.getPisoDepartamento());
+    domicilio.setObservaciones(cliente.getObservaciones());
     clienteRepo.save(clienteNuevo);
-    return new ModelMapper().map(clienteNuevo, ClienteDTO.class);
+    return ubicacionDTO;
   }
 }

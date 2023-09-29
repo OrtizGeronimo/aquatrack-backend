@@ -21,7 +21,7 @@ public interface ClienteRepo extends RepoBase<Cliente> {
             nativeQuery = true)
     Page<Cliente> findAllByEmpresaPaged(@Param("empresa_id") Long empresaId, @Param("texto") String texto, @Param("mostrar_inactivos") boolean mostrarInactivos, Pageable pageable);
 
-    @Query(value = "SELECT c.id FROM cliente c " +
+    @Query(value = "SELECT * FROM cliente c " +
             "WHERE c.dni = :dni", nativeQuery = true)
-    Long findByDni(@Param("dni")Integer dni);
+    Cliente findByDni(@Param("dni")Integer dni);
 }

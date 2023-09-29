@@ -22,6 +22,11 @@ public class GuardarClienteDTO {
     @NotBlank
     @Pattern(regexp = "^[0-9]{10}$", message = "El número de teléfono debe estar formado por 10 caracteres numéricos")
     private String numTelefono;
+    @NotBlank
+    private String calle;
+    private Integer numero;
+    private String pisoDepartamento;
+    private String observaciones;
     @NotNull
     private Long empresaId;
     @NotNull

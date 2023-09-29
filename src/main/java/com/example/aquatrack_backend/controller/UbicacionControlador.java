@@ -18,7 +18,7 @@ public class UbicacionControlador {
     @GetMapping("/{id}")
     public ResponseEntity<?> obtenerUbicaciónUsuario(@PathVariable Long id){
         try{
-            return ResponseEntity.status(HttpStatus.OK).body(ubicaciónServicio.obtenerUbicacionUsuario(id));
+            return ResponseEntity.status(HttpStatus.OK).body(ubicaciónServicio.obtenerUbicacion(id));
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\":\"Error. Por favor intente mas tarde.\"}");
         }

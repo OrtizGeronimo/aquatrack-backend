@@ -26,6 +26,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
@@ -52,6 +53,9 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
     @Autowired
     private EmpresaRepo empresaRepo;
+
+    @Autowired
+    private EmpleadoRepo empleadoRepo;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -145,7 +149,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         }
 
         entregasARepartir.addAll(entregasExistentes);
-        if (entregasARepartir == null || entregasARepartir.isEmpty()){
+        if (entregasARepartir.isEmpty()){
             throw new ValidacionException("La ruta no contiene entregas a realizar en el dia");
         }
         List<Entrega> rutaOptima = calcularRutaOptima(entregasARepartir);
@@ -286,6 +290,96 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
             }
         }
         return crearReparto(ruta.getId());
+    }
+
+    @Transactional
+    public RepartoDTO asignarRepartidor(Long idReparto, Long idRepartidor) throws RecordNotFoundException, ValidacionException {
+        Reparto reparto = repartoRepo.findById(idReparto).orElseThrow(() -> new RecordNotFoundException("El id del reparto ingresado no corresponde a uno existente"));
+        Empleado empleado = empleadoRepo.findById(idRepartidor).orElseThrow(() -> new RecordNotFoundException("El id del repartidor ingresado no corresponde a uno existente"));
+
+
+        EstadoReparto pendienteEjecucion = estadoRepartoRepo.findByNombre("Pendiente de Ejecución");
+        EstadoReparto pendienteAsignacion = estadoRepartoRepo.findByNombre("Pendiente de Asignación");
+
+        if (!reparto.getEstadoReparto().equals(pendienteAsignacion) && !reparto.getEstadoReparto().equals(pendienteEjecucion)){
+            throw new ValidacionException("No se puede asignar un repartidor");
+        }
+
+        reparto.setRepartidor(empleado);
+        reparto.setEstadoReparto(pendienteEjecucion);
+
+        repartoRepo.save(reparto);
+
+        return mapper.map(reparto, RepartoDTO.class);
+
+    }
+
+    @Transactional
+    public void iniciarReparto(Long idReparto) throws RecordNotFoundException {
+        Reparto reparto = repartoRepo.findById(idReparto).orElseThrow(() -> new RecordNotFoundException("El id del reparto ingresado no corresponde a uno existente"));
+
+        EstadoReparto enEjecucion = estadoRepartoRepo.findByNombre("En Ejecución");
+
+        reparto.setEstadoReparto(enEjecucion);
+        reparto.setFechaYHoraInicio(LocalDateTime.now());
+
+        EstadoEntrega pendiente = estadoEntregaRepo.findByNombreEstadoEntrega("Pendiente");
+
+        for (Entrega entrega: reparto.getEntregas()) {
+            entrega.setEstadoEntrega(pendiente);
+        }
+
+//        notificacionesServicio.enviarInicioReparto()
+
+        repartoRepo.save(reparto);
+
+    }
+
+    @Transactional
+    public void cancelarReparto(Long idReparto) throws ValidacionException, RecordNotFoundException {
+        Reparto reparto = repartoRepo.findById(idReparto).orElseThrow(() -> new RecordNotFoundException("El id del reparto ingresado no corresponde a uno existente"));
+
+        EstadoReparto enEjecucion = estadoRepartoRepo.findByNombre("En Ejecución");
+        EstadoReparto cancelado = estadoRepartoRepo.findByNombre("Cancelado");
+        EstadoReparto finalizado = estadoRepartoRepo.findByNombre("Finalizado");
+
+        if (reparto.getEstadoReparto().equals(enEjecucion)){
+            throw new ValidacionException("No se puede cancelar un reparto que se encuentra En Ejecución");
+        }
+        if (reparto.getEstadoReparto().equals(cancelado)){
+            throw new ValidacionException("No se puede cancelar un reparto ya Cancelado");
+        }
+        if (reparto.getEstadoReparto().equals(finalizado)){
+            throw new ValidacionException("No se puede cancelar un reparto Finalizado");
+        }
+
+        reparto.setEstadoReparto(cancelado);
+
+        repartoRepo.save(reparto);
+    }
+
+
+    @Transactional
+    public void finalizarRepartoIncompleto(Long idReparto, String observaciones) throws ValidacionException, RecordNotFoundException {
+        Reparto reparto = repartoRepo.findById(idReparto).orElseThrow(() -> new RecordNotFoundException("El id del reparto ingresado no corresponde a uno existente"));
+
+        if (observaciones == null){
+            throw new ValidacionException("Debe ingresar observaciones");
+        }
+
+        EstadoReparto enEjecucion = estadoRepartoRepo.findByNombre("En Ejecución");
+
+        if (!reparto.getEstadoReparto().equals(enEjecucion)){
+            throw new ValidacionException("No se puede finalizar un reparto que no se encuentra en ejecución");
+        }
+
+        EstadoReparto incompleto = estadoRepartoRepo.findByNombre("Incompleto");
+
+        reparto.setObservaciones(observaciones);
+        reparto.setEstadoReparto(incompleto);
+
+        repartoRepo.save(reparto);
+
     }
 }
 

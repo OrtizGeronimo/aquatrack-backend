@@ -46,4 +46,10 @@ public class Reparto {
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "reparto")
   private List<Entrega> entregas;
+
+  @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
+  private LocalDateTime fechaYHoraInicio;
+
+  private String observaciones;
+
 }

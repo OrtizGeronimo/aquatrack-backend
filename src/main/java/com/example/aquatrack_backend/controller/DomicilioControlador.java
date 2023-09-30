@@ -15,9 +15,9 @@ public class DomicilioControlador{
     @Autowired
     private DomicilioServicio domicilioServicio;
 
-    @PostMapping("/ubicacion/{id}")
-    public ResponseEntity<?> guardarUbicacionDomilio(@RequestBody UbicacionDTO ubicacionDTO, @PathVariable Long idD) throws RecordNotFoundException {
-        return ResponseEntity.ok().body(domicilioServicio.crearDomicilioUbicacion(ubicacionDTO, idD));
+    @PostMapping("/ubicacion")
+    public ResponseEntity<?> guardarUbicacionDomilio(@RequestBody UbicacionDTO ubicacionDTO) throws RecordNotFoundException {
+        return ResponseEntity.ok().body(domicilioServicio.crearDomicilioUbicacion(ubicacionDTO));
     }
     @GetMapping("/ubicacion/{id}")
     public ResponseEntity<?> obtenerUbiDomicilio(@PathVariable Long idDomicilio){

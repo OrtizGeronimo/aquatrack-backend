@@ -50,6 +50,10 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     return clienteDTOS;
   }
 
+  public Cliente findClientById(Long idCliente)throws RecordNotFoundException{
+    return clienteRepo.findById(idCliente).orElseThrow(()->new RecordNotFoundException("No se encontro el cliente"));
+  }
+
   @Transactional
   public ClienteDTO updateCliente(GuardarClienteDTO cliente, Long id) throws RecordNotFoundException {
     Cliente clienteModificado = clienteRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El cliente solicitado no fue encontrado"));
@@ -122,7 +126,9 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     domicilio.setNumero(cliente.getNumero());
     domicilio.setPisoDepartamento(cliente.getPisoDepartamento());
     domicilio.setObservaciones(cliente.getObservaciones());
-    clienteRepo.save(clienteNuevo);
+    clienteNuevo.setDomicilio(domicilio);
+    Cliente client = clienteRepo.save(clienteNuevo);
+    ubicacionDTO.setIdCliente(client.getId());
     return ubicacionDTO;
   }
 }

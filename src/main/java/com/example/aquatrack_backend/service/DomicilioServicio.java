@@ -19,24 +19,24 @@ public class DomicilioServicio extends ServicioBaseImpl<Domicilio> {
   @Autowired
   private DomicilioRepo domicilioRepo;
   @Autowired
-  private ClienteRepo clienteRepo;
+  private UbicaciónServicio ubicaciónServicio;
+  @Autowired
+  private ClienteServicio clienteServicio;
   private ModelMapper mapper = new ModelMapper();
 
   public DomicilioServicio(RepoBase<Domicilio> repoBase) {
     super(repoBase);
   }
 
-  public boolean crearDomicilioUbicacion(UbicacionDTO ubicacionDTO, Long idDomicilio) throws RecordNotFoundException {
-    Domicilio domicilio = domicilioRepo.findById(idDomicilio).orElseThrow(() -> new RecordNotFoundException("No se encontro el cliente"));
-    domicilio.setUbicacion(mapper.map(ubicacionDTO, Ubicacion.class));
+  public boolean crearDomicilioUbicacion(UbicacionDTO ubicacionDTO) throws RecordNotFoundException {
+    Cliente cliente = clienteServicio.findClientById(ubicacionDTO.getIdCliente());
+    Domicilio domicilio = domicilioRepo.findById(cliente.getDomicilio().getId()).orElseThrow(() -> new RecordNotFoundException("No se encontro el domicilio"));
+    Ubicacion ubicacion = ubicaciónServicio.guardarUbicacion(ubicacionDTO);
+    domicilio.setUbicacion(ubicacion);
     domicilioRepo.save(domicilio);
     return true;
   }
 
-/*  public Domicilio editarDomicilioManual(DomicilioDTO domicilioDTO, Long idDomicilio) throws RecordNotFoundException{
-    Domicilio domicilio = domicilioRepo.findById(idDomicilio).orElseThrow(() -> new RecordNotFoundException("El domicilio no fue encontrado"));
-    Domicilio domicilioNuevo = mapper.map(domicilio, );
-  }*/
   public UbicacionDTO getDomicilioUbicacion(Long id){
     Ubicacion ubicacion = domicilioRepo.findDomicilioUbi(id);
     UbicacionDTO ubicacionDTO = new ModelMapper().map(ubicacion, UbicacionDTO.class);

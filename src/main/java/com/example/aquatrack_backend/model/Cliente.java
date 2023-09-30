@@ -7,6 +7,7 @@ import javax.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Cascade;
 
 @Getter
 @Setter
@@ -18,6 +19,7 @@ public class Cliente extends Persona {
   private Integer dni;
 
   @OneToOne(mappedBy = "cliente")
+  @Cascade(org.hibernate.annotations.CascadeType.ALL)
   private Domicilio domicilio;
 
   @ManyToOne()

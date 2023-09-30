@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.controller;
 
+import com.example.aquatrack_backend.dto.UbicacionDTO;
 import com.example.aquatrack_backend.model.Ubicacion;
 import com.example.aquatrack_backend.service.UbicaciónServicio;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ public class UbicacionControlador {
     }
 
     @PostMapping("")
-    public ResponseEntity<?> guardarUbicacion(@RequestBody Ubicacion ubicacion){
+    public ResponseEntity<?> guardarUbicacion(@RequestBody UbicacionDTO ubicacion){
         try{
             return ResponseEntity.status(HttpStatus.OK).body(ubicaciónServicio.guardarUbicacion(ubicacion));
         } catch (Exception e){

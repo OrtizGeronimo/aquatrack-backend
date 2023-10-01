@@ -106,7 +106,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
     }
 
-    @Transactional
+//    @Transactional
     public RepartoDTO crearReparto(Long id) throws RecordNotFoundException, ValidacionException {
         Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("La ruta no fue encontrada"));
 
@@ -347,7 +347,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
             throw new ValidacionException("No se puede cancelar un reparto que se encuentra En Ejecución");
         }
         if (reparto.getEstadoReparto().equals(cancelado)){
-            throw new ValidacionException("No se puede cancelar un reparto ya Cancelado");
+            throw new ValidacionException("El reparto ya está cancelado");
         }
         if (reparto.getEstadoReparto().equals(finalizado)){
             throw new ValidacionException("No se puede cancelar un reparto Finalizado");

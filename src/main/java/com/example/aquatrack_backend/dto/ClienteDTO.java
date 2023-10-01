@@ -23,6 +23,10 @@ public class ClienteDTO {
     @DateTimeFormat(pattern = "dd-MM-YYYY")
     private LocalDate fechaFinVigencia;
     private String numTelefono;
+    private String calle;
+    private Integer numero;
+    private String pisoDepto;
+    private String observaciones;
     private Long empresaId;
     private Long usuarioId;
 }

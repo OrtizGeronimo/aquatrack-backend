@@ -98,6 +98,11 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     Cliente cliente = clienteRepo.findByDni(validacion.getDni());
       if(cliente != null){
           clienteDTO = modelMapper.map(cliente, ClienteDTO.class);
+          Domicilio domicilio = cliente.getDomicilio();
+          clienteDTO.setCalle(domicilio.getCalle());
+          clienteDTO.setNumero(domicilio.getNumero());
+          clienteDTO.setPisoDepto(domicilio.getPisoDepartamento());
+          clienteDTO.setObservaciones(domicilio.getObservaciones());
       } else {
           clienteDTO.setDni(validacion.getDni());
       }

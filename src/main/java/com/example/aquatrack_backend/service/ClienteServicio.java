@@ -127,8 +127,25 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     domicilio.setPisoDepartamento(cliente.getPisoDepartamento());
     domicilio.setObservaciones(cliente.getObservaciones());
     clienteNuevo.setDomicilio(domicilio);
+    domicilio.setCliente(clienteNuevo);
     Cliente client = clienteRepo.save(clienteNuevo);
     ubicacionDTO.setIdCliente(client.getId());
     return ubicacionDTO;
+  }
+
+  @Transactional
+  public boolean createFromWeb(GuardarClienteWebDTO cliente){
+    Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+    Cliente clienteNuevo = new ModelMapper().map(cliente, Cliente.class);
+    clienteNuevo.setFechaCreacion(LocalDate.now());
+    clienteNuevo.setEmpresa(empresa);
+    Domicilio domicilio = new Domicilio();
+    domicilio.setCalle(cliente.getCalle());
+    domicilio.setNumero(cliente.getNumero());
+    domicilio.setPisoDepartamento(cliente.getPisoDepartamento());
+    domicilio.setObservaciones(cliente.getObservaciones());
+    clienteNuevo.setDomicilio(domicilio);
+    clienteRepo.save(clienteNuevo);
+    return true;
   }
 }

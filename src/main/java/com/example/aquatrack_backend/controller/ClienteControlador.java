@@ -1,11 +1,9 @@
 package com.example.aquatrack_backend.controller;
 
-import com.example.aquatrack_backend.dto.CodigoDTO;
-import com.example.aquatrack_backend.dto.GuardarClienteDTO;
-import com.example.aquatrack_backend.dto.GuardarRolDTO;
-import com.example.aquatrack_backend.dto.ValidarDniDTO;
+import com.example.aquatrack_backend.dto.*;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.helpers.ValidationHelper;
+import com.example.aquatrack_backend.model.Cliente;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -69,5 +67,14 @@ public class ClienteControlador {
             return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(cliente));
         }
         return ResponseEntity.ok().body(clienteServicio.createClientFromApp(cliente));
+    }
+
+    @PostMapping(value = "/create")
+    @PreAuthorize("hasAuthority('CREAR_CLIENTES')")
+    public ResponseEntity<?> createFromWeb(@RequestBody GuardarClienteWebDTO cliente) throws RecordNotFoundException {
+        if(validationHelper.hasValidationErrors(cliente)){
+            return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(cliente));
+        }
+        return ResponseEntity.ok().body(clienteServicio.createFromWeb(cliente));
     }
 }

@@ -27,7 +27,10 @@ public class Domicilio {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private String descripcion;
+  private String calle;
+  private Integer numero;
+  private String pisoDepartamento;
+  private String observaciones;
 
   @DateTimeFormat(pattern = "dd-MM-YYYY")
   private LocalDateTime fechaFinVigencia;

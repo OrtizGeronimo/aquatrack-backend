@@ -10,6 +10,12 @@ import lombok.Setter;
 public class DomicilioDTO {
 
     private Long id;
-    private String descripcion;
+    private String calle;
+    private Integer numero;
+    private String pisoDepartamento;
+    private String observaciones;
+    private String domicilio; //string con todo lo anterior concatenado
+    private String nombreApellidoCliente;
+
     private UbicacionDTO ubicacion;
 }

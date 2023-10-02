@@ -1,6 +1,7 @@
 package com.example.aquatrack_backend.model;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -40,8 +41,9 @@ public class Empresa {
   private LocalDateTime fechaCreacion;
   @DateTimeFormat(pattern = "dd-MM-YYYY")
   private LocalDateTime fechaFinVigencia;
-  @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
-  private LocalDateTime horaActualizacion;
+
+  @DateTimeFormat(pattern = "HH:mm")
+  private LocalTime horaGeneracionReparto;
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
   private List<CodigoTemporal> codigos;

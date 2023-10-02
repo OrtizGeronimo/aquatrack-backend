@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class Reparto {
   private Long id;
 
   @DateTimeFormat(pattern = "dd-MM-YYYY")
-  private LocalDateTime fechaEjecucion;
+  private LocalDate fechaEjecucion;
 
   @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
   private LocalDateTime fechaYHoraFin;
@@ -45,4 +46,10 @@ public class Reparto {
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "reparto")
   private List<Entrega> entregas;
+
+  @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
+  private LocalDateTime fechaYHoraInicio;
+
+  private String observaciones;
+
 }

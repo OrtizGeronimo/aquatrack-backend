@@ -5,6 +5,7 @@ import com.example.aquatrack_backend.exception.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.example.aquatrack_backend.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -94,4 +95,9 @@ public class GlobalExceptionHandler {
             .message("Error inesperado del servidor, intente mas tarde.")
             .build());
   }
+    @ExceptionHandler({ValidacionException.class})
+    public ResponseEntity<?> handleValidacionException(Exception ex){
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(ErrorResponseDTO.builder().message(ex.getMessage()).build());
+    }
 }

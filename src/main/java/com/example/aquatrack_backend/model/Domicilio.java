@@ -39,7 +39,7 @@ public class Domicilio {
   @OneToOne
   private Cliente cliente;
 
-  @OneToOne
+  @OneToOne(cascade = CascadeType.ALL)
   private Ubicacion ubicacion;
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio")

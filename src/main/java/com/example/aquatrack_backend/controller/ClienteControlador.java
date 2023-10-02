@@ -29,15 +29,6 @@ public class ClienteControlador {
         return ResponseEntity.ok().body(clienteServicio.findAll(page, size, texto, mostrar_inactivos));
     }
 
-    @PutMapping(value = "/{id}")
-    @PreAuthorize("hasAuthority('EDITAR_CLIENTES')")
-    public ResponseEntity<?> updateCliente(@RequestBody GuardarClienteDTO cliente, @PathVariable Long id) throws RecordNotFoundException {
-        if (validationHelper.hasValidationErrors(cliente)) {
-            return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(cliente));
-        }
-        return ResponseEntity.ok().body(clienteServicio.updateCliente(cliente, id));
-    }
-
     @DeleteMapping(value = "/{id}")
     @PreAuthorize("hasAuthority('ELIMINAR_CLIENTES')")
     public ResponseEntity<?> disableCliente(@PathVariable Long id) throws Exception {
@@ -61,7 +52,7 @@ public class ClienteControlador {
         return ResponseEntity.ok().body(clienteServicio.validarDni(validacion));
     }
 
-    @PostMapping(value = "")
+    @PostMapping(value = "/app")
     public ResponseEntity<?> createFromApp(@RequestBody GuardarClienteDTO cliente) throws RecordNotFoundException {
         if(validationHelper.hasValidationErrors(cliente)){
             return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(cliente));
@@ -69,12 +60,24 @@ public class ClienteControlador {
         return ResponseEntity.ok().body(clienteServicio.createClientFromApp(cliente));
     }
 
-    @PostMapping(value = "/create")
+    @PostMapping(value = "")
     @PreAuthorize("hasAuthority('CREAR_CLIENTES')")
     public ResponseEntity<?> createFromWeb(@RequestBody GuardarClienteWebDTO cliente) throws RecordNotFoundException {
         if(validationHelper.hasValidationErrors(cliente)){
             return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(cliente));
         }
         return ResponseEntity.ok().body(clienteServicio.createFromWeb(cliente));
+    }
+
+    @GetMapping(value = "/{id}/editar")
+    @PreAuthorize("hasAuthority('EDITAR_CLIENTES')")
+    public ResponseEntity<?> editClient(@PathVariable Long id) throws RecordNotFoundException {
+        return ResponseEntity.ok().body(clienteServicio.clienteForEdit(id));
+    }
+
+    @PutMapping(value = "/{id}")
+    @PreAuthorize("hasAuthority('EDITAR_CLIENTES')")
+    public ResponseEntity<?> updateClientWeb(@PathVariable Long id, @RequestBody GuardarClienteWebDTO cliente) throws RecordNotFoundException {
+        return ResponseEntity.ok().body(clienteServicio.updateFromWeb(id, cliente));
     }
 }

@@ -18,8 +18,7 @@ public class Cliente extends Persona {
 
   private Integer dni;
 
-  @OneToOne(mappedBy = "cliente")
-  @Cascade(org.hibernate.annotations.CascadeType.ALL)
+  @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL)
   private Domicilio domicilio;
 
   @ManyToOne()

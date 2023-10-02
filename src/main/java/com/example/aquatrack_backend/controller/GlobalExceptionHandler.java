@@ -1,7 +1,6 @@
 package com.example.aquatrack_backend.controller;
 
-import com.example.aquatrack_backend.exception.EmpresaSinCoberturaException;
-import com.example.aquatrack_backend.exception.UserWithOneRolePresentException;
+import com.example.aquatrack_backend.exception.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,8 +15,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.example.aquatrack_backend.dto.ErrorResponseDTO;
-import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
-import com.example.aquatrack_backend.exception.RecordNotFoundException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -82,6 +79,11 @@ public class GlobalExceptionHandler {
             .message(
                 "No cuenta con los permisos necesarios para realizar esta acción, contáctese con un administrador.")
             .build());
+  }
+
+  @ExceptionHandler({ ClienteWebNoValidoException.class })
+  public ResponseEntity<?> handleClientWebNotValidatedException(ClienteWebNoValidoException ex) {
+    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());
   }
 
   @ExceptionHandler({ Exception.class })

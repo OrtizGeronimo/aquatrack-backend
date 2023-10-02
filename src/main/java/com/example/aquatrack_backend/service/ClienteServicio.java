@@ -1,8 +1,9 @@
 package com.example.aquatrack_backend.service;
 
 import com.example.aquatrack_backend.dto.*;
+import com.example.aquatrack_backend.exception.ClienteWebNoValidoException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
-import com.example.aquatrack_backend.exception.UserWithOneRolePresentException;
+import com.example.aquatrack_backend.helpers.UbicacionHelper;
 import com.example.aquatrack_backend.model.*;
 import com.example.aquatrack_backend.repo.EmpresaRepo;
 import com.example.aquatrack_backend.repo.UsuarioRepo;
@@ -19,11 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.HashMap;
 
 @Service
 public class ClienteServicio extends ServicioBaseImpl<Cliente> {
@@ -39,6 +36,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
   @Autowired
   private UsuarioRepo usuarioRepo;
   private ModelMapper modelMapper = new ModelMapper();
+  private UbicacionHelper ubicacionHelper = new UbicacionHelper();
 
   public ClienteServicio(RepoBase<Cliente> repoBase) {
     super(repoBase);
@@ -157,8 +155,10 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
   }
 
   @Transactional
-  public ClienteListDTO createFromWeb(GuardarClienteWebDTO cliente) {
+  public ClienteListDTO createFromWeb(GuardarClienteWebDTO cliente) throws ClienteWebNoValidoException {
     Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+    validateWebClient(cliente, empresa);
+
     Cliente clienteNuevo = new Cliente();
     clienteNuevo.setNombre(cliente.getNombre());
     clienteNuevo.setApellido(cliente.getApellido());
@@ -253,5 +253,37 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     } else {
       return value.toString();
     }
+  }
+
+  private void validateWebClient(GuardarClienteWebDTO clienteDTO, Empresa empresa) throws ClienteWebNoValidoException{
+    HashMap<String, String> errors = new HashMap<>();
+
+    if(!validateUniqueDni(clienteDTO.getDni(), empresa.getId())){
+      errors.put("dni", "El dni ingresado ya se encuentra vinculado a un cliente de la empresa");
+    }
+
+    UbicacionDTO ubicacionDTO = UbicacionDTO.builder().latitud(clienteDTO.getLatitud()).longitud(clienteDTO.getLongitud()).build();
+    if(!validateIsContained(ubicacionDTO, empresa.getCobertura())){
+      errors.put("ubicacion", "El cliente ingresado no está contenido en la cobertura de la empresa.");
+    }
+
+    if(!errors.isEmpty()){
+      throw new ClienteWebNoValidoException(errors);
+    }
+  }
+
+  private boolean validateUniqueDni(Integer dni, Long idE){
+    if(clienteRepo.validateUniqueDni(dni, idE) > 0){
+      return false;
+    }
+    return true;
+  }
+
+  private boolean validateIsContained(UbicacionDTO ubiCliente, Cobertura cobertura){
+    boolean isContained = ubicacionHelper.estaContenida(ubiCliente, cobertura);
+    if(!isContained){
+      return false;
+    }
+    return true;
   }
 }

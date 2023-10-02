@@ -12,6 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.Getter;
@@ -54,7 +56,8 @@ public class Empresa {
   @OneToOne()
   private Ubicacion ubicacion;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa", fetch = FetchType.EAGER)
+  @LazyCollection(LazyCollectionOption.FALSE)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
   private List<Rol> roles;
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")

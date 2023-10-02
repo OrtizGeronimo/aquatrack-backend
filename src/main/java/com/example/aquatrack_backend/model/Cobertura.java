@@ -14,6 +14,8 @@ import javax.persistence.OneToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 @Entity
 @Getter
@@ -28,6 +30,7 @@ public class Cobertura {
   @OneToOne()
   private Empresa empresa;
 
+  @LazyCollection(LazyCollectionOption.FALSE)
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "cobertura")
   private List<Ubicacion> ubicaciones;
 }

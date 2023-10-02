@@ -62,7 +62,7 @@ public class ClienteControlador {
 
     @PostMapping(value = "")
     @PreAuthorize("hasAuthority('CREAR_CLIENTES')")
-    public ResponseEntity<?> createFromWeb(@RequestBody GuardarClienteWebDTO cliente) throws RecordNotFoundException {
+    public ResponseEntity<?> createFromWeb(@RequestBody GuardarClienteWebDTO cliente) throws Exception {
         if(validationHelper.hasValidationErrors(cliente)){
             return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(cliente));
         }

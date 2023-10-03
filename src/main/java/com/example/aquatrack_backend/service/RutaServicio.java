@@ -109,4 +109,29 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
       return value.toString();
     }
   }
+
+  public DetalleRutaDTO detalleRuta(Long id) throws RecordNotFoundException {
+
+    Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id" + id));
+
+    DetalleRutaDTO response = new DetalleRutaDTO();
+
+    response.setId(ruta.getId());
+    response.setNombre(ruta.getNombre());
+
+    List<DomicilioDetalleDTO> domicilios = new ArrayList<>();
+
+    for (DomicilioRuta domicilio: ruta.getDomicilioRutas()) {
+      DomicilioDetalleDTO domicilioDTO = new DomicilioDetalleDTO();
+      domicilioDTO.setDomicilio(domicilio.getDomicilio().getCalle() + nullableToEmptyString(domicilio.getDomicilio().getNumero()) + nullableToEmptyString(domicilio.getDomicilio().getPisoDepartamento()));
+      domicilioDTO.setLatitud(domicilio.getDomicilio().getUbicacion().getLatitud());
+      domicilioDTO.setLongitud(domicilio.getDomicilio().getUbicacion().getLongitud());
+      domicilios.add(domicilioDTO);
+    }
+
+    response.setDomicilios(domicilios);
+
+    return response;
+  }
+
 }

@@ -1,7 +1,6 @@
 package com.example.aquatrack_backend.controller;
 
-import com.example.aquatrack_backend.dto.CrearRutaDTO;
-import com.example.aquatrack_backend.dto.RutaFormDTO;
+import com.example.aquatrack_backend.dto.GuardarRutaDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +22,8 @@ public class RutaControlador{
     }
 
     @PostMapping("")
-    public ResponseEntity<?> crearRuta(@RequestBody CrearRutaDTO dto) throws RecordNotFoundException {
-        return ResponseEntity.ok().body(rutaServicio.crearRuta(dto.getDomicilios(), dto.getDias(), dto.getRepartidorId(), dto.getNombre()));
+    public ResponseEntity<?> crearRuta(@RequestBody GuardarRutaDTO dto) throws RecordNotFoundException {
+        return ResponseEntity.ok().body(rutaServicio.crearRuta(dto));
     }
 
 }

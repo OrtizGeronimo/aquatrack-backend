@@ -51,7 +51,7 @@ public class Domicilio {
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio")
   private List<Entrega> entregas;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio")
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "domicilio")
   private List<DiaDomicilio> diaDomicilios;
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio")

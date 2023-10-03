@@ -20,9 +20,6 @@ public class Ruta {
 
   private String nombre;
 
-  @ManyToOne
-  private Empleado repartidor;
-
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "ruta")
   private List<Reparto> repartos;
 

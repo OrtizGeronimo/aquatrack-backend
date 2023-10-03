@@ -7,6 +7,7 @@ import com.example.aquatrack_backend.repo.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,11 +19,11 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
   @Autowired
   private RutaRepo rutaRepo;
   @Autowired
-  private EmpleadoRepo empleadoRepo;
-  @Autowired
   private DiaSemanaRepo diaSemanaRepo;
   @Autowired
   private DomicilioRepo domicilioRepo;
+  @Autowired
+  private DiaRutaRepo diaRutaRepo;
 
   private ModelMapper mapper = new ModelMapper();
 
@@ -47,32 +48,20 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
 
     response.setDomicilios(domicilios);
     response.setDias(diaSemanaRepo.findAll().stream().map(dia -> mapper.map(dia, DiaSemanaDTO.class)).collect(Collectors.toList()));
-    response.setRepartidores(empleadoRepo.findEmpleadoByTipoId(2l).stream().map(empleado -> mapper.map(empleado, EmpleadoDTO.class)).collect(Collectors.toList()));
 
     return response;
   }
 
 
-  public RutaDTO crearRuta(List<Long> domicilios, List<Long> dias, Long repartidorId, String nombre) throws RecordNotFoundException {
-
+  @Transactional
+  public RutaDTO crearRuta(GuardarRutaDTO rutaDTO) throws RecordNotFoundException {
 
     Ruta ruta = new Ruta();
 
-    List<DomicilioRuta> domiciliosNuevos = new ArrayList<>();
-    for (Long index: domicilios) {
-        Domicilio domicilio = domicilioRepo.findById(index).orElseThrow(() -> new RecordNotFoundException("No se encontró un domicilio con el id " + index));
-        DomicilioRuta domicilioRuta = new DomicilioRuta();
-        domicilioRuta.setRuta(ruta);
-        domicilioRuta.setDomicilio(domicilio);
-        domiciliosNuevos.add(domicilioRuta);
-    }
-
-    ruta.setDomicilioRutas(domiciliosNuevos);
-
     List<DiaRuta> diaRutas = new ArrayList<>();
 
-    for (Long index : dias){
-      DiaSemana diaSemana = diaSemanaRepo.findById(index).get();
+    for (Long id : rutaDTO.getIdDiasSemana()){
+      DiaSemana diaSemana = diaSemanaRepo.findById(id).get();
       DiaRuta diaRuta = new DiaRuta();
       diaRuta.setRuta(ruta);
       diaRuta.setDiaSemana(diaSemana);
@@ -80,13 +69,37 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
     }
 
     ruta.setDiaRutas(diaRutas);
+    ruta.setNombre(rutaDTO.getNombre());
 
-    Empleado repartidor = empleadoRepo.findById(repartidorId).orElseThrow(() -> new RecordNotFoundException("No se encontró un domicilio con el id " + repartidorId));
+    Ruta rutaGuardada = rutaRepo.save(ruta);
 
-    ruta.setRepartidor(repartidor);
-    ruta.setNombre(nombre);
+    List<DiaRuta> diasRutaGuardada = diaRutaRepo.findByRouteId(rutaGuardada.getId());
 
-    return mapper.map(ruta, RutaDTO.class);
+    List<DomicilioRuta> domiciliosNuevos = new ArrayList<>();
+    for (DomiciliosRutaDTO domicilioRutaDTO: rutaDTO.getDomiciliosRuta()) {
+      Domicilio domicilio = domicilioRepo.findById(domicilioRutaDTO.getIdDomicilio()).orElseThrow(() -> new RecordNotFoundException("No se encontró un domicilio con el id " + domicilioRutaDTO.getIdDomicilio()));
+      DomicilioRuta domicilioRuta = new DomicilioRuta();
+      domicilioRuta.setRuta(rutaGuardada);
+      domicilioRuta.setDomicilio(domicilio);
+      domiciliosNuevos.add(domicilioRuta);
+
+      List<DiaDomicilio> diaDomicilios = new ArrayList<>();
+      for (Long id: domicilioRutaDTO.getIdDiasSemana()) {
+        DiaDomicilio diaDomicilio = new DiaDomicilio();
+        diaDomicilio.setDomicilio(domicilio);
+        DiaRuta diaRuta = diasRutaGuardada.stream()
+                .filter(dia -> dia.getDiaSemana().getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new RecordNotFoundException("El dia de la semana de ruta no fue encontrado"));
+        diaDomicilio.setDiaRuta(diaRuta);
+        diaDomicilios.add(diaDomicilio);
+      }
+      domicilio.setDiaDomicilios(diaDomicilios);
+    }
+
+    rutaGuardada.setDomicilioRutas(domiciliosNuevos);
+    rutaRepo.save(rutaGuardada);
+    return mapper.map(rutaGuardada, RutaDTO.class);
   }
 
   private String nullableToEmptyString(Object value) {

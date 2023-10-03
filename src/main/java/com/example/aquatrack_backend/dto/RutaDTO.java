@@ -10,5 +10,5 @@ import lombok.Setter;
 public class RutaDTO {
 
     private Long id;
-    private String name;
+    private String nombre;
 }

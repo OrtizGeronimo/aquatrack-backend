@@ -14,8 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 public class RutaFormDTO {
 
-    private List<EmpleadoDTO> repartidores;
     private List<DomicilioDTO> domicilios;
     private List<DiaSemanaDTO> dias;
-
 }

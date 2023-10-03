@@ -9,9 +9,10 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class DetalleRutaDTO {
+public class ResponseDetalleRutaDTO {
 
-    private Long idDia;
-    private String dia;
-    private List<DomicilioDetalleDTO> domicilios;
+    private Long id;
+    private String nombre;
+    private List<DetalleRutaDTO> rutas;
+
 }

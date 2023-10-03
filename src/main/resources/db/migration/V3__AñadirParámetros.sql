@@ -348,8 +348,8 @@ VALUES (1,'Ortiz',CURRENT_DATE,NULL,'Gerónimo',NULL,1,NULL,NULL,NULL,NULL,2,NUL
        (3,'Juarroz',CURRENT_DATE,NULL,'Martiniano',NULL,3,NULL,NULL,NULL,NULL,4,NULL),
        (4,'Carrión',CURRENT_DATE,NULL,'Martín',NULL,4,NULL,NULL,NULL,NULL,3,NULL);
 
-INSERT INTO cliente(id, nombre, apellido, dni)
-VALUES(1, 'Nicolás', 'Saura', 123),
-      (2, 'Marti', 'Juarroz', 321),
-      (3, 'Gero', 'Ortiz', 456),
-      (4, 'Martin', 'Carry', 987);
+INSERT INTO cliente(id, nombre, apellido, empresa_id ,dni)
+VALUES(1, 'Nicolás', 'Saura', 2, 123),
+      (2, 'Marti', 'Juarroz', 2, 321),
+      (3, 'Gero', 'Ortiz', 1, 456),
+      (4, 'Martin', 'Carry', 1, 987);

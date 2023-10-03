@@ -1,4 +1,4 @@
-create table cliente (id bigint not null, apellido varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), nombre varchar(255), num_telefono varchar(255), usuario_id bigint, dni integer, primary key (id)) engine=InnoDB;
+create table cliente (id bigint not null, apellido varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), nombre varchar(255), num_telefono varchar(255), usuario_id bigint, empresa_id bigint, dni integer, primary key (id)) engine=InnoDB;
 create table cobertura (id bigint not null auto_increment, empresa_id bigint, primary key (id)) engine=InnoDB;
 create table codigo_temporal (id bigint not null auto_increment, codigo varchar(255), fecha_expiracion datetime(6), empresa_id bigint, primary key (id)) engine=InnoDB;
 create table deuda (id bigint not null auto_increment, fecha_ultima_actualizacion datetime(6), monto decimal not null, monto_maximo decimal not null, domicilio_id bigint, primary key (id)) engine=InnoDB;
@@ -6,12 +6,11 @@ create table deuda_pago (id bigint not null auto_increment, monto_adeudado_pago 
 create table dia_domicilio (id bigint not null auto_increment, dia_ruta_id bigint, domicilio_id bigint, primary key (id)) engine=InnoDB;
 create table dia_ruta (id bigint not null auto_increment, dia_semana_id bigint, ruta_id bigint, primary key (id)) engine=InnoDB;
 create table dia_semana (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre varchar(255), primary key (id)) engine=InnoDB;
-create table domicilio (id bigint not null auto_increment, descripcion varchar(255), fecha_fin_vigencia datetime(6), cliente_id bigint, deuda_id bigint, ubicacion_id bigint, primary key (id)) engine=InnoDB;
+create table domicilio (id bigint not null auto_increment, descripcion varchar(255), fecha_fin_vigencia datetime(6), calle varchar(255), numero integer, piso_departamento varchar(255), observaciones varchar(255), cliente_id bigint, deuda_id bigint, ubicacion_id bigint, primary key (id)) engine=InnoDB;
 create table domicilio_producto (id bigint not null auto_increment, cantidad integer, domicilio_id bigint, producto_id bigint, primary key (id)) engine=InnoDB;
 create table domicilio_ruta (id bigint not null auto_increment, domicilio_id bigint, ruta_id bigint, primary key (id)) engine=InnoDB;
 create table empleado (id bigint not null, apellido varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), nombre varchar(255), num_telefono varchar(255), usuario_id bigint, fecha_fin_vacaciones datetime(6), fecha_ingreso datetime(6), fecha_inicio_vacaciones datetime(6), legajo integer, empresa_id bigint, tipo_id bigint, primary key (id)) engine=InnoDB;
 create table empresa (id bigint not null auto_increment, direccion varchar(255), email varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), hora_generacion_reparto time(0), nombre varchar(255), num_telefono varchar(255), url varchar(255), ubicacion_id bigint, primary key (id)) engine=InnoDB;
-create table empresa_cliente (id bigint not null, cliente_id bigint, empresa_id bigint, primary key (id)) engine=InnoDB;
 create table entrega (id bigint not null auto_increment, fecha_hora_visita datetime(6), orden_visita  integer, domicilio_id bigint, estado_entrega_id bigint, pago_id bigint, reparto_id bigint, primary key (id)) engine=InnoDB;
 create table entrega_detalle (id bigint not null auto_increment, cantidad_entregada integer, cantidad_recibida integer, entrega_id bigint, producto_id bigint, primary key (id)) engine=InnoDB;
 create table estado_entrega (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre_estado_entrega varchar(255), primary key (id)) engine=InnoDB;
@@ -40,6 +39,7 @@ create table ubicacion (id bigint not null auto_increment, latitud double precis
 create table usuario (id bigint not null auto_increment, contraseña varchar(255), direccion_email varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), validado bit, primary key (id)) engine=InnoDB;
 create table usuario_codigo_validacion (id bigint not null auto_increment, codigo varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), usuario_id bigint, primary key (id)) engine=InnoDB;
 alter table cliente add constraint FK_id7jmosqg8hkqiqw4vf50xipm foreign key (usuario_id) references usuario (id);
+alter table cliente add constraint FK_id7jmosqg8hkqiqw4vf52azfd foreign key (empresa_id) references empresa (id);
 alter table cobertura add constraint FKb27p91f7hiunb5hdih43dthp6 foreign key (empresa_id) references empresa (id);
 alter table codigo_temporal add constraint FKc13itnhg09x7be6gawnwx5ya4 foreign key (empresa_id) references empresa (id);
 alter table deuda add constraint FKf0o1s8woy0y0sy1yu8e4eh2w8 foreign key (domicilio_id) references domicilio (id);
@@ -60,8 +60,6 @@ alter table empleado add constraint FKhw0kus5ohyrrpf1xo13fjpuik foreign key (emp
 alter table empleado add constraint FKebgcoxq3trs1htrteotw9hbrs foreign key (tipo_id) references tipo_empleado (id);
 alter table empleado add constraint FK_6ff36el6hfqwrtnvk0y9jd6sh foreign key (usuario_id) references usuario (id);
 alter table empresa add constraint FK5t0tdt455qee1cjkmctb3nds9 foreign key (ubicacion_id) references ubicacion (id);
-alter table empresa_cliente add constraint FK2gphddsnki8xfc98toonf77qt foreign key (cliente_id) references cliente (id);
-alter table empresa_cliente add constraint FKofopph9bpu33cvgeityic99sh foreign key (empresa_id) references empresa (id);
 alter table entrega add constraint FKck82ob5xmq55mh6w1mqpeah0b foreign key (domicilio_id) references domicilio (id);
 alter table entrega add constraint FKlq5bi6ct62v3aame1pixcmjtb foreign key (estado_entrega_id) references estado_entrega (id);
 alter table entrega add constraint FK50y7nb267nyd6p383v6x0rhqa foreign key (pago_id) references pago (id);

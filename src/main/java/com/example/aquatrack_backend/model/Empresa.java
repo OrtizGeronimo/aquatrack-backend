@@ -31,6 +31,9 @@ public class Empresa {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @DateTimeFormat(pattern = "HH:mm")
+  private LocalTime horaGeneracionReparto;
+
   private String nombre;
   private String direccion;
   private String numTelefono;
@@ -42,8 +45,6 @@ public class Empresa {
   @DateTimeFormat(pattern = "dd-MM-YYYY")
   private LocalDateTime fechaFinVigencia;
 
-  @DateTimeFormat(pattern = "HH:mm")
-  private LocalTime horaGeneracionReparto;
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
   private List<CodigoTemporal> codigos;

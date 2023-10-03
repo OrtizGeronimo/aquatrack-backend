@@ -32,8 +32,13 @@ public class Reparto {
   @DateTimeFormat(pattern = "dd-MM-YYYY")
   private LocalDate fechaEjecucion;
 
+  @DateTimeFormat(pattern = "dd-MM-YYYY")
+  private LocalDate fechaHoraInicio;
+
   @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
-  private LocalDateTime fechaYHoraFin;
+  private LocalDateTime fechaHoraFin;
+
+  private String observaciones;
 
   @ManyToOne()
   private EstadoReparto estadoReparto;
@@ -49,7 +54,4 @@ public class Reparto {
 
   @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
   private LocalDateTime fechaYHoraInicio;
-
-  private String observaciones;
-
 }

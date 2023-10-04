@@ -19,4 +19,5 @@ public class RutaListDTO {
     private LocalDateTime fechaCreacion;
     private List<Long> idDiasSemana;
     private Integer domiciliosAVisitar;
+    private LocalDateTime fechaFinVigencia;
 }

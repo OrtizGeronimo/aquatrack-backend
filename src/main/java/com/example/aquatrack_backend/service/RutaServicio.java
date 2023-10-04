@@ -39,7 +39,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
 
     List<DomicilioDTO> domicilios = new ArrayList<>();
 
-    for (Domicilio domicilio: domicilioRepo.findAll()) {
+    for (Domicilio domicilio: domicilioRepo.findAllActivos(false)) {
       DomicilioDTO domicilioDTO = new DomicilioDTO();
       domicilioDTO.setDomicilio(domicilio.getCalle() + nullableToEmptyString(domicilio.getNumero()) + nullableToEmptyString(domicilio.getPisoDepartamento()));
       domicilioDTO.setNombreApellidoCliente(domicilio.getCliente().getNombre() + " " + domicilio.getCliente().getApellido());
@@ -118,6 +118,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
             .fechaCreacion(rutaGuardada.getFechaCreacion())
             .idDiasSemana(rutaGuardada.getDiaRutas().stream().map(diaRuta -> diaRuta.getDiaSemana().getId()).collect(Collectors.toList()))
             .domiciliosAVisitar(rutaGuardada.getDomicilioRutas().size())
+            .fechaFinVigencia(rutaGuardada.getFechaFinVigencia())
             .build();
       return response;
 //    return mapper.map(rutaGuardada, RutaListDTO.class);

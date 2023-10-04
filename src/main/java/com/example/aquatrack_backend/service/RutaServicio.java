@@ -122,4 +122,41 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
       return value.toString();
     }
   }
+
+  public ResponseDetalleRutaDTO detalleRuta(Long id) throws RecordNotFoundException {
+
+    Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id" + id));
+
+    ResponseDetalleRutaDTO response = new ResponseDetalleRutaDTO();
+
+    response.setId(ruta.getId());
+    response.setNombre(ruta.getNombre());
+
+
+
+    List<DetalleRutaDTO> rutas = new ArrayList<>();
+
+    for (DiaRuta dia : ruta.getDiaRutas()) {
+      List<DomicilioDetalleDTO> domicilios = new ArrayList<>();
+      DetalleRutaDTO rutaDTO = new DetalleRutaDTO();
+      rutaDTO.setDia(dia.getDiaSemana().getNombre());
+      rutaDTO.setIdDia(dia.getDiaSemana().getId());
+      for (DomicilioRuta domicilio : ruta.getDomicilioRutas()) {
+        if (domicilio.getDomicilio().getDiaDomicilios().stream().anyMatch(diaDomicilio -> diaDomicilio.getDiaRuta().equals(dia))) {
+          DomicilioDetalleDTO domicilioDTO = new DomicilioDetalleDTO();
+          domicilioDTO.setDomicilio(domicilio.getDomicilio().getCalle() + " " + nullableToEmptyString(domicilio.getDomicilio().getNumero()) + " " + nullableToEmptyString(domicilio.getDomicilio().getPisoDepartamento()));
+          domicilioDTO.setLatitud(domicilio.getDomicilio().getUbicacion().getLatitud());
+          domicilioDTO.setLongitud(domicilio.getDomicilio().getUbicacion().getLongitud());
+          domicilios.add(domicilioDTO);
+        }
+      }
+      rutaDTO.setDomicilios(domicilios);
+      rutas.add(rutaDTO);
+    }
+
+    response.setRutas(rutas);
+
+    return response;
+  }
+
 }

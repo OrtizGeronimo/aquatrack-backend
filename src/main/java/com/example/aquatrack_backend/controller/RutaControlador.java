@@ -37,4 +37,11 @@ public class RutaControlador{
         return ResponseEntity.ok().body(rutaServicio.crearRuta(dto));
     }
 
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('LISTAR_RUTAS')")
+    public ResponseEntity<?> detalle(@PathVariable Long id) throws RecordNotFoundException {
+        return ResponseEntity.ok().body(rutaServicio.detalleRuta(id));
+    }
+
 }

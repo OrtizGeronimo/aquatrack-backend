@@ -156,6 +156,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
           domicilioDTO.setDomicilio(domicilio.getDomicilio().getCalle() + " " + nullableToEmptyString(domicilio.getDomicilio().getNumero()) + " " + nullableToEmptyString(domicilio.getDomicilio().getPisoDepartamento()));
           domicilioDTO.setLatitud(domicilio.getDomicilio().getUbicacion().getLatitud());
           domicilioDTO.setLongitud(domicilio.getDomicilio().getUbicacion().getLongitud());
+          domicilioDTO.setNombreCliente(domicilio.getDomicilio().getCliente().getNombre() + " " + domicilio.getDomicilio().getCliente().getApellido());
           domicilios.add(domicilioDTO);
         }
       }
@@ -166,6 +167,37 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
     response.setRutas(rutas);
 
     return response;
+  }
+
+
+  @Transactional
+  public RutaDTO editarRuta(Long id, GuardarRutaDTO dto) throws RecordNotFoundException {
+
+    Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + id));
+
+    ruta.setNombre(dto.getNombre());
+
+    List<Long> idDiasActuales = ruta.getDiaRutas().stream().map(diaRuta -> diaRuta.getDiaSemana().getId()).collect(Collectors.toList());
+
+    List<DiaRuta> dias = new ArrayList<>();
+
+    for (Long idDia : dto.getIdDiasSemana()) {
+        if (idDiasActuales.contains(idDia)){
+          dias.add(ruta.getDiaRutas().stream().filter(diaRuta -> diaRuta.getDiaSemana().getId().equals(idDia)).findFirst().get());
+        }
+        DiaRuta diaRuta = new DiaRuta();
+        diaRuta.setRuta(ruta);
+        diaRuta.setDiaSemana(diaSemanaRepo.findById(idDia).get());
+        dias.add(diaRuta);
+    }
+
+    for (DiaRuta dia: ruta.getDiaRutas().stream().filter(diaRuta -> !dias.contains(diaRuta)).collect(Collectors.toList())) {
+      ruta.getDiaRutas().remove(dia);
+    }
+    ruta.setDiaRutas(dias);
+
+    return mapper.map(rutaRepo.save(ruta), RutaDTO.class);
+
   }
 
 }

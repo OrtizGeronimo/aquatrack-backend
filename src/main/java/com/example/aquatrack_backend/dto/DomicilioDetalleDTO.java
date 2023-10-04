@@ -10,6 +10,7 @@ import lombok.Setter;
 public class DomicilioDetalleDTO {
 
     private String domicilio;
+    private String nombreCliente;
     private Double latitud;
     private Double longitud;
 }

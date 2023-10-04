@@ -68,7 +68,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
   }
 
   @Transactional
-  public RutaDTO crearRuta(GuardarRutaDTO rutaDTO) throws RecordNotFoundException {
+  public RutaListDTO crearRuta(GuardarRutaDTO rutaDTO) throws RecordNotFoundException {
 
     Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
     Ruta ruta = new Ruta();
@@ -112,7 +112,15 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
 
     ruta.setDomicilioRutas(domiciliosNuevos);
     Ruta rutaGuardada = rutaRepo.save(ruta);
-    return mapper.map(rutaGuardada, RutaDTO.class);
+    RutaListDTO response = RutaListDTO.builder()
+            .id(rutaGuardada.getId())
+            .nombre(rutaGuardada.getNombre())
+            .fechaCreacion(rutaGuardada.getFechaCreacion())
+            .idDiasSemana(rutaGuardada.getDiaRutas().stream().map(diaRuta -> diaRuta.getDiaSemana().getId()).collect(Collectors.toList()))
+            .domiciliosAVisitar(rutaGuardada.getDomicilioRutas().size())
+            .build();
+      return response;
+//    return mapper.map(rutaGuardada, RutaListDTO.class);
   }
 
   private String nullableToEmptyString(Object value) {

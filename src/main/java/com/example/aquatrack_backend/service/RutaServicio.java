@@ -153,6 +153,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
       for (DomicilioRuta domicilio : ruta.getDomicilioRutas()) {
         if (domicilio.getDomicilio().getDiaDomicilios().stream().anyMatch(diaDomicilio -> diaDomicilio.getDiaRuta().equals(dia))) {
           DomicilioDetalleDTO domicilioDTO = new DomicilioDetalleDTO();
+          domicilioDTO.setId(domicilio.getId());
           domicilioDTO.setDomicilio(domicilio.getDomicilio().getCalle() + " " + nullableToEmptyString(domicilio.getDomicilio().getNumero()) + " " + nullableToEmptyString(domicilio.getDomicilio().getPisoDepartamento()));
           domicilioDTO.setLatitud(domicilio.getDomicilio().getUbicacion().getLatitud());
           domicilioDTO.setLongitud(domicilio.getDomicilio().getUbicacion().getLongitud());

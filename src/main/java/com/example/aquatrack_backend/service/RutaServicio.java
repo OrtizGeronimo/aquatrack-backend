@@ -6,6 +6,9 @@ import com.example.aquatrack_backend.model.*;
 import com.example.aquatrack_backend.repo.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,8 +25,6 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
   private DiaSemanaRepo diaSemanaRepo;
   @Autowired
   private DomicilioRepo domicilioRepo;
-  @Autowired
-  private DiaRutaRepo diaRutaRepo;
 
   private ModelMapper mapper = new ModelMapper();
 
@@ -52,11 +53,27 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
     return response;
   }
 
+  public Page<RutaListDTO> findAll(int page, int size, Long idDiaSemana, String texto, boolean mostrarInactivos) {
+    Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+    Pageable paging = PageRequest.of(page, size);
+    return rutaRepo
+            .findAllByEmpresaPaged(empresa.getId(), texto, idDiaSemana, mostrarInactivos, paging)
+            .map(ruta -> RutaListDTO.builder()
+                    .id(ruta.getId())
+                    .nombre(ruta.getNombre())
+                    .fechaCreacion(ruta.getFechaCreacion())
+                    .idDiasSemana(ruta.getDiaRutas().stream().map(diaRuta -> diaRuta.getDiaSemana().getId()).collect(Collectors.toList()))
+                    .domiciliosAVisitar(ruta.getDomicilioRutas().size())
+                    .build());
+  }
 
   @Transactional
   public RutaDTO crearRuta(GuardarRutaDTO rutaDTO) throws RecordNotFoundException {
 
+    Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
     Ruta ruta = new Ruta();
+
+    ruta.setEmpresa(empresa);
 
     List<DiaRuta> diaRutas = new ArrayList<>();
 
@@ -71,15 +88,11 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
     ruta.setDiaRutas(diaRutas);
     ruta.setNombre(rutaDTO.getNombre());
 
-    Ruta rutaGuardada = rutaRepo.save(ruta);
-
-    List<DiaRuta> diasRutaGuardada = diaRutaRepo.findByRouteId(rutaGuardada.getId());
-
     List<DomicilioRuta> domiciliosNuevos = new ArrayList<>();
     for (DomiciliosRutaDTO domicilioRutaDTO: rutaDTO.getDomiciliosRuta()) {
       Domicilio domicilio = domicilioRepo.findById(domicilioRutaDTO.getIdDomicilio()).orElseThrow(() -> new RecordNotFoundException("No se encontró un domicilio con el id " + domicilioRutaDTO.getIdDomicilio()));
       DomicilioRuta domicilioRuta = new DomicilioRuta();
-      domicilioRuta.setRuta(rutaGuardada);
+      domicilioRuta.setRuta(ruta);
       domicilioRuta.setDomicilio(domicilio);
       domiciliosNuevos.add(domicilioRuta);
 
@@ -87,7 +100,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
       for (Long id: domicilioRutaDTO.getIdDiasSemana()) {
         DiaDomicilio diaDomicilio = new DiaDomicilio();
         diaDomicilio.setDomicilio(domicilio);
-        DiaRuta diaRuta = diasRutaGuardada.stream()
+        DiaRuta diaRuta = diaRutas.stream()
                 .filter(dia -> dia.getDiaSemana().getId().equals(id))
                 .findFirst()
                 .orElseThrow(() -> new RecordNotFoundException("El dia de la semana de ruta no fue encontrado"));
@@ -97,8 +110,8 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
       domicilio.setDiaDomicilios(diaDomicilios);
     }
 
-    rutaGuardada.setDomicilioRutas(domiciliosNuevos);
-    rutaRepo.save(rutaGuardada);
+    ruta.setDomicilioRutas(domiciliosNuevos);
+    Ruta rutaGuardada = rutaRepo.save(ruta);
     return mapper.map(rutaGuardada, RutaDTO.class);
   }
 

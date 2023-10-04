@@ -68,4 +68,7 @@ public class Empresa {
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
   private List<Cliente> clientes;
+
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
+  private List<Ruta> rutas;
 }

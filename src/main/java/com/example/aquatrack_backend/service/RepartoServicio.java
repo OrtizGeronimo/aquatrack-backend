@@ -6,7 +6,9 @@ import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.ValidacionException;
 import com.example.aquatrack_backend.model.*;
 import com.example.aquatrack_backend.repo.*;
+/*
 import com.google.ortools.Loader;
+*/
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
@@ -68,9 +70,9 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
     }
 
 
-    static {
+/*    static {
         Loader.loadNativeLibraries();
-    }
+    }*/
 
     @Scheduled(cron = "0 * * * * 1-6")
     @Transactional

@@ -228,7 +228,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
   return null;
   }
 
-  public GuardarRutaDTO editRuta(Long id) throws RecordNotFoundException {
+  public GuardarRutaDTO edit(Long id) throws RecordNotFoundException {
     Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + id));
 
     GuardarRutaDTO response = new GuardarRutaDTO();

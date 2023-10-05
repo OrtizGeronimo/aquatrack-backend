@@ -107,12 +107,29 @@ public class ProductoServicio extends ServicioBaseImpl<Producto> {
     try {
       Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
       Producto producto = productoRepo.findByCode(codigo, empresa.getId());
-      String relativePath = "src/main/resources/images/";
-      String uploadDirectory = System.getProperty("user.dir") + "/" + relativePath;
+      // String relativePath = "src/main/resources/images/";
       int index = imageFile.getOriginalFilename().indexOf(".");
       String extension = "." + imageFile.getOriginalFilename().substring(index+1);
-      String nombre = Calendar.getInstance().getTimeInMillis() + extension;
-      String imagePath = Paths.get(uploadDirectory, nombre).toString();
+      // if(producto.getImagen() != null){
+      //   //  String relativePath = "src/main/resources/images/"+producto.getImagen();
+      //    String uploadDirectory = System.getProperty("user.dir") + "/" + relativePath;
+      //    String nombre = producto.getImagen() + extension;
+      //    String imagePath = Paths.get(uploadDirectory).toString();
+      // } else {
+      //   String relativePath =  "src/main/resources/images/";
+      //   String uploadDirectory = System.getProperty("user.dir") + "/" + relativePath;
+      //   String nombre = Calendar.getInstance().getTimeInMillis() + extension;
+      //   String imagePath = Paths.get(uploadDirectory, nombre).toString();
+      // }
+      String relativePath = producto.getImagen() != null ?  "src/main/resources/images/"+producto.getImagen() : 
+                                                            "src/main/resources/images/";
+      String uploadDirectory = System.getProperty("user.dir") + "/" + relativePath;
+      // int index = imageFile.getOriginalFilename().indexOf(".");
+      // String extension = "." + imageFile.getOriginalFilename().substring(index+1);
+      String nombre = producto.getImagen() != null ? producto.getImagen():
+                                                     Calendar.getInstance().getTimeInMillis() + extension;
+      String imagePath = producto.getImagen() != null ? Paths.get(uploadDirectory).toString() :
+                                                        Paths.get(uploadDirectory, nombre).toString();
       File destinationFile = new File(imagePath);
 
       // Create parent directories if they don't exist

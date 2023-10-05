@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.controller;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -51,14 +52,14 @@ public class ProductoControlador{
                                      @RequestParam(defaultValue = "false") boolean mostrar_inactivos,
                                      @RequestParam(required = false) String nombre,
                                      @RequestParam(defaultValue = "0") int precio1,
-                                     @RequestParam(defaultValue = "20000") int precio2) {
+                                     @RequestParam(defaultValue = "20000") int precio2) throws Exception{
     return ResponseEntity.ok().body(productoServicio.getProductosActivos(page, size, nombre, mostrar_inactivos, precio1, precio2));
     }
 
-    @PutMapping("/uploadImage/{codigo}")
-    public ResponseEntity<?> uploadImagen(@RequestParam("imagen") MultipartFile imagen, @PathVariable String codigo) {     
+    @PostMapping("/uploadImage/{codigo}")
+    public ResponseEntity<?> uploadImagen(@RequestParam("imagen") MultipartFile imagen, @PathVariable String codigo) throws IOException{     
         productoServicio.uploadImage(imagen, codigo);
-        return ResponseEntity.noContent().build();    
+        return ResponseEntity.ok("Image uploaded successfully");  
      }
 
     @PostMapping(value = "")

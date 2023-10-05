@@ -1,16 +1,24 @@
 package com.example.aquatrack_backend.service;
 
-import java.math.BigDecimal;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +44,10 @@ public class ProductoServicio extends ServicioBaseImpl<Producto> {
   ProductoRepo productoRepo;
   @Autowired
   PrecioRepo precioRepo;
+  @Autowired
+  private ResourceLoader resourceLoader;
+  // @Value("${image.upload.directory}")
+  // private String uploadDirectory;
 
   public ProductoServicio(RepoBase<Producto> repoBase) {
     super(repoBase);
@@ -51,58 +63,100 @@ public class ProductoServicio extends ServicioBaseImpl<Producto> {
       }
     }
 
-  public Page<ProductoDTO> getProductosActivos(int page, int size, String nombre, boolean mostrarInactivos, int precio1, int precio2) {
+    public Page<ProductoDTO> getProductosActivos(int page, int size, String nombre, boolean mostrarInactivos, int precio1, int precio2) throws Exception, IOException {
       Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
       Long id = empresa.getId();
       Pageable paging = PageRequest.of(page, size);
-      // Page<Producto> productos = productoRepo.getProductosActivos(id, nombre, mostrarInactivos, paging);
+  
       return productoRepo.getProductosActivos(id, nombre, mostrarInactivos, precio1, precio2, paging)
-      .map(producto -> {
-          ProductoDTO productoDTO = new ModelMapper().map(producto, ProductoDTO.class);
-          String ruta = "C://aquatrack/imagenes"; // Change to your image storage path
-          String imagenFileName = producto.getImagen();
-          if (imagenFileName != null) {
-              productoDTO.setImagen(ruta + "/" + imagenFileName);
-          }
-          for (Precio precio : producto.getPrecios()) {
-              if (precio.getFechaFinVigencia() == null) {
-                  productoDTO.setPrecio(precio.getPrecio());
-                  break; 
-              }
-          }
-          return productoDTO;
-      });
-      // List<ProductoDTO> productDTOs = new ArrayList<>();
-      //   for (Producto producto : productos) {
-      //       ProductoDTO productDTO = new ProductoDTO();
-      //       productDTO.setId((Long) producto.getId());
-      //       productDTO.setNombre((String) producto.getNombre());
-      //       productDTO.setDescripcion((String) producto.getDescripcion());
-      //       productDTO.setFechaFinVigencia((LocalDateTime) producto.getFechaFinVigencia());
-      //       productDTOs.add(productDTO);
-      //   }
-      //   return productDTOs;
-  }
+              .map(producto -> {
+                  ProductoDTO productoDTO = new ModelMapper().map(producto, ProductoDTO.class);
+                  String imagenFileName = producto.getImagen();
+                  if (imagenFileName != null) {
+                      try {
+                            String relativePath = "src/main/resources/images/";
+                            String uploadDirectory = System.getProperty("user.dir") + "/" + relativePath;
+                            String imagePath = Paths.get(uploadDirectory, imagenFileName).toString();
 
-  @Transactional
-  public String uploadImage(MultipartFile imagen, String codigo){
-    try{
-        String ruta = "C://aquatrack/imagenes";
-        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
-        Producto producto = productoRepo.findByCode(codigo, empresa.getId());
-        int index = imagen.getOriginalFilename().indexOf(".");
-        String extension = "." + imagen.getOriginalFilename().substring(index+1);
-        String nombre = Calendar.getInstance().getTimeInMillis() + extension;
-        Path rutaAbsoluta = producto.getImagen() != null ?  Paths.get(ruta + "//"+producto.getImagen()) : 
-                                                            Paths.get(ruta + "//"+nombre);
-        Files.write(rutaAbsoluta, imagen.getBytes());
-        producto.setImagen(nombre);
-        productoRepo.save(producto);
-        return "Exito";
-    } catch (Exception e){
-        return e.getMessage();
-    }
+                            // Check if the image file exists
+                            if (Files.exists(Paths.get(imagePath))) {
+                              // Read the image file as bytes
+                              byte[] imageBytes = Files.readAllBytes(Paths.get(imagePath));
+
+                              // Encode the image bytes to base64
+                              String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+                              productoDTO.setImagen(base64Image);
+                            }
+                      } catch (IOException e) {
+                          // Handle the IOException or rethrow it as a more specific exception
+                          throw new RuntimeException("Error while processing image file", e);
+                      }
+                  }
+                  
+                  for (Precio precio : producto.getPrecios()) {
+                      if (precio.getFechaFinVigencia() == null) {
+                          productoDTO.setPrecio(precio.getPrecio());
+                          break;
+                      }
+                  }
+                  return productoDTO;
+              });
   }
+  
+  public void uploadImage(MultipartFile imageFile, String codigo) throws IOException {
+    try {
+      Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+      Producto producto = productoRepo.findByCode(codigo, empresa.getId());
+      String relativePath = "src/main/resources/images/";
+      String uploadDirectory = System.getProperty("user.dir") + "/" + relativePath;
+      int index = imageFile.getOriginalFilename().indexOf(".");
+      String extension = "." + imageFile.getOriginalFilename().substring(index+1);
+      String nombre = Calendar.getInstance().getTimeInMillis() + extension;
+      String imagePath = Paths.get(uploadDirectory, nombre).toString();
+      File destinationFile = new File(imagePath);
+
+      // Create parent directories if they don't exist
+      destinationFile.getParentFile().mkdirs();
+
+      // Save the image file
+      imageFile.transferTo(destinationFile);
+      producto.setImagen(nombre);
+      productoRepo.save(producto);
+  } catch (IOException e) {
+      e.printStackTrace(); // Add proper logging here
+    // Handle the exception or return an error response if necessary
+  }
+}
+
+  // public String uploadImage(MultipartFile imagen, String codigo){
+  //   try{
+  //       // String folderPath = "classpath:images/"; // Path to the folder inside resources
+  //       String folderPath = "C:/Users/marti/OneDrive/Documentos/GitHub/aquatrack-backend/src/main/resources/images";
+  //       Resource resource = resourceLoader.getResource(folderPath);
+  //       String ruta = resource.getFile().getAbsolutePath();
+  //       Path directoryPath = Paths.get(ruta);
+  //       if (!Files.exists(directoryPath)) {
+  //           Files.createDirectories(directoryPath);
+  //       }
+  //       System.out.println(ruta);
+  //       System.out.println(resource.getFilename());
+  //       Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+  //       Producto producto = productoRepo.findByCode(codigo, empresa.getId());
+  //       int index = imagen.getOriginalFilename().indexOf(".");
+  //       String extension = "." + imagen.getOriginalFilename().substring(index+1);
+  //       String nombre = Calendar.getInstance().getTimeInMillis() + extension;
+  //       // Path rutaAbsoluta = Paths.get(ruta + "//" + nombre);
+  //       // Path rutaAbsoluta = Paths.get(ruta, nombre);
+  //       Path rutaAbsoluta = producto.getImagen() != null ?  Paths.get(ruta, producto.getImagen()) : 
+  //                                                           Paths.get(ruta, nombre);
+  //       Files.write(rutaAbsoluta, imagen.getBytes());
+  //       producto.setImagen(nombre);
+  //       productoRepo.save(producto);
+  //       return "Exito";
+  //   } catch (Exception e){
+  //       return e.getMessage();
+  //   }
+  // }
 
   @Transactional
     public ProductoDTO createProducto(GuardarProductoDTO producto) {

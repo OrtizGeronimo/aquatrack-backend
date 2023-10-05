@@ -44,4 +44,14 @@ public class RutaControlador{
         return ResponseEntity.ok().body(rutaServicio.detalleRuta(id));
     }
 
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody GuardarRutaDTO dto) throws RecordNotFoundException {
+        return ResponseEntity.ok().body(rutaServicio.editarDiasRuta(id, dto));
+    }
+
+    @GetMapping("/edit/{id}")
+    public ResponseEntity<?> editRuta(@PathVariable Long id) throws RecordNotFoundException {
+        return ResponseEntity.ok().body(rutaServicio.editRuta(id));
+    }
+
 }

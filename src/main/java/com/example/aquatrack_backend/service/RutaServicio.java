@@ -172,7 +172,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
 
 
   @Transactional
-  public RutaDTO editarRuta(Long id, GuardarRutaDTO dto) throws RecordNotFoundException {
+  public RutaDTO editarDiasRuta(Long id, GuardarRutaDTO dto) throws RecordNotFoundException {
 
     Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + id));
 
@@ -185,6 +185,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
     for (Long idDia : dto.getIdDiasSemana()) {
         if (idDiasActuales.contains(idDia)){
           dias.add(ruta.getDiaRutas().stream().filter(diaRuta -> diaRuta.getDiaSemana().getId().equals(idDia)).findFirst().get());
+          continue;
         }
         DiaRuta diaRuta = new DiaRuta();
         diaRuta.setRuta(ruta);
@@ -195,10 +196,55 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
     for (DiaRuta dia: ruta.getDiaRutas().stream().filter(diaRuta -> !dias.contains(diaRuta)).collect(Collectors.toList())) {
       ruta.getDiaRutas().remove(dia);
     }
-    ruta.setDiaRutas(dias);
+    ruta.getDiaRutas().clear();
+    ruta.getDiaRutas().addAll(dias);
 
     return mapper.map(rutaRepo.save(ruta), RutaDTO.class);
+  }
+
+  @Transactional
+  public RutaDTO editarClientesRuta(Long id, GuardarRutaDTO dto) throws RecordNotFoundException {
+
+    Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + id));
+
+    List<DomicilioRuta> domicilios = ruta.getDomicilioRutas();
+
+    List<DomicilioRuta> domiciliosNuevos = new ArrayList<>();
+
+    for (DomiciliosRutaDTO domicilioDTO: dto.getDomiciliosRuta()) {
+      if (domicilios.stream().anyMatch(domicilioRuta -> domicilioRuta.getDomicilio().getId().equals(domicilioDTO.getIdDomicilio()))){
+        domiciliosNuevos.add(domicilios.stream().filter(domicilioRuta -> domicilioRuta.getDomicilio().getId().equals(domicilioDTO.getIdDomicilio())).findFirst().get());
+        continue;
+      }
+      DomicilioRuta nuevoDomicilio = new DomicilioRuta();
+      nuevoDomicilio.setRuta(ruta);
+      nuevoDomicilio.setDomicilio(domicilioRepo.findById(domicilioDTO.getIdDomicilio()).get());
+      domiciliosNuevos.add(nuevoDomicilio);
+    }
+
+    for (DomicilioRuta domicilioRuta: ruta.getDomicilioRutas().stream().filter(domicilioRuta -> dto.getDomiciliosRuta().stream().map(DomiciliosRutaDTO::getIdDomicilio).collect(Collectors.toList()).contains(domicilioRuta.getDomicilio().getId())).collect(Collectors.toList())) {
+
+    }
+  return null;
+  }
+
+  public GuardarRutaDTO editRuta(Long id) throws RecordNotFoundException {
+    Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + id));
+
+    GuardarRutaDTO response = new GuardarRutaDTO();
+
+    response.setNombre(ruta.getNombre());
+    response.setIdDiasSemana(ruta.getDiaRutas().stream().map(diaRuta -> diaRuta.getDiaSemana().getId()).collect(Collectors.toList()));
+    response.setDomiciliosRuta(ruta.getDomicilioRutas().stream().map(domicilioRuta -> {
+      DomiciliosRutaDTO domicilio = new DomiciliosRutaDTO();
+      domicilio.setIdDomicilio(domicilioRuta.getDomicilio().getId());
+      domicilio.setIdDiasSemana(domicilioRuta.getDomicilio().getDiaDomicilios().stream().map(diaDomicilio -> diaDomicilio.getDiaRuta().getDiaSemana().getId()).collect(Collectors.toList()));
+      return domicilio;
+    }).collect(Collectors.toList()));
+
+    return response;
 
   }
+
 
 }

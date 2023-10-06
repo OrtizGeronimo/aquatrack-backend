@@ -28,16 +28,19 @@ public class Domicilio {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @DateTimeFormat(pattern = "dd-MM-YYYY")
+  private LocalDateTime fechaFinVigencia;
+
   private String calle;
   private Integer numero;
   private String pisoDepartamento;
   private String observaciones;
 
-  @DateTimeFormat(pattern = "dd-MM-YYYY")
-  private LocalDateTime fechaFinVigencia;
-
   @OneToOne
   private Cliente cliente;
+
+  @OneToOne()
+  private Deuda deuda;
 
   @OneToOne(cascade = CascadeType.ALL)
   private Ubicacion ubicacion;
@@ -57,6 +60,4 @@ public class Domicilio {
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio")
   private List<DomicilioRuta> domicilioRutas;
 
-  @OneToOne()
-  private Deuda deuda;
 }

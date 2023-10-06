@@ -1,6 +1,8 @@
 package com.example.aquatrack_backend.repo;
 
+import com.example.aquatrack_backend.dto.DomicilioProjection;
 import com.example.aquatrack_backend.model.Cliente;
+import com.example.aquatrack_backend.model.Domicilio;
 import com.example.aquatrack_backend.model.Ruta;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,4 +28,9 @@ public interface RutaRepo extends RepoBase<Ruta> {
     Page<Ruta> findAllByEmpresaPaged(@Param("empresaId") Long empresaId, @Param("texto") String texto, @Param("idDiaSemana") Long idDiaSemana, @Param("mostrar_inactivos") boolean mostrarInactivos, Pageable pageable);
 
 
-}
+    @Query(value = "SELECT d.id, d.calle, d.numero, d.piso_departamento, d.cliente_id as cliente FROM domicilio d " +
+            "LEFT JOIN domicilio_ruta r ON d.id = r.domicilio_id JOIN cliente c ON c.id = d.cliente_id " +
+            "WHERE (r.ruta_id != :id OR r.ruta_id IS NULL)", nativeQuery = true)
+    List<DomicilioProjection> buscarClientesAjenos(Long id);
+
+ }

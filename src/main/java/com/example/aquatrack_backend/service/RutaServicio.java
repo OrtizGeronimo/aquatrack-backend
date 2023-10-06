@@ -26,6 +26,9 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
   @Autowired
   private DomicilioRepo domicilioRepo;
 
+  @Autowired
+  private ClienteRepo clienteRepo;
+
   private ModelMapper mapper = new ModelMapper();
 
 
@@ -203,6 +206,48 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
   }
 
   @Transactional
+  public RutaListDTO asignarClientesRuta(Long idRuta, GuardarRutaDTO rutaDTO) throws RecordNotFoundException {
+
+    Ruta ruta = rutaRepo.findById(idRuta).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + idRuta));
+
+    List<DomicilioRuta> domiciliosNuevos = new ArrayList<>();
+    for (DomiciliosRutaDTO domicilioRutaDTO: rutaDTO.getDomiciliosRuta()) {
+      Domicilio domicilio = domicilioRepo.findById(domicilioRutaDTO.getIdDomicilio()).orElseThrow(() -> new RecordNotFoundException("No se encontró un domicilio con el id " + domicilioRutaDTO.getIdDomicilio()));
+      DomicilioRuta domicilioRuta = new DomicilioRuta();
+      domicilioRuta.setRuta(ruta);
+      domicilioRuta.setDomicilio(domicilio);
+      domiciliosNuevos.add(domicilioRuta);
+
+      List<DiaDomicilio> diaDomicilios = new ArrayList<>();
+      for (Long id: domicilioRutaDTO.getIdDiasSemana()) {
+        DiaDomicilio diaDomicilio = new DiaDomicilio();
+        diaDomicilio.setDomicilio(domicilio);
+        DiaRuta diaRuta = ruta.getDiaRutas().stream()
+                .filter(dia -> dia.getDiaSemana().getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new RecordNotFoundException("El dia de la semana de ruta no fue encontrado"));
+        diaDomicilio.setDiaRuta(diaRuta);
+        diaDomicilios.add(diaDomicilio);
+      }
+      domicilio.setDiaDomicilios(diaDomicilios);
+    }
+
+    ruta.getDomicilioRutas().addAll(domiciliosNuevos);
+
+    rutaRepo.save(ruta);
+    RutaListDTO response = RutaListDTO.builder()
+            .id(ruta.getId())
+            .nombre(ruta.getNombre())
+            .fechaCreacion(ruta.getFechaCreacion())
+            .idDiasSemana(ruta.getDiaRutas().stream().map(diaRuta -> diaRuta.getDiaSemana().getId()).collect(Collectors.toList()))
+            .domiciliosAVisitar(ruta.getDomicilioRutas().size())
+            .fechaFinVigencia(ruta.getFechaFinVigencia())
+            .build();
+    return response;
+
+  }
+
+  @Transactional
   public RutaDTO editarClientesRuta(Long id, GuardarRutaDTO dto) throws RecordNotFoundException {
 
     Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + id));
@@ -246,5 +291,40 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
 
   }
 
+  public AsignarClientesRutaDTO clientes(Long id) throws RecordNotFoundException {
+    Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + id));
+
+    List<DomicilioProjection> domiciliosProjection = rutaRepo.buscarClientesAjenos(id);
+    List<Domicilio> domicilios = domiciliosProjection.stream().map(domicilioProjection -> {
+      Domicilio domicilio = new Domicilio();
+      domicilio.setId(domicilioProjection.getId());
+      domicilio.setCalle(domicilioProjection.getCalle());
+      domicilio.setNumero(domicilioProjection.getNumero());
+      domicilio.setPisoDepartamento(domicilioProjection.getPisoDepartamento());
+      domicilio.setCliente(clienteRepo.findById(domicilioProjection.getCliente()).get());
+      return domicilio;
+    }).collect(Collectors.toList());
+    List<DomicilioDetalleDTO> domiciliosADevolver = domicilios.stream().map( domicilio -> {
+      DomicilioDetalleDTO domicilioDTO = new DomicilioDetalleDTO();
+      domicilioDTO.setDomicilio(domicilio.getCalle() + " " +
+              nullableToEmptyString(domicilio.getNumero()) +
+              " " +
+              nullableToEmptyString(domicilio.getPisoDepartamento()));
+      domicilioDTO.setId(domicilio.getId());
+      domicilioDTO.setNombreCliente(domicilio.getCliente().getNombre());
+      return domicilioDTO;
+    }).collect(Collectors.toList());
+
+    AsignarClientesRutaDTO response = new AsignarClientesRutaDTO();
+
+    GuardarRutaDTO rutaDTO = new GuardarRutaDTO();
+    rutaDTO.setNombre(ruta.getNombre());
+    rutaDTO.setId(ruta.getId());
+    rutaDTO.setIdDiasSemana(ruta.getDiaRutas().stream().map(diaRuta -> diaRuta.getDiaSemana().getId()).collect(Collectors.toList()));
+    response.setRuta(rutaDTO);
+    response.setDomicilios(domiciliosADevolver);
+
+    return response;
+  }
 
 }

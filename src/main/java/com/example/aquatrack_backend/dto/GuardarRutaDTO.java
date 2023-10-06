@@ -10,6 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GuardarRutaDTO {
+    private Long id;
     private String nombre;
     private List<Long> idDiasSemana;
     private List<DomiciliosRutaDTO> domiciliosRuta;

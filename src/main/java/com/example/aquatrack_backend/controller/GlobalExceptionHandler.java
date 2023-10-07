@@ -40,6 +40,14 @@ public class GlobalExceptionHandler {
             .build());
   }
 
+  @ExceptionHandler({ ClienteWebUnauthorizedException.class })
+  public ResponseEntity<?> handleClienteWebException(Exception ex) {
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        .body(ErrorResponseDTO.builder()
+            .message(ex.getMessage())
+            .build());
+  }
+
   @ExceptionHandler({ FailedToAuthenticateUserException.class })
   public ResponseEntity<?> handleFailedToAuthenticate(Exception ex) {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

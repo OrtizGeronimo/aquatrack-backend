@@ -264,7 +264,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
 
     UbicacionDTO ubicacionDTO = UbicacionDTO.builder().latitud(clienteDTO.getLatitud()).longitud(clienteDTO.getLongitud()).build();
     if(!validateIsContained(ubicacionDTO, empresa.getCobertura())){
-      errors.put("ubicacion", "El cliente ingresado no está contenido en la cobertura de la empresa.");
+      errors.put("root", "El cliente ingresado no está contenido en la cobertura de la empresa.");
     }
 
     if(!errors.isEmpty()){

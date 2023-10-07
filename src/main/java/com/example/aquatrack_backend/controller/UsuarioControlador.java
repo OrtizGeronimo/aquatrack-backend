@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.aquatrack_backend.dto.LoginRequestDTO;
+import com.example.aquatrack_backend.exception.ClienteWebUnauthorizedException;
 import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
 import com.example.aquatrack_backend.service.UsuarioServicio;
 
@@ -23,7 +24,7 @@ public class UsuarioControlador {
   private ValidationHelper validationHelper = new ValidationHelper<>();
 
   @PostMapping(value = "/login")
-  public ResponseEntity<?> login(@RequestBody LoginRequestDTO usuario) {
+  public ResponseEntity<?> login(@RequestBody LoginRequestDTO usuario) throws ClienteWebUnauthorizedException {
     if(validationHelper.hasValidationErrors(usuario)){
       return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(usuario));
     }

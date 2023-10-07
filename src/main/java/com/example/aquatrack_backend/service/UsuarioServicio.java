@@ -25,8 +25,12 @@ import com.example.aquatrack_backend.config.JwtUtils;
 import com.example.aquatrack_backend.config.SecurityUser;
 import com.example.aquatrack_backend.dto.CurrentUserDTO;
 import com.example.aquatrack_backend.dto.LoginResponseDTO;
+import com.example.aquatrack_backend.exception.ClienteWebNoValidoException;
+import com.example.aquatrack_backend.exception.ClienteWebUnauthorizedException;
 import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
+import com.example.aquatrack_backend.model.Cliente;
 import com.example.aquatrack_backend.model.Empleado;
+import com.example.aquatrack_backend.model.Persona;
 import com.example.aquatrack_backend.model.Usuario;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,9 +47,13 @@ public class UsuarioServicio {
   private RolRepo rolRepo;
   private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
-  public LoginResponseDTO login(String direccionEmail, String contraseña) {
+  public LoginResponseDTO login(String direccionEmail, String contraseña) throws ClienteWebUnauthorizedException{
     Authentication authentication = authenticationManager
-        .authenticate(new UsernamePasswordAuthenticationToken(direccionEmail, contraseña));
+      .authenticate(new UsernamePasswordAuthenticationToken(direccionEmail, contraseña));
+    Persona persona = ((SecurityUser) authentication.getPrincipal()).getUsuario().getPersona();
+    if (persona instanceof Cliente) {
+      throw new ClienteWebUnauthorizedException("No puede iniciar sesión como cliente en AquaTrack Web.");
+    }
     String jwt = jwtUtils.generateJwtToken(authentication);
     return LoginResponseDTO.builder().token(jwt).build();
   }

@@ -2,6 +2,7 @@ package com.example.aquatrack_backend.controller;
 
 import com.example.aquatrack_backend.dto.GuardarRutaDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
+import com.example.aquatrack_backend.exception.ValidacionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -60,8 +61,13 @@ public class RutaControlador{
     }
 
     @PutMapping("/{id}/clientes")
-    public ResponseEntity<?> editarClientes(@PathVariable Long id, @RequestBody GuardarRutaDTO dto) throws RecordNotFoundException {
+    public ResponseEntity<?> asignarClientes(@PathVariable Long id, @RequestBody GuardarRutaDTO dto) throws RecordNotFoundException {
         return ResponseEntity.ok().body(rutaServicio.asignarClientesRuta(id, dto));
+    }
+
+    @PutMapping("/{id}/editClientes")
+    public ResponseEntity<?> editarClientes(@PathVariable Long id, @RequestBody GuardarRutaDTO dto) throws RecordNotFoundException, ValidacionException {
+        return ResponseEntity.ok().body(rutaServicio.editarClientesRuta(id, dto));
     }
 
 }

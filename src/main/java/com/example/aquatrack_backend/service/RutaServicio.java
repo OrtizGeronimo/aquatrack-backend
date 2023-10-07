@@ -2,6 +2,7 @@ package com.example.aquatrack_backend.service;
 
 import com.example.aquatrack_backend.dto.*;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
+import com.example.aquatrack_backend.exception.ValidacionException;
 import com.example.aquatrack_backend.model.*;
 import com.example.aquatrack_backend.repo.*;
 import org.modelmapper.ModelMapper;
@@ -248,7 +249,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
   }
 
   @Transactional
-  public RutaDTO editarClientesRuta(Long id, GuardarRutaDTO dto) throws RecordNotFoundException {
+  public RutaDTO editarClientesRuta(Long id, GuardarRutaDTO dto) throws RecordNotFoundException, ValidacionException {
 
     Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + id));
 
@@ -261,15 +262,52 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
         domiciliosNuevos.add(domicilios.stream().filter(domicilioRuta -> domicilioRuta.getDomicilio().getId().equals(domicilioDTO.getIdDomicilio())).findFirst().get());
         continue;
       }
+      Domicilio domicilio = domicilioRepo.findById(domicilioDTO.getIdDomicilio()).get();
+
+      List<Long> dias = domicilioDTO.getIdDiasSemana();
+
+      List<DiaDomicilio> diasNuevos = new ArrayList<>();
+
+      for (Long dia : dias) {
+        if (domicilio.getDiaDomicilios().stream().anyMatch(diaDomicilio -> diaDomicilio.getDiaRuta().getDiaSemana().getId().equals(dia) && diaDomicilio.getDiaRuta().getRuta().equals(ruta))){
+          diasNuevos.add(domicilio.getDiaDomicilios().stream().filter(diaDomicilio -> diaDomicilio.getDomicilio().getId().equals(domicilioDTO.getIdDomicilio())).findFirst().get());
+          continue;
+        }
+        if (domicilio.getDiaDomicilios().stream().anyMatch(diaDomicilio -> diaDomicilio.getDiaRuta().getDiaSemana().getId().equals(dia) && !diaDomicilio.getDiaRuta().getRuta().equals(ruta))) {
+          throw new ValidacionException("El domicilio " + obtenerDescripcionDomicilio(domicilio) + " ya forma parte de una ruta la cual pasa por el dia " + dia);
+        }
+        DiaDomicilio diaDomicilio = new DiaDomicilio();
+        diaDomicilio.setDomicilio(domicilio);
+        DiaRuta diaRuta = ruta.getDiaRutas().stream()
+                .filter(diaActual -> diaActual.getDiaSemana().getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new RecordNotFoundException("El dia de la semana de ruta no fue encontrado"));
+        diaDomicilio.setDiaRuta(diaRuta);
+        diasNuevos.add(diaDomicilio);
+      }
+
+      for (DiaDomicilio diaDomicilio : domicilio.getDiaDomicilios().stream().filter(diaDomicilio -> !diasNuevos.contains(diaDomicilio)).collect(Collectors.toList())) {
+        domicilio.getDiaDomicilios().remove(diaDomicilio);
+      }
+
+      domicilio.getDiaDomicilios().clear();
+      domicilio.getDiaDomicilios().addAll(diasNuevos);
+
       DomicilioRuta nuevoDomicilio = new DomicilioRuta();
       nuevoDomicilio.setRuta(ruta);
-      nuevoDomicilio.setDomicilio(domicilioRepo.findById(domicilioDTO.getIdDomicilio()).get());
+      nuevoDomicilio.setDomicilio(domicilio);
       domiciliosNuevos.add(nuevoDomicilio);
     }
 
-    for (DomicilioRuta domicilioRuta: ruta.getDomicilioRutas().stream().filter(domicilioRuta -> dto.getDomiciliosRuta().stream().map(DomiciliosRutaDTO::getIdDomicilio).collect(Collectors.toList()).contains(domicilioRuta.getDomicilio().getId())).collect(Collectors.toList())) {
-
+    for (DomicilioRuta domicilioRuta: ruta.getDomicilioRutas().stream().filter(domicilioRuta -> !dto.getDomiciliosRuta().stream().map(DomiciliosRutaDTO::getIdDomicilio).collect(Collectors.toList()).contains(domicilioRuta.getDomicilio().getId())).collect(Collectors.toList())) {
+      ruta.getDomicilioRutas().remove(domicilioRuta);
     }
+
+    ruta.getDomicilioRutas().clear();
+    ruta.getDomicilioRutas().addAll(domiciliosNuevos);
+
+    rutaRepo.save(ruta);
+
   return null;
   }
 
@@ -295,6 +333,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
     Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + id));
 
     List<DomicilioProjection> domiciliosProjection = rutaRepo.buscarClientesAjenos(id);
+
     List<Domicilio> domicilios = domiciliosProjection.stream().map(domicilioProjection -> {
       Domicilio domicilio = new Domicilio();
       domicilio.setId(domicilioProjection.getId());
@@ -303,7 +342,8 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
       domicilio.setPisoDepartamento(domicilioProjection.getPisoDepartamento());
       domicilio.setCliente(clienteRepo.findById(domicilioProjection.getCliente()).get());
       return domicilio;
-    }).collect(Collectors.toList());
+    }).filter(domicilio -> ruta.getDomicilioRutas().stream().noneMatch(domicilioRuta -> domicilioRuta.getDomicilio().getId().equals(domicilio.getId()))).collect(Collectors.toList());
+
     List<DomicilioDetalleDTO> domiciliosADevolver = domicilios.stream().map( domicilio -> {
       DomicilioDetalleDTO domicilioDTO = new DomicilioDetalleDTO();
       domicilioDTO.setDomicilio(domicilio.getCalle() + " " +
@@ -325,6 +365,10 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
     response.setDomicilios(domiciliosADevolver);
 
     return response;
+  }
+
+  public String obtenerDescripcionDomicilio(Domicilio domicilio){
+    return domicilio.getCalle() + " " + nullableToEmptyString(domicilio.getNumero()) + " " + nullableToEmptyString(domicilio.getPisoDepartamento());
   }
 
 }

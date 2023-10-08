@@ -365,7 +365,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
               " " +
               nullableToEmptyString(domicilio.getPisoDepartamento()));
       domicilioDTO.setId(domicilio.getId());
-      domicilioDTO.setNombreCliente(domicilio.getCliente().getNombre());
+      domicilioDTO.setNombreCliente(domicilio.getCliente().getNombre() + " " + domicilio.getCliente().getApellido());
       return domicilioDTO;
     }).collect(Collectors.toList());
 
@@ -374,6 +374,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
     GuardarRutaDTO rutaDTO = new GuardarRutaDTO();
     rutaDTO.setNombre(ruta.getNombre());
     rutaDTO.setId(ruta.getId());
+    rutaDTO.setFechaFinVigencia(ruta.getFechaFinVigencia());
     rutaDTO.setIdDiasSemana(ruta.getDiaRutas().stream().map(diaRuta -> diaRuta.getDiaSemana().getId()).collect(Collectors.toList()));
     response.setRuta(rutaDTO);
     response.setDomicilios(domiciliosADevolver);

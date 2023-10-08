@@ -252,7 +252,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
   }
 
   @Transactional
-  public RutaDTO editarClientesRuta(Long id, GuardarRutaDTO dto) throws RecordNotFoundException, ValidacionException {
+  public GuardarRutaDTO editarClientesRuta(Long id, GuardarRutaDTO dto) throws RecordNotFoundException, ValidacionException {
 
     Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + id));
 
@@ -320,7 +320,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
 
     rutaRepo.save(ruta);
 
-  return null;
+  return edit(ruta.getId());
   }
 
   public GuardarRutaDTO edit(Long id) throws RecordNotFoundException {
@@ -394,4 +394,11 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
 
   }
 
+  public void habilitar(Long id) throws RecordNotFoundException {
+    Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + id));
+
+    ruta.setFechaFinVigencia(null);
+
+    rutaRepo.save(ruta);
+  }
 }

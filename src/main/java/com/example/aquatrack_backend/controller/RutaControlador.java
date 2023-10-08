@@ -85,8 +85,7 @@ public class RutaControlador{
     @PutMapping("/{id}/enable")
     @PreAuthorize("hasAuthority('EDITAR_RUTAS')")
     public ResponseEntity<?> habilitar(@PathVariable Long id) throws RecordNotFoundException {
-        rutaServicio.habilitar(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(rutaServicio.habilitar(id));
     }
 
 }

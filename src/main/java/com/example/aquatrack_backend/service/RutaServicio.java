@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,6 +27,8 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
   private DiaSemanaRepo diaSemanaRepo;
   @Autowired
   private DomicilioRepo domicilioRepo;
+  @Autowired
+  private DiaDomicilioRepo diaDomicilioRepo;
 
   @Autowired
   private ClienteRepo clienteRepo;
@@ -258,15 +261,14 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
     List<DomicilioRuta> domiciliosNuevos = new ArrayList<>();
 
     for (DomiciliosRutaDTO domicilioDTO: dto.getDomiciliosRuta()) {
-      if (domicilios.stream().anyMatch(domicilioRuta -> domicilioRuta.getDomicilio().getId().equals(domicilioDTO.getIdDomicilio()))){
-        domiciliosNuevos.add(domicilios.stream().filter(domicilioRuta -> domicilioRuta.getDomicilio().getId().equals(domicilioDTO.getIdDomicilio())).findFirst().get());
-        continue;
-      }
+
+
+
       Domicilio domicilio = domicilioRepo.findById(domicilioDTO.getIdDomicilio()).get();
 
       List<Long> dias = domicilioDTO.getIdDiasSemana();
 
-      List<DiaDomicilio> diasNuevos = new ArrayList<>();
+      List<DiaDomicilio> diasNuevos = domicilio.getDiaDomicilios().stream().filter(diaDomicilio -> !diaDomicilio.getDiaRuta().getRuta().equals(ruta)).collect(Collectors.toList());
 
       for (Long dia : dias) {
         if (domicilio.getDiaDomicilios().stream().anyMatch(diaDomicilio -> diaDomicilio.getDiaRuta().getDiaSemana().getId().equals(dia) && diaDomicilio.getDiaRuta().getRuta().equals(ruta))){
@@ -279,19 +281,26 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
         DiaDomicilio diaDomicilio = new DiaDomicilio();
         diaDomicilio.setDomicilio(domicilio);
         DiaRuta diaRuta = ruta.getDiaRutas().stream()
-                .filter(diaActual -> diaActual.getDiaSemana().getId().equals(id))
+                .filter(diaActual -> diaActual.getDiaSemana().getId().equals(dia))
                 .findFirst()
                 .orElseThrow(() -> new RecordNotFoundException("El dia de la semana de ruta no fue encontrado"));
         diaDomicilio.setDiaRuta(diaRuta);
         diasNuevos.add(diaDomicilio);
       }
 
-      for (DiaDomicilio diaDomicilio : domicilio.getDiaDomicilios().stream().filter(diaDomicilio -> !diasNuevos.contains(diaDomicilio)).collect(Collectors.toList())) {
-        domicilio.getDiaDomicilios().remove(diaDomicilio);
-      }
+//      for (DiaDomicilio diaDomicilio : domicilio.getDiaDomicilios().stream().filter(diaDomicilio -> !diasNuevos.contains(diaDomicilio)).collect(Collectors.toList())) {
+//        domicilio.getDiaDomicilios().remove(diaDomicilio);
+//      }
 
       domicilio.getDiaDomicilios().clear();
       domicilio.getDiaDomicilios().addAll(diasNuevos);
+
+      if (domicilios.stream().anyMatch(domicilioRuta -> domicilioRuta.getDomicilio().getId().equals(domicilioDTO.getIdDomicilio()))){
+        DomicilioRuta domicilioExistente = domicilios.stream().filter(domicilioRuta -> domicilioRuta.getDomicilio().getId().equals(domicilioDTO.getIdDomicilio())).findFirst().get();
+        domicilioExistente.setDomicilio(domicilio);
+        domiciliosNuevos.add(domicilioExistente);
+        continue;
+      }
 
       DomicilioRuta nuevoDomicilio = new DomicilioRuta();
       nuevoDomicilio.setRuta(ruta);
@@ -300,7 +309,10 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
     }
 
     for (DomicilioRuta domicilioRuta: ruta.getDomicilioRutas().stream().filter(domicilioRuta -> !dto.getDomiciliosRuta().stream().map(DomiciliosRutaDTO::getIdDomicilio).collect(Collectors.toList()).contains(domicilioRuta.getDomicilio().getId())).collect(Collectors.toList())) {
-      ruta.getDomicilioRutas().remove(domicilioRuta);
+      List<DiaDomicilio> diaDomicilios = domicilioRuta.getDomicilio().getDiaDomicilios().stream().filter(diaDomicilio -> diaDomicilio.getDiaRuta().getRuta().equals(ruta)).collect(Collectors.toList());
+      for (DiaDomicilio diaDomicilio: diaDomicilios) {
+        diaDomicilioRepo.deleteById(diaDomicilio.getId());
+      }
     }
 
     ruta.getDomicilioRutas().clear();
@@ -332,7 +344,9 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
   public AsignarClientesRutaDTO clientes(Long id) throws RecordNotFoundException {
     Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + id));
 
-    List<DomicilioProjection> domiciliosProjection = rutaRepo.buscarClientesAjenos(id);
+    Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+
+    List<DomicilioProjection> domiciliosProjection = rutaRepo.buscarClientesAjenos(id, empresa.getId());
 
     List<Domicilio> domicilios = domiciliosProjection.stream().map(domicilioProjection -> {
       Domicilio domicilio = new Domicilio();
@@ -369,6 +383,15 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
 
   public String obtenerDescripcionDomicilio(Domicilio domicilio){
     return domicilio.getCalle() + " " + nullableToEmptyString(domicilio.getNumero()) + " " + nullableToEmptyString(domicilio.getPisoDepartamento());
+  }
+
+  public void deshabilitar(Long id) throws RecordNotFoundException {
+    Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + id));
+
+    ruta.setFechaFinVigencia(LocalDateTime.now());
+
+    rutaRepo.save(ruta);
+
   }
 
 }

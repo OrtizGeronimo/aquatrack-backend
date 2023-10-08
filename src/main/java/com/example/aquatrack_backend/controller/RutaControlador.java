@@ -46,28 +46,40 @@ public class RutaControlador{
     }
 
     @PutMapping("/{id}/edit")
+    @PreAuthorize("hasAuthority('EDITAR_RUTAS')")
     public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody GuardarRutaDTO dto) throws RecordNotFoundException {
         return ResponseEntity.ok().body(rutaServicio.editarDiasRuta(id, dto));
     }
 
     @GetMapping("/{id}/edit")
+    @PreAuthorize("hasAuthority('EDITAR_RUTAS')")
     public ResponseEntity<?> editRuta(@PathVariable Long id) throws RecordNotFoundException {
         return ResponseEntity.ok().body(rutaServicio.edit(id));
     }
 
     @GetMapping("/{id}/clientes")
+    @PreAuthorize("hasAuthority('EDITAR_RUTAS')")
     public ResponseEntity<?> clientes(@PathVariable Long id) throws RecordNotFoundException {
         return ResponseEntity.ok().body(rutaServicio.clientes(id));
     }
 
     @PutMapping("/{id}/clientes")
+    @PreAuthorize("hasAuthority('EDITAR_RUTAS')")
     public ResponseEntity<?> asignarClientes(@PathVariable Long id, @RequestBody GuardarRutaDTO dto) throws RecordNotFoundException {
         return ResponseEntity.ok().body(rutaServicio.asignarClientesRuta(id, dto));
     }
 
     @PutMapping("/{id}/editClientes")
+    @PreAuthorize("hasAuthority('EDITAR_RUTAS')")
     public ResponseEntity<?> editarClientes(@PathVariable Long id, @RequestBody GuardarRutaDTO dto) throws RecordNotFoundException, ValidacionException {
         return ResponseEntity.ok().body(rutaServicio.editarClientesRuta(id, dto));
+    }
+
+    @PutMapping("/{id}/disable")
+    @PreAuthorize("hasAuthority('EDITAR_RUTAS')")
+    public ResponseEntity<?> deshabilitar(@PathVariable Long id) throws RecordNotFoundException {
+        rutaServicio.deshabilitar(id);
+        return ResponseEntity.ok().build();
     }
 
 }

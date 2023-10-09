@@ -394,11 +394,20 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
 
   }
 
-  public void habilitar(Long id) throws RecordNotFoundException {
+  public RutaListDTO habilitar(Long id) throws RecordNotFoundException {
     Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + id));
 
     ruta.setFechaFinVigencia(null);
 
     rutaRepo.save(ruta);
+    RutaListDTO response = RutaListDTO.builder()
+            .id(ruta.getId())
+            .nombre(ruta.getNombre())
+            .fechaCreacion(ruta.getFechaCreacion())
+            .idDiasSemana(ruta.getDiaRutas().stream().map(diaRuta -> diaRuta.getDiaSemana().getId()).collect(Collectors.toList()))
+            .domiciliosAVisitar(ruta.getDomicilioRutas().size())
+            .fechaFinVigencia(ruta.getFechaFinVigencia())
+            .build();
+    return response;
   }
 }

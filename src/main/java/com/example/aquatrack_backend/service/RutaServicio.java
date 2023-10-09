@@ -263,7 +263,6 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
     response.setId(rutaGuardada.getId());
     response.setNombre(rutaGuardada.getNombre());
 
-
     List<DetalleRutaDTO> rutas = new ArrayList<>();
 
     for (DiaRuta dia : rutaGuardada.getDiaRutas()) {

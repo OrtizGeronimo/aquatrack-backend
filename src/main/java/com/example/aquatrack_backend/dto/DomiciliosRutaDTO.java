@@ -11,5 +11,6 @@ import java.util.List;
 @NoArgsConstructor
 public class  DomiciliosRutaDTO {
     private Long idDomicilio;
+    private String domicilio;
     private List<Long> idDiasSemana;
 }

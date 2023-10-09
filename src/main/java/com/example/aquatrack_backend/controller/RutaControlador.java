@@ -34,7 +34,7 @@ public class RutaControlador{
     }
 
     @PostMapping("")
-    public ResponseEntity<?> crearRuta(@RequestBody GuardarRutaDTO dto) throws RecordNotFoundException {
+    public ResponseEntity<?> crearRuta(@RequestBody GuardarRutaDTO dto) throws RecordNotFoundException, ValidacionException {
         return ResponseEntity.ok().body(rutaServicio.crearRuta(dto));
     }
 

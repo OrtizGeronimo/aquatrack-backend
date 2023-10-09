@@ -29,6 +29,8 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
   private DomicilioRepo domicilioRepo;
   @Autowired
   private DiaDomicilioRepo diaDomicilioRepo;
+  @Autowired
+  private DiaRutaRepo diaRutaRepo;
 
   @Autowired
   private ClienteRepo clienteRepo;
@@ -75,8 +77,8 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
                     .build());
   }
 
-  @Transactional
-  public RutaListDTO crearRuta(GuardarRutaDTO rutaDTO) throws RecordNotFoundException {
+  @Transactional(rollbackFor = ValidacionException.class)
+  public RutaListDTO crearRuta(GuardarRutaDTO rutaDTO) throws RecordNotFoundException, ValidacionException {
 
     Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
     Ruta ruta = new Ruta();
@@ -96,16 +98,21 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
     ruta.setDiaRutas(diaRutas);
     ruta.setNombre(rutaDTO.getNombre());
 
+    Ruta rutaGuardada = rutaRepo.save(ruta);
+
     List<DomicilioRuta> domiciliosNuevos = new ArrayList<>();
     for (DomiciliosRutaDTO domicilioRutaDTO: rutaDTO.getDomiciliosRuta()) {
       Domicilio domicilio = domicilioRepo.findById(domicilioRutaDTO.getIdDomicilio()).orElseThrow(() -> new RecordNotFoundException("No se encontró un domicilio con el id " + domicilioRutaDTO.getIdDomicilio()));
       DomicilioRuta domicilioRuta = new DomicilioRuta();
-      domicilioRuta.setRuta(ruta);
+      domicilioRuta.setRuta(rutaGuardada);
       domicilioRuta.setDomicilio(domicilio);
       domiciliosNuevos.add(domicilioRuta);
 
       List<DiaDomicilio> diaDomicilios = new ArrayList<>();
       for (Long id: domicilioRutaDTO.getIdDiasSemana()) {
+        if (domicilio.getDiaDomicilios().stream().anyMatch(diaDomicilio -> diaDomicilio.getDiaRuta().getDiaSemana().getId().equals(id) && !diaDomicilio.getDiaRuta().getRuta().getId().equals(rutaGuardada.getId()))) {
+          throw new ValidacionException("El domicilio " + obtenerDescripcionDomicilio(domicilio) + "(" + domicilio.getId() + ") ya forma parte de una ruta la cual pasa por el dia " + id);
+        }
         DiaDomicilio diaDomicilio = new DiaDomicilio();
         diaDomicilio.setDomicilio(domicilio);
         DiaRuta diaRuta = diaRutas.stream()
@@ -115,18 +122,18 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
         diaDomicilio.setDiaRuta(diaRuta);
         diaDomicilios.add(diaDomicilio);
       }
-      domicilio.setDiaDomicilios(diaDomicilios);
+      domicilio.getDiaDomicilios().addAll(diaDomicilios);
     }
 
-    ruta.setDomicilioRutas(domiciliosNuevos);
-    Ruta rutaGuardada = rutaRepo.save(ruta);
+    rutaGuardada.setDomicilioRutas(domiciliosNuevos);
+    Ruta rutaResponse = rutaRepo.save(rutaGuardada);
     RutaListDTO response = RutaListDTO.builder()
-            .id(rutaGuardada.getId())
-            .nombre(rutaGuardada.getNombre())
-            .fechaCreacion(rutaGuardada.getFechaCreacion())
-            .idDiasSemana(rutaGuardada.getDiaRutas().stream().map(diaRuta -> diaRuta.getDiaSemana().getId()).collect(Collectors.toList()))
-            .domiciliosAVisitar(rutaGuardada.getDomicilioRutas().size())
-            .fechaFinVigencia(rutaGuardada.getFechaFinVigencia())
+            .id(rutaResponse.getId())
+            .nombre(rutaResponse.getNombre())
+            .fechaCreacion(rutaResponse.getFechaCreacion())
+            .idDiasSemana(rutaResponse.getDiaRutas().stream().map(diaRuta -> diaRuta.getDiaSemana().getId()).collect(Collectors.toList()))
+            .domiciliosAVisitar(rutaResponse.getDomicilioRutas().size())
+            .fechaFinVigencia(rutaResponse.getFechaFinVigencia())
             .build();
       return response;
 //    return mapper.map(rutaGuardada, RutaListDTO.class);
@@ -332,7 +339,8 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
     response.setDomiciliosRuta(ruta.getDomicilioRutas().stream().map(domicilioRuta -> {
       DomiciliosRutaDTO domicilio = new DomiciliosRutaDTO();
       domicilio.setIdDomicilio(domicilioRuta.getDomicilio().getId());
-      domicilio.setIdDiasSemana(domicilioRuta.getDomicilio().getDiaDomicilios().stream().map(diaDomicilio -> diaDomicilio.getDiaRuta().getDiaSemana().getId()).collect(Collectors.toList()));
+      domicilio.setDomicilio(obtenerDescripcionDomicilio(domicilioRuta.getDomicilio()));
+      domicilio.setIdDiasSemana(domicilioRuta.getDomicilio().getDiaDomicilios().stream().filter(diaDomicilio -> diaDomicilio.getDiaRuta().getRuta().equals(ruta)).map(diaDomicilio -> diaDomicilio.getDiaRuta().getDiaSemana().getId()).collect(Collectors.toList()));
       return domicilio;
     }).collect(Collectors.toList()));
 

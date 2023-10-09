@@ -1,9 +1,7 @@
 package com.example.aquatrack_backend.service;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,10 +13,6 @@ import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,8 +38,8 @@ public class ProductoServicio extends ServicioBaseImpl<Producto> {
   ProductoRepo productoRepo;
   @Autowired
   PrecioRepo precioRepo;
-  @Autowired
-  private ResourceLoader resourceLoader;
+  // @Autowired
+  // private ResourceLoader resourceLoader;
   // @Value("${image.upload.directory}")
   // private String uploadDirectory;
 
@@ -124,6 +118,10 @@ public class ProductoServicio extends ServicioBaseImpl<Producto> {
       String relativePath = producto.getImagen() != null ?  "src/main/resources/images/"+producto.getImagen() : 
                                                             "src/main/resources/images/";
       String uploadDirectory = System.getProperty("user.dir") + "/" + relativePath;
+      Path directoryPath = Paths.get(relativePath);
+        if (!Files.exists(directoryPath)) {
+            Files.createDirectories(directoryPath);
+      }
       // int index = imageFile.getOriginalFilename().indexOf(".");
       // String extension = "." + imageFile.getOriginalFilename().substring(index+1);
       String nombre = producto.getImagen() != null ? producto.getImagen():

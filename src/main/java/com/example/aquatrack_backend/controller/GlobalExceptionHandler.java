@@ -104,8 +104,7 @@ public class GlobalExceptionHandler {
             .build());
   }
     @ExceptionHandler({ValidacionException.class})
-    public ResponseEntity<?> handleValidacionException(Exception ex){
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                .body(ErrorResponseDTO.builder().message(ex.getMessage()).build());
+    public ResponseEntity<?> handleValidacionException(ValidacionException ex){
+      return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -111,7 +112,9 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
       List<DiaDomicilio> diaDomicilios = new ArrayList<>();
       for (Long id: domicilioRutaDTO.getIdDiasSemana()) {
         if (domicilio.getDiaDomicilios().stream().anyMatch(diaDomicilio -> diaDomicilio.getDiaRuta().getDiaSemana().getId().equals(id) && !diaDomicilio.getDiaRuta().getRuta().getId().equals(rutaGuardada.getId()))) {
-          throw new ValidacionException("El domicilio " + obtenerDescripcionDomicilio(domicilio) + "(" + domicilio.getId() + ") ya forma parte de una ruta la cual pasa por el dia " + id);
+          HashMap<String, String> errors = new HashMap<>();
+          errors.put("root", "El domicilio " + domicilio.getId() + " ya forma parte de una ruta la cual pasa por el dia " + diaSemanaRepo.findById(id).get().getNombre() );
+          throw new ValidacionException(errors);
         }
         DiaDomicilio diaDomicilio = new DiaDomicilio();
         diaDomicilio.setDomicilio(domicilio);

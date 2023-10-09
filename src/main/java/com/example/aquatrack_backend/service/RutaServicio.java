@@ -190,7 +190,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
 
 
   @Transactional
-  public RutaDTO editarDiasRuta(Long id, GuardarRutaDTO dto) throws RecordNotFoundException {
+  public ResponseDetalleRutaDTO editarDiasRuta(Long id, GuardarRutaDTO dto) throws RecordNotFoundException {
 
     Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + id));
 
@@ -217,11 +217,13 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
     ruta.getDiaRutas().clear();
     ruta.getDiaRutas().addAll(dias);
 
-    return mapper.map(rutaRepo.save(ruta), RutaDTO.class);
+    Ruta rutaGuardada = rutaRepo.save(ruta);
+
+    return detalleRuta(rutaGuardada.getId());
   }
 
   @Transactional
-  public RutaListDTO asignarClientesRuta(Long idRuta, GuardarRutaDTO rutaDTO) throws RecordNotFoundException {
+  public ResponseDetalleRutaDTO asignarClientesRuta(Long idRuta, GuardarRutaDTO rutaDTO) throws RecordNotFoundException {
 
     Ruta ruta = rutaRepo.findById(idRuta).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + idRuta));
 
@@ -249,16 +251,16 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
 
     ruta.getDomicilioRutas().addAll(domiciliosNuevos);
 
-    rutaRepo.save(ruta);
-    RutaListDTO response = RutaListDTO.builder()
-            .id(ruta.getId())
-            .nombre(ruta.getNombre())
-            .fechaCreacion(ruta.getFechaCreacion())
-            .idDiasSemana(ruta.getDiaRutas().stream().map(diaRuta -> diaRuta.getDiaSemana().getId()).collect(Collectors.toList()))
-            .domiciliosAVisitar(ruta.getDomicilioRutas().size())
-            .fechaFinVigencia(ruta.getFechaFinVigencia())
-            .build();
-    return response;
+    Ruta rutaGuardada = rutaRepo.save(ruta);
+//    RutaListDTO response = RutaListDTO.builder()
+//            .id(ruta.getId())
+//            .nombre(ruta.getNombre())
+//            .fechaCreacion(ruta.getFechaCreacion())
+//            .idDiasSemana(ruta.getDiaRutas().stream().map(diaRuta -> diaRuta.getDiaSemana().getId()).collect(Collectors.toList()))
+//            .domiciliosAVisitar(ruta.getDomicilioRutas().size())
+//            .fechaFinVigencia(ruta.getFechaFinVigencia())
+//            .build();
+    return detalleRuta(rutaGuardada.getId());
 
   }
 

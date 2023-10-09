@@ -285,7 +285,9 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
           continue;
         }
         if (domicilio.getDiaDomicilios().stream().anyMatch(diaDomicilio -> diaDomicilio.getDiaRuta().getDiaSemana().getId().equals(dia) && !diaDomicilio.getDiaRuta().getRuta().equals(ruta))) {
-          throw new ValidacionException("El domicilio " + obtenerDescripcionDomicilio(domicilio) + " ya forma parte de una ruta la cual pasa por el dia " + dia);
+          HashMap<String, String> errors = new HashMap<>();
+          errors.put("root", "El domicilio " + domicilio.getId() + " ya forma parte de una ruta la cual pasa por el dia " + diaSemanaRepo.findById(id).get().getNombre() );
+          throw new ValidacionException(errors);
         }
         DiaDomicilio diaDomicilio = new DiaDomicilio();
         diaDomicilio.setDomicilio(domicilio);

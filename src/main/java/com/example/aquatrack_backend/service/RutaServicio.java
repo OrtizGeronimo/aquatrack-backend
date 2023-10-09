@@ -343,6 +343,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
     response.setIdDiasSemana(ruta.getDiaRutas().stream().map(diaRuta -> diaRuta.getDiaSemana().getId()).collect(Collectors.toList()));
     response.setDomiciliosRuta(ruta.getDomicilioRutas().stream().map(domicilioRuta -> {
       DomiciliosRutaDTO domicilio = new DomiciliosRutaDTO();
+      domicilio.setDomicilio(domicilioRuta.getDomicilio().getCliente().getNombre() + " " + domicilioRuta.getDomicilio().getCliente().getApellido());
       domicilio.setIdDomicilio(domicilioRuta.getDomicilio().getId());
       domicilio.setDomicilio(obtenerDescripcionDomicilio(domicilioRuta.getDomicilio()));
       domicilio.setIdDiasSemana(domicilioRuta.getDomicilio().getDiaDomicilios().stream().filter(diaDomicilio -> diaDomicilio.getDiaRuta().getRuta().equals(ruta)).map(diaDomicilio -> diaDomicilio.getDiaRuta().getDiaSemana().getId()).collect(Collectors.toList()));

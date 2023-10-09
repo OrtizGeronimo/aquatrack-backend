@@ -12,5 +12,6 @@ import java.util.List;
 public class  DomiciliosRutaDTO {
     private Long idDomicilio;
     private String domicilio;
+    private String nombreCliente;
     private List<Long> idDiasSemana;
 }

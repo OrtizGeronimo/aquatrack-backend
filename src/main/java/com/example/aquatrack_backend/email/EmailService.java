@@ -61,9 +61,9 @@ public class EmailService{
             throw new RecordNotFoundException("El usuario no fue encontrado");
         }
         Usuario usuario = usuarioOpt.get();
-        // UUID uuid = UUID.randomUUID();
-        // String token = shortenUUID(uuid);
-        String token = generateRandomCode(8);
+        UUID uuid = UUID.randomUUID();
+        String token = uuid.toString();
+        // String token = generateRandomCode(8);
         // String token = uuid.toString();
         usuario.setTokenPassword(token);
         dto.setTokenPassword(token);
@@ -114,20 +114,20 @@ public class EmailService{
     //     return buffer;
     // }
 
-    public static String generateRandomCode(int length) {
-        // Define the characters allowed in the code
-        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    // public static String generateRandomCode(int length) {
+    //     // Define the characters allowed in the code
+    //     String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-        SecureRandom random = new SecureRandom();
-        StringBuilder code = new StringBuilder(length);
+    //     SecureRandom random = new SecureRandom();
+    //     StringBuilder code = new StringBuilder(length);
 
-        for (int i = 0; i < length; i++) {
-            int randomIndex = random.nextInt(characters.length());
-            char randomChar = characters.charAt(randomIndex);
-            code.append(randomChar);
-        }
+    //     for (int i = 0; i < length; i++) {
+    //         int randomIndex = random.nextInt(characters.length());
+    //         char randomChar = characters.charAt(randomIndex);
+    //         code.append(randomChar);
+    //     }
 
-        return code.toString();
-    }
+    //     return code.toString();
+    // }
 }
 

@@ -263,8 +263,6 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
 
     for (DomiciliosRutaDTO domicilioDTO: dto.getDomiciliosRuta()) {
 
-
-
       Domicilio domicilio = domicilioRepo.findById(domicilioDTO.getIdDomicilio()).get();
 
       List<Long> dias = domicilioDTO.getIdDiasSemana();
@@ -273,7 +271,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
 
       for (Long dia : dias) {
         if (domicilio.getDiaDomicilios().stream().anyMatch(diaDomicilio -> diaDomicilio.getDiaRuta().getDiaSemana().getId().equals(dia) && diaDomicilio.getDiaRuta().getRuta().equals(ruta))){
-          diasNuevos.add(domicilio.getDiaDomicilios().stream().filter(diaDomicilio -> diaDomicilio.getDomicilio().getId().equals(domicilioDTO.getIdDomicilio())).findFirst().get());
+          diasNuevos.add(domicilio.getDiaDomicilios().stream().filter(diaDomicilio -> diaDomicilio.getDiaRuta().getDiaSemana().getId().equals(dia) && diaDomicilio.getDiaRuta().getRuta().equals(ruta)).findFirst().get());
           continue;
         }
         if (domicilio.getDiaDomicilios().stream().anyMatch(diaDomicilio -> diaDomicilio.getDiaRuta().getDiaSemana().getId().equals(dia) && !diaDomicilio.getDiaRuta().getRuta().equals(ruta))) {

@@ -223,7 +223,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
   }
 
   @Transactional
-  public ResponseDetalleRutaDTO asignarClientesRuta(Long idRuta, GuardarRutaDTO rutaDTO) throws RecordNotFoundException {
+  public ResponseDetalleRutaDTO asignarClientesRuta(Long idRuta, GuardarRutaDTO rutaDTO) throws RecordNotFoundException, ValidacionException {
 
     Ruta ruta = rutaRepo.findById(idRuta).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + idRuta));
 
@@ -237,6 +237,11 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
 
       List<DiaDomicilio> diaDomicilios = new ArrayList<>();
       for (Long id: domicilioRutaDTO.getIdDiasSemana()) {
+        if (domicilio.getDiaDomicilios().stream().anyMatch(diaDomicilio -> diaDomicilio.getDiaRuta().getDiaSemana().getId().equals(id) && !diaDomicilio.getDiaRuta().getRuta().getId().equals(ruta.getId()))) {
+          HashMap<String, String> errors = new HashMap<>();
+          errors.put("root", "El domicilio " + domicilio.getId() + " ya forma parte de una ruta la cual pasa por el dia " + diaSemanaRepo.findById(id).get().getNombre() );
+          throw new ValidacionException(errors);
+        }
         DiaDomicilio diaDomicilio = new DiaDomicilio();
         diaDomicilio.setDomicilio(domicilio);
         DiaRuta diaRuta = ruta.getDiaRutas().stream()

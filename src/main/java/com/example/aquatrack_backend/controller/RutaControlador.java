@@ -65,7 +65,7 @@ public class RutaControlador{
 
     @PutMapping("/{id}/clientes")
     @PreAuthorize("hasAuthority('EDITAR_RUTAS')")
-    public ResponseEntity<?> asignarClientes(@PathVariable Long id, @RequestBody GuardarRutaDTO dto) throws RecordNotFoundException {
+    public ResponseEntity<?> asignarClientes(@PathVariable Long id, @RequestBody GuardarRutaDTO dto) throws RecordNotFoundException, ValidacionException {
         return ResponseEntity.ok().body(rutaServicio.asignarClientesRuta(id, dto));
     }
 

@@ -251,7 +251,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
         diaDomicilio.setDiaRuta(diaRuta);
         diaDomicilios.add(diaDomicilio);
       }
-      domicilio.setDiaDomicilios(diaDomicilios);
+      domicilio.getDiaDomicilios().addAll(diaDomicilios);
     }
 
     ruta.getDomicilioRutas().addAll(domiciliosNuevos);

@@ -257,6 +257,36 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
     ruta.getDomicilioRutas().addAll(domiciliosNuevos);
 
     Ruta rutaGuardada = rutaRepo.save(ruta);
+
+    ResponseDetalleRutaDTO response = new ResponseDetalleRutaDTO();
+
+    response.setId(rutaGuardada.getId());
+    response.setNombre(rutaGuardada.getNombre());
+
+
+    List<DetalleRutaDTO> rutas = new ArrayList<>();
+
+    for (DiaRuta dia : rutaGuardada.getDiaRutas()) {
+      List<DomicilioDetalleDTO> domicilios = new ArrayList<>();
+      DetalleRutaDTO rutaResponseDTO = new DetalleRutaDTO();
+      rutaResponseDTO.setDia(dia.getDiaSemana().getNombre());
+      rutaResponseDTO.setIdDia(dia.getDiaSemana().getId());
+      for (DomicilioRuta domicilio : ruta.getDomicilioRutas()) {
+        if (domicilio.getDomicilio().getDiaDomicilios().stream().anyMatch(diaDomicilio -> diaDomicilio.getDiaRuta().equals(dia))) {
+          DomicilioDetalleDTO domicilioDTO = new DomicilioDetalleDTO();
+          domicilioDTO.setId(domicilio.getId());
+          domicilioDTO.setDomicilio(domicilio.getDomicilio().getCalle() + " " + nullableToEmptyString(domicilio.getDomicilio().getNumero()) + " " + nullableToEmptyString(domicilio.getDomicilio().getPisoDepartamento()));
+          domicilioDTO.setLatitud(domicilio.getDomicilio().getUbicacion().getLatitud());
+          domicilioDTO.setLongitud(domicilio.getDomicilio().getUbicacion().getLongitud());
+          domicilioDTO.setNombreCliente(domicilio.getDomicilio().getCliente().getNombre() + " " + domicilio.getDomicilio().getCliente().getApellido());
+          domicilios.add(domicilioDTO);
+        }
+      }
+      rutaResponseDTO.setDomicilios(domicilios);
+      rutas.add(rutaResponseDTO);
+    }
+
+    response.setRutas(rutas);
 //    RutaListDTO response = RutaListDTO.builder()
 //            .id(ruta.getId())
 //            .nombre(ruta.getNombre())
@@ -265,7 +295,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
 //            .domiciliosAVisitar(ruta.getDomicilioRutas().size())
 //            .fechaFinVigencia(ruta.getFechaFinVigencia())
 //            .build();
-    return detalleRuta(rutaGuardada.getId());
+    return response;
 
   }
 

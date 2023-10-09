@@ -339,6 +339,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
 
     GuardarRutaDTO response = new GuardarRutaDTO();
 
+    response.setId(ruta.getId());
     response.setNombre(ruta.getNombre());
     response.setIdDiasSemana(ruta.getDiaRutas().stream().map(diaRuta -> diaRuta.getDiaSemana().getId()).collect(Collectors.toList()));
     response.setDomiciliosRuta(ruta.getDomicilioRutas().stream().map(domicilioRuta -> {

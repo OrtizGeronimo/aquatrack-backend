@@ -17,8 +17,7 @@ import java.util.List;
 @Data
 public class UbicacionHelper {
 
-    public boolean estaContenida(UbicacionDTO ubiCliente, Cobertura cobertura) throws Exception{
-        try{
+    public boolean estaContenida(UbicacionDTO ubiCliente, Cobertura cobertura){
             List<Coordinate> vertices = new ArrayList<>();
             List<Ubicacion> ubicaciones = cobertura.getUbicaciones();
             int i;
@@ -35,8 +34,5 @@ public class UbicacionHelper {
             boolean estaContenida = polygon.contains(point);
 
             return estaContenida;
-        } catch (Exception e){
-            throw new Exception(e.getMessage());
-        }
     }
 }

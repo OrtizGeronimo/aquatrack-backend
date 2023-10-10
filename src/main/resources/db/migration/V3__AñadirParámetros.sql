@@ -1,9 +1,9 @@
-INSERT INTO empresa(id, direccion, fecha_creacion, nombre, num_telefono, url)
+INSERT INTO empresa(id, direccion, email, fecha_creacion, hora_generacion_reparto, nombre, num_telefono, url)
 VALUES
-    (1, 'Severo del Castillo 1520', CURRENT_DATE, 'Saura SA', '2614193591', 'http://saurasa.com'),
-    (2, 'Barrio Santa Ana', CURRENT_DATE, 'Gerardo Soderos', '2613219806', 'http://gersodas.com'),
-    (3, 'Barrio Los Frutales', CURRENT_DATE, 'Carrión Aguas', '2613459654', 'http://caraguas.com'),
-    (4, 'Barrio Dalvian', CURRENT_DATE, 'Distribuidora Juarroz', '2612314562', 'http://distjuarroz.com');
+    (1, 'Severo del Castillo 1520', 'saura@gmail.com', CURRENT_DATE, '18:00:00.000000', 'Saura SA', '2614193591', 'http://saurasa.com'),
+    (2, 'Barrio Santa Ana', 'gero@gmail.com', CURRENT_DATE, '19:15:00.000000', 'Gerardo Soderos', '2613219806', 'http://gersodas.com'),
+    (3, 'Barrio Los Frutales', 'carrion@gmail.com', CURRENT_DATE, '16:00:00.000000', 'Carrión Aguas', '2613459654', 'http://caraguas.com'),
+    (4, 'Barrio Dalvian', 'juarroz@gmail.com', CURRENT_DATE, '15:00:00.000000', 'Distribuidora Juarroz', '2612314562', 'http://distjuarroz.com');
 
 INSERT INTO dia_semana(id, nombre)
 VALUES
@@ -66,17 +66,14 @@ VALUES (1,'$2a$12$QxJltIw5pIXkdc8LzTck4O.4nZsMf2WjM4jsDm99JbMidBLtlFbrS','geroor
 
 INSERT INTO rol (id,fecha_creacion,fecha_fin_vigencia,nombre,empresa_id)
 VALUES (1,CURRENT_DATE,NULL,'ROLE_ADMIN',1),
-       (2,CURRENT_DATE,NULL,'ROLE_CLIENTE',1),
+       (2,CURRENT_DATE,NULL,'ROLE_CLIENTE',null),
        (3,CURRENT_DATE,NULL,'ROLE_REPARTIDOR',1),
        (4,CURRENT_DATE,NULL,'ROLE_OFICINISTA',1),
        (5,CURRENT_DATE,NULL,'ROLE_ADMIN',2),
-       (6,CURRENT_DATE,NULL,'ROLE_CLIENTE',2),
        (7,CURRENT_DATE,NULL,'ROLE_REPARTIDOR',2),
        (8,CURRENT_DATE,NULL,'ROLE_ADMIN',3),
-       (9,CURRENT_DATE,NULL,'ROLE_CLIENTE',3),
        (10,CURRENT_DATE,NULL,'ROLE_REPARTIDOR',3),
        (11,CURRENT_DATE,NULL,'ROLE_ADMIN',4),
-       (12,CURRENT_DATE,NULL,'ROLE_CLIENTE',4),
        (13,CURRENT_DATE,NULL,'ROLE_REPARTIDOR',4),
        (14,CURRENT_DATE,NULL,'ROLE_OFICINISTA',2),
        (15,CURRENT_DATE,NULL,'ROLE_OFICINISTA',3),
@@ -218,27 +215,6 @@ values (1,1,1),
        (133,30,2),
        (134,31,2),
        (135,32,2),
-       (136,7,6),
-       (137,13,6),
-       (138,25,6),
-       (139,29,6),
-       (140,30,6),
-       (141,31,6),
-       (142,32,6),
-       (143,7,9),
-       (144,13,9),
-       (145,25,9),
-       (146,29,9),
-       (147,30,9),
-       (148,31,9),
-       (149,32,9),
-       (150,7,12),
-       (151,13,12),
-       (152,25,12),
-       (153,29,12),
-       (154,30,12),
-       (155,31,12),
-       (156,32,12),
        (157,5,3),
        (158,13,3),
        (159,21,3),
@@ -371,3 +347,9 @@ VALUES (1,'Ortiz',CURRENT_DATE,NULL,'Gerónimo',NULL,1,NULL,NULL,NULL,NULL,2,NUL
        (2,'Saurina',CURRENT_DATE,NULL,'Nicolás',NULL,2,NULL,NULL,NULL,NULL,1,NULL),
        (3,'Juarroz',CURRENT_DATE,NULL,'Martiniano',NULL,3,NULL,NULL,NULL,NULL,4,NULL),
        (4,'Carrión',CURRENT_DATE,NULL,'Martín',NULL,4,NULL,NULL,NULL,NULL,3,NULL);
+
+INSERT INTO cliente(id, nombre, apellido, empresa_id ,dni)
+VALUES(1, 'Nicolás', 'Saura', 2, 123),
+      (2, 'Marti', 'Juarroz', 2, 321),
+      (3, 'Gero', 'Ortiz', 1, 456),
+      (4, 'Martin', 'Carry', 1, 987);

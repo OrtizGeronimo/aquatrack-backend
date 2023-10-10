@@ -26,4 +26,9 @@ public class RolUsuario {
 
   @ManyToOne()
   private Usuario usuario;
+  
+  public RolUsuario(Rol rol, Usuario user){
+    this.rol = rol;
+    this.usuario = user;
+  }
 }

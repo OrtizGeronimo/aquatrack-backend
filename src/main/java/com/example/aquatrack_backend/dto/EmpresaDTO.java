@@ -15,9 +15,8 @@ public class EmpresaDTO {
     private Long id;
     private String nombre;
     private String numTelefono;
-    private Ubicacion ubicacion;
+    private String urlEmpresa;
+    private String direccionEmail;
+    private UbicacionDTO ubicacion;
     private List<RolDTO> roles;
 }
-
-
-

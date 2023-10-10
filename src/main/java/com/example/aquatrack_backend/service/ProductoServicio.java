@@ -33,7 +33,8 @@ import com.example.aquatrack_backend.repo.ProductoRepo;
 import com.example.aquatrack_backend.repo.RepoBase;
 
 @Service
-public class ProductoServicio extends ServicioBaseImpl<Producto> {
+public class
+ProductoServicio extends ServicioBaseImpl<Producto> {
 
   @Autowired
   ProductoRepo productoRepo;

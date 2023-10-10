@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface EmpleadoRepo extends RepoBase<Empleado> {
 
@@ -20,7 +22,13 @@ public interface EmpleadoRepo extends RepoBase<Empleado> {
             "WHERE e.empresa_id = :empresaId " +
             "AND (:nombre IS NULL OR e.nombre LIKE %:nombre% OR e.apellido LIKE %:nombre%) " +
             "AND (:mostrarInactivos = true OR e.fecha_fin_vigencia IS NULL)",
-            nativeQuery = true)
-    Page<Empleado> findAllByEnterprise(Long empresaId, String nombre, boolean mostrarInactivos, Pageable pageable);
+                nativeQuery = true)
+        Page<Empleado> findAllByEnterprise(Long empresaId, String nombre, boolean mostrarInactivos, Pageable pageable);
+
+        List<Empleado> findEmpleadoByTipoId(Long id);
+
+        Empleado findEmpleadoByUsuarioId(Long id);
+
+
 
 }

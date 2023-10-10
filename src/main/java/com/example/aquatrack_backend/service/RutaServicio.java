@@ -256,6 +256,10 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
       domicilio.getDiaDomicilios().addAll(diaDomicilios);
     }
 
+    domiciliosNuevos.addAll(ruta.getDomicilioRutas());
+
+    ruta.getDomicilioRutas().clear();
+
     ruta.getDomicilioRutas().addAll(domiciliosNuevos);
 
     Ruta rutaGuardada = rutaRepo.save(ruta);

@@ -139,7 +139,7 @@ public class UsuarioServicio {
   }
 
   @Transactional
-  public String changePassword(ChangePasswordDTO dto) throws PasswordDistintasException{
+  public String changePasswordProfile(ChangePasswordDTO dto) throws PasswordDistintasException{
     String mensaje = "";
     Usuario usuario = getUsuarioFromContext();
     boolean isPasswordCorrect = verifyPassword(usuario.getContraseña(), dto.getFormerPassword());

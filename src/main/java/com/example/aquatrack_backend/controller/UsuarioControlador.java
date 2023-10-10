@@ -60,7 +60,7 @@ public class UsuarioControlador {
   }
 
   @PutMapping(value = "/changePassword")
-  public ResponseEntity<?> changePassword(@RequestBody ChangePasswordDTO dto) throws PasswordDistintasException {
+  public ResponseEntity<?> changePasswordProfile(@RequestBody ChangePasswordDTO dto) throws PasswordDistintasException {
     return ResponseEntity.ok().body(usuarioServicio.changePassword(dto));
   }
 }

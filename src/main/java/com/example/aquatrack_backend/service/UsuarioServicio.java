@@ -51,8 +51,10 @@ public class UsuarioServicio {
   private RolRepo rolRepo;
   @Autowired
   private EstadoUsuarioRepo estadoUsuarioRepo;
+  @Autowired
+  private UserValidator userValidator;
   private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-  private UserValidator userValidator = new UserValidator();
+
 
   public LoginResponseDTO login(String direccionEmail, String contraseña) throws ClienteWebUnauthorizedException{
     Authentication authentication = authenticationManager

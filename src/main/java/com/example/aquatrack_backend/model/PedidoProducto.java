@@ -7,6 +7,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class PedidoProducto {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,4 +29,10 @@ public class PedidoProducto {
 
   @ManyToOne()
   private Producto producto;
+
+  public PedidoProducto(Integer cantidad, Pedido pedido, Producto producto){
+    this.cantidad = cantidad;
+    this.pedido = pedido;
+    this.producto = producto;
+  }
 }

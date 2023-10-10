@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.model;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -11,13 +12,16 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Getter
 @Setter
+@Data
 @NoArgsConstructor
 public class Pedido {
 
@@ -30,4 +34,13 @@ public class Pedido {
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "pedido")
   private List<PedidoProducto> pedidoProductos;
+
+  @DateTimeFormat(pattern = "dd-MM-YYYY")
+  private LocalDateTime fechaCoordinadaEntrega;
+
+  @ManyToOne()
+  private TipoPedido tipoPedido;
+
+  @ManyToOne()
+  private EstadoPedido estadoPedido;
 }

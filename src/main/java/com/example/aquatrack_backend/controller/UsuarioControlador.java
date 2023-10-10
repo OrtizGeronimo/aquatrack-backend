@@ -1,28 +1,12 @@
 package com.example.aquatrack_backend.controller;
-import com.example.aquatrack_backend.exception.RecordNotFoundException;
-import com.example.aquatrack_backend.exception.UserNoValidoException;
 
-import com.example.aquatrack_backend.dto.RegisterRequestDTO;
-import com.example.aquatrack_backend.dto.UpdateUserDTO;
+import com.example.aquatrack_backend.dto.*;
+import com.example.aquatrack_backend.exception.*;
 import com.example.aquatrack_backend.helpers.ValidationHelper;
+import com.example.aquatrack_backend.service.UsuarioServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.example.aquatrack_backend.dto.ChangePasswordLoginDTO;
-import com.example.aquatrack_backend.dto.ChangePasswordDTO;
-import com.example.aquatrack_backend.dto.LoginRequestDTO;
-import com.example.aquatrack_backend.exception.ClienteWebUnauthorizedException;
-import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
-import com.example.aquatrack_backend.exception.PasswordDistintasException;
-import com.example.aquatrack_backend.exception.RecordNotFoundException;
-import com.example.aquatrack_backend.service.UsuarioServicio;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")

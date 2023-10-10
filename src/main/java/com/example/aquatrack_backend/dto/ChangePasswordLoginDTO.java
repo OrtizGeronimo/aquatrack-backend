@@ -12,7 +12,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ChangePasswordDTO {
+public class ChangePasswordLoginDTO {
     
     private String password;
 

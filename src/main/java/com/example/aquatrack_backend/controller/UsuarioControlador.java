@@ -1,7 +1,5 @@
 package com.example.aquatrack_backend.controller;
 
-import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,9 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.aquatrack_backend.dto.ChangePasswordDTO;
+import com.example.aquatrack_backend.dto.ChangePasswordLoginDTO;
 import com.example.aquatrack_backend.dto.LoginRequestDTO;
-import com.example.aquatrack_backend.dto.SendEmailDTO;
 import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
 import com.example.aquatrack_backend.service.UsuarioServicio;
 
@@ -35,7 +32,7 @@ public class UsuarioControlador {
   }
 
   @PutMapping(value = "/changePassword")
-  public ResponseEntity<?> changePassword(@RequestBody ChangePasswordDTO dto) {
+  public ResponseEntity<?> changePassword(@RequestBody ChangePasswordLoginDTO dto) {
    return ResponseEntity.ok().body(usuarioServicio.updatePassword(dto));
  }
 

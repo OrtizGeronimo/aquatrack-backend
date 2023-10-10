@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.aquatrack_backend.config.JwtUtils;
 import com.example.aquatrack_backend.config.SecurityUser;
-import com.example.aquatrack_backend.dto.ChangePasswordDTO;
+import com.example.aquatrack_backend.dto.ChangePasswordLoginDTO;
 import com.example.aquatrack_backend.dto.CurrentUserDTO;
 import com.example.aquatrack_backend.dto.LoginResponseDTO;
 import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
@@ -73,7 +73,7 @@ public class UsuarioServicio {
         .getUsuario();
   }
 
-  public ChangePasswordDTO updatePassword(ChangePasswordDTO dto){
+  public ChangePasswordLoginDTO updatePassword(ChangePasswordLoginDTO dto){
     Optional<Usuario> usuarioOpt = usuarioRepo.findByTokenPassword(dto.getTokenPassword());
     Usuario usuario = usuarioOpt.get();
     if (usuarioOpt.isPresent()) {

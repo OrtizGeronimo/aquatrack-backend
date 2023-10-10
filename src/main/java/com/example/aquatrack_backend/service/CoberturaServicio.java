@@ -86,8 +86,8 @@ public class CoberturaServicio extends ServicioBaseImpl<Cobertura> {
           EmpresaDTO empresa = new EmpresaDTO();
           Empresa empresaCober = cobertura.getEmpresa();
           empresa.setNombre(empresaCober.getNombre());
-          empresa.setNumTelefono(empresaCober.getNumTelefono());
-          empresa.setUbicacion(empresaCober.getUbicacion());
+          // empresa.setNumTelefono(empresaCober.getNumTelefono());
+          // empresa.setUbicacion(empresaCober.getUbicacion());
           empresas.add(empresa);
         }
       }

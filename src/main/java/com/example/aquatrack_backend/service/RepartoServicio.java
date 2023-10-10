@@ -322,7 +322,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
             dto.setId(reparto.getId());
             dto.setEstado(reparto.getEstadoReparto().getNombre());
             dto.setCantEntregas(reparto.getEntregas().size());
-            dto.setRepartidor(reparto.getRepartidor().getNombre() + " " + reparto.getRepartidor().getApellido());
+            dto.setRepartidor(reparto.getRepartidor() == null ? "Sin Asignar " : reparto.getRepartidor().getNombre() + " " + reparto.getRepartidor().getApellido());
             dto.setFechaEjecucion(reparto.getFechaEjecucion());
             dto.setFechaHoraFin(reparto.getFechaHoraFin());
             dto.setIdRuta(reparto.getRuta().getId());

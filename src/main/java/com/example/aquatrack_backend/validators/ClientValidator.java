@@ -32,7 +32,7 @@ public class ClientValidator {
         HashMap<String, String> errors = new HashMap<>();
 
         if(!validateIsContained(ubicacion, cobertura)){
-            errors.put("ubicacion", "El cliente ingresado no está contenido en la cobertura de la empresa.");
+            errors.put("root", "El cliente ingresado no está contenido en la cobertura de la empresa.");
         }
 
         if(!errors.isEmpty()){
@@ -50,7 +50,7 @@ public class ClientValidator {
 
         UbicacionDTO ubicacionDTO = UbicacionDTO.builder().latitud(clienteDTO.getLatitud()).longitud(clienteDTO.getLongitud()).build();
         if(!validateIsContained(ubicacionDTO, empresa.getCobertura())){
-            errors.put("ubicacion", "El cliente ingresado no está contenido en la cobertura de la empresa.");
+            errors.put("root", "El cliente ingresado no está contenido en la cobertura de la empresa.");
         }
 
         if(!errors.isEmpty()){

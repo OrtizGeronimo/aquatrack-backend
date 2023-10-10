@@ -25,9 +25,11 @@ import org.springframework.stereotype.Service;
 
 import com.example.aquatrack_backend.config.JwtUtils;
 import com.example.aquatrack_backend.config.SecurityUser;
+import com.example.aquatrack_backend.dto.ChangePasswordDTO;
 import com.example.aquatrack_backend.dto.CurrentUserDTO;
 import com.example.aquatrack_backend.dto.LoginResponseDTO;
 import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
+import com.example.aquatrack_backend.exception.PasswordDistintasException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.model.Empleado;
 import com.example.aquatrack_backend.model.Persona;
@@ -137,11 +139,18 @@ public class UsuarioServicio {
   }
 
   @Transactional
-  public String changePassword(String password){
+  public String changePassword(ChangePasswordDTO dto) throws PasswordDistintasException{
+    String mensaje = "";
     Usuario usuario = getUsuarioFromContext();
-    usuario.setContraseña(bCryptPasswordEncoder.encode(password));
-    usuarioRepo.save(usuario);
-    return "Contraseña cambiada con exito";
+    boolean isPasswordCorrect = verifyPassword(usuario.getContraseña(), dto.getFormerPassword());
+    if (isPasswordCorrect) {
+      usuario.setContraseña(bCryptPasswordEncoder.encode(dto.getPassword()));
+      usuarioRepo.save(usuario);
+      mensaje = "Contraseña cambiada con éxito";
+    } else {
+      throw new PasswordDistintasException("La contraseña actual es incorrecta");
+    }
+    return mensaje;
   }
 
   private Usuario getUsuarioFromContext() {
@@ -149,5 +158,9 @@ public class UsuarioServicio {
         .getAuthentication()
         .getPrincipal())
         .getUsuario();
+  }
+
+  public boolean verifyPassword(String storedHashedPassword, String userInputPassword) {
+    return bCryptPasswordEncoder.matches(userInputPassword, storedHashedPassword);
   }
 }

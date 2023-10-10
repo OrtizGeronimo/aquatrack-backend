@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.aquatrack_backend.dto.ChangePasswordDTO;
 import com.example.aquatrack_backend.dto.LoginRequestDTO;
 import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
+import com.example.aquatrack_backend.exception.PasswordDistintasException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.service.UsuarioServicio;
 
@@ -58,7 +60,7 @@ public class UsuarioControlador {
   }
 
   @PutMapping(value = "/changePassword")
-  public ResponseEntity<?> changePassword(@RequestBody String password)  {
-    return ResponseEntity.ok().body(usuarioServicio.changePassword(password));
+  public ResponseEntity<?> changePassword(@RequestBody ChangePasswordDTO dto) throws PasswordDistintasException {
+    return ResponseEntity.ok().body(usuarioServicio.changePassword(dto));
   }
 }

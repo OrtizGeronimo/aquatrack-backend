@@ -109,8 +109,9 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
     }
 
-//    @Transactional
+    @Transactional
     public RepartoDTO crearReparto(Long id) throws RecordNotFoundException, ValidacionException {
+
         Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("La ruta no fue encontrada"));
 
 
@@ -192,7 +193,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         String latEmpresa = Double.toString(latInicio).replace(',', '.');
         String lonEmpresa = Double.toString(lonInicio).replace(',', '.');
 
-        String coordenadasInicio = "wp.0=" + latEmpresa + "," + lonEmpresa + "&";
+        String coordenadasInicio = latEmpresa + "," + lonEmpresa;
 
             for (int i = 0; i < domicilioRutas.size(); i++) {
 
@@ -207,7 +208,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
                 if (i == 0) {
                     //coordenadasInicio = coordinates;
                     //urlBuilder.append("wp." + (i + 1) + "=" + coordinates + "&");
-                    urlBuilder.append(coordenadasInicio);
+                    urlBuilder.append("wp." + (i + 1) + "=" + coordenadasInicio + "&");
                 } else {
                     urlBuilder.append("wp." + (i + 1) + "=" + coordinates + "&");
                     if (i == domicilioRutas.size() - 1){

@@ -1,24 +1,22 @@
 package com.example.aquatrack_backend.dto;
 
-import java.sql.Date;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
+@AllArgsConstructor
 public class ChangePasswordDTO {
     
+    @NotBlank
+    @Size(min = 8)
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z]).*$", message = "La contraseña debe contener al menos una letra mayúscula y una letra minúscula.")
+    private String formerPassword;
+    @NotBlank
+    @Size(min = 8)
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z]).*$", message = "La contraseña debe contener al menos una letra mayúscula y una letra minúscula.")
     private String password;
-
-    private String tokenPassword;
-    
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date expirationDate;
-
 }

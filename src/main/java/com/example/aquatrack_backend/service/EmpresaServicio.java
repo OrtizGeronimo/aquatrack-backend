@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.example.aquatrack_backend.model.Empresa;
 import com.example.aquatrack_backend.repo.EmpresaRepo;
 import com.example.aquatrack_backend.repo.RepoBase;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class EmpresaServicio extends ServicioBaseImpl<Empresa> {
@@ -15,4 +16,5 @@ public class EmpresaServicio extends ServicioBaseImpl<Empresa> {
   public EmpresaServicio(RepoBase<Empresa> repoBase) {
     super(repoBase);
   }
+
 }

@@ -40,4 +40,7 @@ public class Usuario {
 
     @Transient
     private String confirmacionContraseña;
+
+    @ManyToOne()
+    private EstadoUsuario estadoUsuario;
 }

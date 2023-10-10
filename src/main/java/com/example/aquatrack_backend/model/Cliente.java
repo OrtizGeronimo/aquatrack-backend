@@ -2,16 +2,12 @@ package com.example.aquatrack_backend.model;
 
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.TableGenerator;
+import javax.persistence.*;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Cascade;
 
 @Getter
 @Setter
@@ -22,9 +18,12 @@ public class Cliente extends Persona {
 
   private Integer dni;
 
-  @OneToOne(mappedBy = "cliente")
+  @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL)
   private Domicilio domicilio;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "cliente")
-  private List<EmpresaCliente> empresaClientes;
+  @ManyToOne()
+  private Empresa empresa;
+
+  @ManyToOne()
+  private EstadoCliente estadoCliente;
 }

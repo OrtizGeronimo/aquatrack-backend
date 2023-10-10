@@ -74,27 +74,36 @@ public class CoberturaServicio extends ServicioBaseImpl<Cobertura> {
     return dtoCobertura;
   }
 
-  @Transactional
-  public List<EmpresaDTO> conocerCobertura(UbicacionDTO ubicacionCliente) throws Exception {
-    try {
-      List<Cobertura> coberturas = coberturaRepo.findAll();
-      List<EmpresaDTO> empresas = new ArrayList<>();
-      UbicacionHelper ubicacionHelper = new UbicacionHelper();
-      for (Cobertura cobertura : coberturas) {
-        boolean estaContenida = ubicacionHelper.estaContenida(ubicacionCliente, cobertura);
-        if (estaContenida) {
-          EmpresaDTO empresa = new EmpresaDTO();
-          Empresa empresaCober = cobertura.getEmpresa();
-          empresa.setNombre(empresaCober.getNombre());
-          // empresa.setNumTelefono(empresaCober.getNumTelefono());
-          // empresa.setUbicacion(empresaCober.getUbicacion());
-          empresas.add(empresa);
+    @Transactional
+    public List<EmpresaDTO> conocerCobertura(double latitud, double longitud) throws Exception{
+        try {
+            UbicacionDTO ubicacionCliente = UbicacionDTO.builder().latitud(latitud).longitud(longitud).build();
+            List<Cobertura> coberturas = coberturaRepo.findAll();
+            List<EmpresaDTO> empresas = new ArrayList<>();
+            UbicacionHelper ubicacionHelper = new UbicacionHelper();
+            for (Cobertura cobertura :coberturas) {
+                boolean estaContenida = ubicacionHelper.estaContenida(ubicacionCliente, cobertura);
+                if(estaContenida){
+                    EmpresaDTO empresa = new EmpresaDTO();
+                    Empresa empresaCober = cobertura.getEmpresa();
+                    empresa.setId(empresaCober.getId());
+                    empresa.setNombre(empresaCober.getNombre());
+                    empresa.setNumTelefono(empresaCober.getNumTelefono());
+                    empresa.setUrlEmpresa(empresaCober.getUrl());
+                    empresa.setDireccionEmail(empresaCober.getEmail());
+                    empresa.setUbicacion(UbicacionDTO.builder().latitud(empresaCober.getUbicacion().getLatitud()).longitud(empresaCober.getUbicacion().getLongitud()).build());
+                    empresa.setDireccionEmail(empresaCober.getEmail());
+                    empresa.setUrlEmpresa(empresaCober.getUrl());
+                    if(empresaCober.getUbicacion() != null){
+                      empresa.setUbicacion(UbicacionDTO.builder().latitud(empresaCober.getUbicacion().getLatitud()).longitud(empresaCober.getUbicacion().getLongitud()).build());
+                    }
+                    empresas.add(empresa);
+                }
+            }
+            return empresas;
+        } catch (Exception e){
+            e.printStackTrace();
+            throw e;
         }
-      }
-      return empresas;
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw e;
     }
-  }
 }

@@ -1,6 +1,7 @@
 package com.example.aquatrack_backend.model;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -12,6 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.Getter;
@@ -28,6 +31,9 @@ public class Empresa {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @DateTimeFormat(pattern = "HH:mm")
+  private LocalTime horaGeneracionReparto;
+
   private String nombre;
   private String direccion;
   private String numTelefono;
@@ -38,8 +44,7 @@ public class Empresa {
   private LocalDateTime fechaCreacion;
   @DateTimeFormat(pattern = "dd-MM-YYYY")
   private LocalDateTime fechaFinVigencia;
-  @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
-  private LocalDateTime horaActualizacion;
+
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
   private List<CodigoTemporal> codigos;
@@ -47,8 +52,6 @@ public class Empresa {
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
   private List<Empleado> empleados;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
-  private List<EmpresaCliente> empresaClientes;
 
   @OneToOne(mappedBy = "empresa")
   private Cobertura cobertura;
@@ -56,9 +59,16 @@ public class Empresa {
   @OneToOne()
   private Ubicacion ubicacion;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa", fetch = FetchType.EAGER)
+  @LazyCollection(LazyCollectionOption.FALSE)
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
   private List<Rol> roles;
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
   private List<Producto> productos;
+
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
+  private List<Cliente> clientes;
+
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "empresa")
+  private List<Ruta> rutas;
 }

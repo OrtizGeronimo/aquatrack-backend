@@ -1,18 +1,14 @@
 package com.example.aquatrack_backend.model;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Getter
@@ -26,6 +22,9 @@ public class Ruta {
 
   private String nombre;
 
+  @ManyToOne()
+  private Empresa empresa;
+
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "ruta")
   private List<Reparto> repartos;
 
@@ -34,4 +33,10 @@ public class Ruta {
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "ruta")
   private List<DomicilioRuta> domicilioRutas;
+
+  @DateTimeFormat(pattern = "dd-MM-YYYY")
+  private LocalDateTime fechaCreacion = LocalDateTime.now();
+
+  @DateTimeFormat(pattern = "dd-MM-YYYY")
+  private LocalDateTime fechaFinVigencia;
 }

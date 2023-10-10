@@ -14,5 +14,6 @@ import lombok.NoArgsConstructor;
 public class CurrentUserDTO {
     private String nombre;
     private String empresa;
+    private String password;
     private List<String> permisos;
 }

@@ -6,9 +6,7 @@ import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.ValidacionException;
 import com.example.aquatrack_backend.model.*;
 import com.example.aquatrack_backend.repo.*;
-/*
 import com.google.ortools.Loader;
-*/
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
@@ -34,6 +32,7 @@ import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Service
 public class RepartoServicio extends ServicioBaseImpl<Reparto> {
@@ -70,23 +69,40 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
     }
 
 
-/*    static {
+    static {
         Loader.loadNativeLibraries();
-    }*/
+    }
 
     @Scheduled(cron = "0 * * * * 1-6")
     @Transactional
     public void generacionAutomaticaRepartos() throws RecordNotFoundException, ValidacionException {
 
         LocalTime now = LocalTime.now();
-
         LocalTime today = LocalTime.of(now.getHour(), now.getMinute());
 
         List<Empresa> empresas = empresaRepo.findAll();
 
+        LocalDate date = LocalDate.now();
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+
+        Locale spanishLocale = new Locale("es", "ES");
+/*
+        String nombreDia = dayOfWeek.getDisplayName(TextStyle.FULL, spanishLocale);
+*/
+        String nombreDia = "miercoles";
+
         for (Empresa empresa: empresas) {
             if (empresa.getHoraGeneracionReparto().equals(today)){
-                crearReparto(empresa.getId());
+                /*      List<Ruta> rutas = empresa
+                        .getRutas()
+                        .stream().filter(ruta -> ruta.getDiaRutas()
+                                .stream().map(diaRuta -> diaRuta.getDiaSemana().getNombre())
+                                .collect(Collectors.toList()).contains(nombreDia))
+                        .collect(Collectors.toList());*/
+
+                for(Ruta ruta: empresa.getRutas()) {
+                    crearReparto(ruta.getId());
+                }
             }
         }
     }
@@ -121,7 +137,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
         Locale spanishLocale = new Locale("es", "ES");
         String nombreDia = dayOfWeek.getDisplayName(TextStyle.FULL, spanishLocale);
-
+        nombreDia = "miercoles";
 
         List<Entrega> entregasARepartir = new ArrayList<>();
 
@@ -323,7 +339,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         EstadoReparto enEjecucion = estadoRepartoRepo.findByNombre("En Ejecución");
 
         reparto.setEstadoReparto(enEjecucion);
-        reparto.setFechaYHoraInicio(LocalDateTime.now());
+        reparto.setFechaHoraInicio(LocalDateTime.now());
 
         EstadoEntrega pendiente = estadoEntregaRepo.findByNombreEstadoEntrega("Pendiente");
 

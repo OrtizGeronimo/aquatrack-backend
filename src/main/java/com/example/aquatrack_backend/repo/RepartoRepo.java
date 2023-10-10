@@ -15,7 +15,7 @@ public interface RepartoRepo extends RepoBase<Reparto> {
             " WHERE " +
             "(:idEstado IS NULL OR er.id = :idEstado) " +
             "AND (:idRuta IS NULL OR ru.id = :idRuta) " +
-            "AND (:idRepartidor IS NULL OR e.id = :idRepartidor )" +
+            "AND (:idRepartidor IS NULL OR e.id = :idRepartidor) " +
             "ORDER BY er.id, ru.nombre "
             ,nativeQuery = true)
     Page<Reparto> search(Long idRuta, Long idRepartidor, Long idEstado, Pageable pageable);

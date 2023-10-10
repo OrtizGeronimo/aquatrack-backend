@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 
 import java.util.HashMap;
+import java.util.List;
 
 @Service
 public class ClienteServicio extends ServicioBaseImpl<Cliente> {
@@ -58,7 +59,8 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
             .domicilio(cliente.getDomicilio() == null ? ""
                 : cliente.getDomicilio().getCalle() + " "
                     + nullableToEmptyString(cliente.getDomicilio().getNumero()) + " "
-                    + nullableToEmptyString(cliente.getDomicilio().getPisoDepartamento()))
+                    + nullableToEmptyString(cliente.getDomicilio().getPisoDepartamento())
+                    + ", " + nullableToEmptyString(cliente.getDomicilio().getLocalidad()))
             .build());
   }
 
@@ -172,6 +174,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     domicilio.setNumero(cliente.getNumero());
     domicilio.setPisoDepartamento(cliente.getPisoDepartamento());
     domicilio.setObservaciones(cliente.getObservaciones());
+    domicilio.setLocalidad(cliente.getLocalidad());
   
     Ubicacion ubicacion = new Ubicacion();
     ubicacion.setLatitud(cliente.getLatitud());
@@ -191,15 +194,17 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
         .domicilio(clienteNuevo.getDomicilio() == null ? ""
             : clienteNuevo.getDomicilio().getCalle() + " "
                 + nullableToEmptyString(clienteNuevo.getDomicilio().getNumero()) + " "
-                + nullableToEmptyString(clienteNuevo.getDomicilio().getPisoDepartamento()))
+                + nullableToEmptyString(clienteNuevo.getDomicilio().getPisoDepartamento())
+                + ", " + nullableToEmptyString(clienteNuevo.getDomicilio().getLocalidad()))
         .build();
   }
 
   @Transactional
-  public ClienteListDTO updateFromWeb(Long id, GuardarClienteWebDTO cliente) throws RecordNotFoundException {
+  public ClienteListDTO updateFromWeb(Long id, GuardarClienteWebDTO cliente) throws RecordNotFoundException, ClienteWebNoValidoException {
     Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
     Cliente clienteUpdate = clienteRepo.findById(id)
         .orElseThrow(() -> new RecordNotFoundException("El cliente solicitado no fue encontrado"));
+    validateWebClient(cliente, empresa);
     clienteUpdate.setNombre(cliente.getNombre());
     clienteUpdate.setApellido(cliente.getApellido());
     clienteUpdate.setDni(cliente.getDni());
@@ -211,6 +216,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     clienteUpdate.getDomicilio().setNumero(cliente.getNumero());
     clienteUpdate.getDomicilio().setPisoDepartamento(cliente.getPisoDepartamento());
     clienteUpdate.getDomicilio().setObservaciones(cliente.getObservaciones());
+    clienteUpdate.getDomicilio().setLocalidad(cliente.getLocalidad());
   
     clienteUpdate.getDomicilio().getUbicacion().setLatitud(cliente.getLatitud());
     clienteUpdate.getDomicilio().getUbicacion().setLongitud(cliente.getLongitud());
@@ -225,7 +231,8 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
         .domicilio(clienteUpdate.getDomicilio() == null ? ""
             : clienteUpdate.getDomicilio().getCalle() + " "
                 + nullableToEmptyString(clienteUpdate.getDomicilio().getNumero()) + " "
-                + nullableToEmptyString(clienteUpdate.getDomicilio().getPisoDepartamento()))
+                + nullableToEmptyString(clienteUpdate.getDomicilio().getPisoDepartamento())
+                + ", " + nullableToEmptyString(clienteUpdate.getDomicilio().getLocalidad()))
         .build();
   }
 
@@ -244,6 +251,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     .observaciones(cliente.getDomicilio().getObservaciones())
     .latitud(cliente.getDomicilio().getUbicacion().getLatitud())
     .longitud(cliente.getDomicilio().getUbicacion().getLongitud())
+    .localidad(cliente.getDomicilio().getLocalidad())
     .build();
   }
 
@@ -258,7 +266,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
   private void validateWebClient(GuardarClienteWebDTO clienteDTO, Empresa empresa) throws ClienteWebNoValidoException{
     HashMap<String, String> errors = new HashMap<>();
 
-    if(!validateUniqueDni(clienteDTO.getDni(), empresa.getId())){
+    if(!validateUniqueDni(clienteDTO.getDni(), empresa.getId(), clienteDTO.getId())){
       errors.put("dni", "El dni ingresado ya se encuentra vinculado a un cliente de la empresa");
     }
 
@@ -272,10 +280,16 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     }
   }
 
-  private boolean validateUniqueDni(Integer dni, Long idE){
-    if(clienteRepo.validateUniqueDni(dni, idE) > 0){
+  private boolean validateUniqueDni(Integer dni, Long idE, Long idC){
+    List<Long> result = clienteRepo.validateUniqueDni(dni, idE);
+    if (idC == null && !result.isEmpty()){
       return false;
     }
+
+    if(idC != null && !result.contains(idC)){
+      return false;
+    }
+
     return true;
   }
 

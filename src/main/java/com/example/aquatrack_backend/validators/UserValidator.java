@@ -22,7 +22,7 @@ public class UserValidator {
         HashMap<String, String> errors = new HashMap<>();
 
         if(usuarioRepo.findByDireccionEmail(mail) != null){
-            errors.put("mail", "Ya existe un usuario con la dirección de mail ingresada.");
+            errors.put("direccionEmail", "Ya existe un usuario con la dirección de mail ingresada.");
         }
 
         if(!errors.isEmpty()){

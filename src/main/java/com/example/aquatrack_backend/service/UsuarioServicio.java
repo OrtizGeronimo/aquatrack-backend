@@ -29,7 +29,7 @@ import com.example.aquatrack_backend.config.JwtUtils;
 import com.example.aquatrack_backend.config.SecurityUser;
 import com.example.aquatrack_backend.dto.CurrentUserDTO;
 import com.example.aquatrack_backend.dto.LoginResponseDTO;
-import com.example.aquatrack_backend.exception.ClienteWebNoValidoException;
+import com.example.aquatrack_backend.exception.ClienteNoValidoException;
 import com.example.aquatrack_backend.exception.ClienteWebUnauthorizedException;
 import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
 import com.example.aquatrack_backend.model.Cliente;

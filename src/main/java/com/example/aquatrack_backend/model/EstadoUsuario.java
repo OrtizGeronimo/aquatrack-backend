@@ -19,7 +19,7 @@ public class EstadoUsuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nombreEstadoEntrega;
+    private String nombreEstadoUsuario;
 
     @DateTimeFormat(pattern = "dd-MM-YYYY")
     private LocalDateTime fechaFinVigencia;

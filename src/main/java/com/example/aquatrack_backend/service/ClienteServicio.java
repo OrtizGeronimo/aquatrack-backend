@@ -200,11 +200,11 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
   }
 
   @Transactional
-  public ClienteListDTO updateFromWeb(Long id, GuardarClienteWebDTO cliente) throws RecordNotFoundException, ClienteWebNoValidoException {
+  public ClienteListDTO updateFromWeb(Long id, GuardarClienteWebDTO cliente) throws RecordNotFoundException, ClienteNoValidoException {
     Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
     Cliente clienteUpdate = clienteRepo.findById(id)
         .orElseThrow(() -> new RecordNotFoundException("El cliente solicitado no fue encontrado"));
-    validateWebClient(cliente, empresa);
+    clientValidator.validateWebClient(cliente, empresa);
     clienteUpdate.setNombre(cliente.getNombre());
     clienteUpdate.setApellido(cliente.getApellido());
     clienteUpdate.setDni(cliente.getDni());

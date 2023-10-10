@@ -2,6 +2,7 @@ package com.example.aquatrack_backend.controller;
 
 import com.example.aquatrack_backend.dto.DomicilioDTO;
 import com.example.aquatrack_backend.dto.UbicacionDTO;
+import com.example.aquatrack_backend.exception.ClienteNoValidoException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,7 @@ public class DomicilioControlador{
     private DomicilioServicio domicilioServicio;
 
     @PostMapping("/ubicacion")
-    public ResponseEntity<?> guardarUbicacionDomilio(@RequestBody UbicacionDTO ubicacionDTO) throws RecordNotFoundException {
+    public ResponseEntity<?> guardarUbicacionDomilio(@RequestBody UbicacionDTO ubicacionDTO) throws RecordNotFoundException, ClienteNoValidoException {
         return ResponseEntity.ok().body(domicilioServicio.crearDomicilioUbicacion(ubicacionDTO));
     }
     @GetMapping("/ubicacion/{id}")

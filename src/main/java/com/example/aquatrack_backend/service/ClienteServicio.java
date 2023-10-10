@@ -1,7 +1,7 @@
 package com.example.aquatrack_backend.service;
 
 import com.example.aquatrack_backend.dto.*;
-import com.example.aquatrack_backend.exception.ClienteWebNoValidoException;
+import com.example.aquatrack_backend.exception.ClienteNoValidoException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.helpers.UbicacionHelper;
 import com.example.aquatrack_backend.model.*;
@@ -155,7 +155,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
   }
 
   @Transactional
-  public ClienteListDTO createFromWeb(GuardarClienteWebDTO cliente) throws ClienteWebNoValidoException {
+  public ClienteListDTO createFromWeb(GuardarClienteWebDTO cliente) throws ClienteNoValidoException {
     Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
     validateWebClient(cliente, empresa);
 
@@ -255,7 +255,21 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     }
   }
 
-  private void validateWebClient(GuardarClienteWebDTO clienteDTO, Empresa empresa) throws ClienteWebNoValidoException{
+  public void validateAppClient(UbicacionDTO ubicacion, Cobertura cobertura) throws ClienteNoValidoException{
+
+    HashMap<String, String> errors = new HashMap<>();
+
+    if(!validateIsContained(ubicacion, cobertura)){
+      errors.put("ubicacion", "El cliente ingresado no está contenido en la cobertura de la empresa.");
+    }
+
+    if(!errors.isEmpty()){
+      throw new ClienteNoValidoException(errors);
+    }
+  }
+
+  private void validateWebClient(GuardarClienteWebDTO clienteDTO, Empresa empresa) throws ClienteNoValidoException {
+
     HashMap<String, String> errors = new HashMap<>();
 
     if(!validateUniqueDni(clienteDTO.getDni(), empresa.getId())){
@@ -268,7 +282,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     }
 
     if(!errors.isEmpty()){
-      throw new ClienteWebNoValidoException(errors);
+      throw new ClienteNoValidoException(errors);
     }
   }
 

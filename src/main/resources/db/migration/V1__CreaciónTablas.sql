@@ -6,7 +6,7 @@ create table deuda_pago (id bigint not null auto_increment, monto_adeudado_pago 
 create table dia_domicilio (id bigint not null auto_increment, dia_ruta_id bigint, domicilio_id bigint, primary key (id)) engine=InnoDB;
 create table dia_ruta (id bigint not null auto_increment, dia_semana_id bigint, ruta_id bigint, primary key (id)) engine=InnoDB;
 create table dia_semana (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre varchar(255), primary key (id)) engine=InnoDB;
-create table domicilio (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), calle varchar(255), numero integer, piso_departamento varchar(255), observaciones varchar(255), cliente_id bigint, deuda_id bigint, ubicacion_id bigint, primary key (id)) engine=InnoDB;
+create table domicilio (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), calle varchar(255), numero integer, piso_departamento varchar(255), observaciones varchar(255), localidad varchar(255), cliente_id bigint, deuda_id bigint, ubicacion_id bigint, primary key (id)) engine=InnoDB;
 create table domicilio_producto (id bigint not null auto_increment, cantidad integer, domicilio_id bigint, producto_id bigint, primary key (id)) engine=InnoDB;
 create table domicilio_ruta (id bigint not null auto_increment, domicilio_id bigint, ruta_id bigint, primary key (id)) engine=InnoDB;
 create table empleado (id bigint not null, apellido varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), nombre varchar(255), num_telefono varchar(255), usuario_id bigint, fecha_fin_vacaciones datetime(6), fecha_ingreso datetime(6), fecha_inicio_vacaciones datetime(6), legajo integer, empresa_id bigint, tipo_id bigint, primary key (id)) engine=InnoDB;

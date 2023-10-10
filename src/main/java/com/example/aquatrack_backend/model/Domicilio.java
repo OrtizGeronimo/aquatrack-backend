@@ -35,6 +35,7 @@ public class Domicilio {
   private Integer numero;
   private String pisoDepartamento;
   private String observaciones;
+  private String localidad;
 
   @OneToOne
   private Cliente cliente;

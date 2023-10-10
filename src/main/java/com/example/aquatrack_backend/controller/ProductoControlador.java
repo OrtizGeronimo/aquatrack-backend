@@ -42,7 +42,7 @@ public class ProductoControlador{
         try {
             return ResponseEntity.status(HttpStatus.OK).body(productoServicio.getPrecios(id));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\":\"Error. Por favor intente mas tarde.\"}");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\":\"Error. Por favor intente mas tarde.\"}");
         }
     }
 

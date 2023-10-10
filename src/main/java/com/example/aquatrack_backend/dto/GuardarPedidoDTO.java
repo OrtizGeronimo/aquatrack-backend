@@ -4,14 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class  DomiciliosRutaDTO {
+public class GuardarPedidoDTO {
+    private Long idEstado;
+    private Long idTipo;
+    private LocalDateTime fechaCoordinadaEntrega;
     private Long idDomicilio;
-    private String domicilio;
-    private String nombreCliente;
-    private List<Long> idDiasSemana;
+    private List<PedidoProductoDTO> pedidoProductos;
 }

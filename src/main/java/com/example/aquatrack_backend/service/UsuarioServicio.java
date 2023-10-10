@@ -5,7 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
+import com.example.aquatrack_backend.exception.RecordNotFoundException;
+import com.example.aquatrack_backend.exception.UserNoValidoException;
+import com.example.aquatrack_backend.model.*;
+import com.example.aquatrack_backend.repo.EstadoUsuarioRepo;
 import com.example.aquatrack_backend.dto.RegisterRequestDTO;
 import com.example.aquatrack_backend.dto.RegisterResponseDTO;
 import com.example.aquatrack_backend.dto.UpdateUserDTO;
@@ -14,8 +17,10 @@ import com.example.aquatrack_backend.model.RolUsuario;
 import com.example.aquatrack_backend.repo.EmpleadoRepo;
 import com.example.aquatrack_backend.repo.RolRepo;
 import com.example.aquatrack_backend.repo.UsuarioRepo;
+import com.example.aquatrack_backend.validators.UserValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -31,12 +36,16 @@ import com.example.aquatrack_backend.dto.ChangePasswordLoginDTO;
 import com.example.aquatrack_backend.dto.ChangePasswordDTO;
 import com.example.aquatrack_backend.dto.CurrentUserDTO;
 import com.example.aquatrack_backend.dto.LoginResponseDTO;
+import com.example.aquatrack_backend.exception.ClienteNoValidoException;
+import com.example.aquatrack_backend.exception.ClienteWebUnauthorizedException;
 import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
 import com.example.aquatrack_backend.exception.PasswordDistintasException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.model.Empleado;
 import com.example.aquatrack_backend.model.Persona;
 import com.example.aquatrack_backend.model.Usuario;
+import com.example.aquatrack_backend.model.Cliente;
+
 import com.example.aquatrack_backend.repo.UsuarioRepo;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,11 +68,20 @@ public class UsuarioServicio {
   private JwtUtils jwtUtils;
   @Autowired
   private RolRepo rolRepo;
+  @Autowired
+  private EstadoUsuarioRepo estadoUsuarioRepo;
+  @Autowired
+  private UserValidator userValidator;
   private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
-  public LoginResponseDTO login(String direccionEmail, String contraseña) {
+
+  public LoginResponseDTO login(String direccionEmail, String contraseña) throws ClienteWebUnauthorizedException{
     Authentication authentication = authenticationManager
-        .authenticate(new UsernamePasswordAuthenticationToken(direccionEmail, contraseña));
+      .authenticate(new UsernamePasswordAuthenticationToken(direccionEmail, contraseña));
+    Persona persona = ((SecurityUser) authentication.getPrincipal()).getUsuario().getPersona();
+    if (persona instanceof Cliente) {
+      throw new ClienteWebUnauthorizedException("No puede iniciar sesión como cliente en AquaTrack Web.");
+    }
     String jwt = jwtUtils.generateJwtToken(authentication);
     return LoginResponseDTO.builder().token(jwt).build();
   }
@@ -79,8 +97,10 @@ public class UsuarioServicio {
   }
 
   @Transactional
-  public RegisterResponseDTO clientRegister(RegisterRequestDTO register){
+  public RegisterResponseDTO clientRegister(RegisterRequestDTO register) throws UserNoValidoException, RecordNotFoundException {
+    userValidator.validateClientUser(register.getDireccionEmail());
     Usuario usuario = createUser(register.getDireccionEmail(), register.getContraseña(), register.getConfirmacionContraseña());
+    usuario.setEstadoUsuario(estadoUsuarioRepo.findByNombreEstadoUsuario("Creado").orElseThrow(()->new RecordNotFoundException("El estado no fue encontrado.")));
     Rol rol = rolRepo.findClientRole();
     List<RolUsuario> rolUsuarios = new ArrayList<>();
     rolUsuarios.add(new RolUsuario(rol, usuario));

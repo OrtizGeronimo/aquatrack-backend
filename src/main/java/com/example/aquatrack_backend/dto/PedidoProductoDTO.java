@@ -6,12 +6,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class UbicacionDTO {
-    private Double latitud;
-    private Double longitud;
-    private String localidad;
-    private Long idCliente;
+@AllArgsConstructor
+@Builder
+public class PedidoProductoDTO {
+    private Long idProducto;
+    private String nombreProducto;
+    private Integer cantidad;
 }

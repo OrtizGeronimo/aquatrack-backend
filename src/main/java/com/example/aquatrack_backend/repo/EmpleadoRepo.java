@@ -28,6 +28,7 @@ public interface EmpleadoRepo extends RepoBase<Empleado> {
         List<Empleado> findEmpleadoByTipoId(Long id);
 
         Empleado findEmpleadoByUsuarioId(Long id);
+        List<Empleado> findAllByEmpresaIdAndTipoId(Long id, Long idTipo);
 
 
 

@@ -1,6 +1,9 @@
 package com.example.aquatrack_backend.controller;
 
 import com.example.aquatrack_backend.dto.*;
+import com.example.aquatrack_backend.exception.ClienteNoValidoException;
+import com.example.aquatrack_backend.exception.ClienteNoValidoException;
+import com.example.aquatrack_backend.exception.ClienteNoValidoUpdateException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.helpers.ValidationHelper;
 import com.example.aquatrack_backend.model.Cliente;
@@ -15,69 +18,72 @@ import com.example.aquatrack_backend.service.ClienteServicio;
 @RequestMapping(path = "/clientes")
 public class ClienteControlador {
 
-    @Autowired
-    private ClienteServicio clienteServicio;
-    private ValidationHelper validationHelper = new ValidationHelper<>();
+  @Autowired
+  private ClienteServicio clienteServicio;
+  private ValidationHelper validationHelper = new ValidationHelper<>();
 
-    @GetMapping(value = "")
-    @PreAuthorize("hasAuthority('LISTAR_CLIENTES')")
-    public ResponseEntity<?> findAll(@RequestParam(defaultValue = "0") int page,
-                                     @RequestParam(defaultValue = "10") int size,
-                                     @RequestParam(defaultValue = "false") boolean mostrar_inactivos,
-                                     @RequestParam(required = false) String texto)
-    {
-        return ResponseEntity.ok().body(clienteServicio.findAll(page, size, texto, mostrar_inactivos));
-    }
+  @GetMapping(value = "")
+  @PreAuthorize("hasAuthority('LISTAR_CLIENTES')")
+  public ResponseEntity<?> findAll(@RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "false") boolean mostrar_inactivos,
+      @RequestParam(required = false) String texto) {
+    return ResponseEntity.ok().body(clienteServicio.findAll(page, size, texto, mostrar_inactivos));
+  }
 
-    @DeleteMapping(value = "/{id}")
-    @PreAuthorize("hasAuthority('ELIMINAR_CLIENTES')")
-    public ResponseEntity<?> disableCliente(@PathVariable Long id) throws Exception {
-        clienteServicio.disableCliente(id);
-        return ResponseEntity.noContent().build();
-    }
+  @DeleteMapping(value = "/{id}")
+  @PreAuthorize("hasAuthority('ELIMINAR_CLIENTES')")
+  public ResponseEntity<?> disableCliente(@PathVariable Long id) throws Exception {
+    clienteServicio.disableCliente(id);
+    return ResponseEntity.noContent().build();
+  }
 
-    @PutMapping(value = "/{id}/enable")
-    @PreAuthorize("hasAuthority('EDITAR_CLIENTES')")
-    public ResponseEntity<?> enableCliente(@PathVariable Long id) throws Exception {
-        return ResponseEntity.ok().body(clienteServicio.enableCliente(id));
-    }
+  @PutMapping(value = "/{id}/enable")
+  @PreAuthorize("hasAuthority('EDITAR_CLIENTES')")
+  public ResponseEntity<?> enableCliente(@PathVariable Long id) throws Exception {
+    return ResponseEntity.ok().body(clienteServicio.enableCliente(id));
+  }
 
-    @PostMapping(value = "/codigo")
-    public ResponseEntity<?> altaEmpresa(@RequestBody CodigoDTO codigo) throws RecordNotFoundException {
-        return ResponseEntity.ok().body(clienteServicio.altaEmpresa(codigo));
-    }
-    
-    @PostMapping(value= "/dni")
-    public ResponseEntity<?> validarDni(@RequestBody ValidarDniDTO validacion) throws RecordNotFoundException{
-        return ResponseEntity.ok().body(clienteServicio.validarDni(validacion));
-    }
+  @PostMapping(value = "/codigo")
+  public ResponseEntity<?> altaEmpresa(@RequestBody CodigoDTO codigo) throws RecordNotFoundException {
+    return ResponseEntity.ok().body(clienteServicio.altaEmpresa(codigo));
+  }
 
-    @PostMapping(value = "/app")
-    public ResponseEntity<?> createFromApp(@RequestBody GuardarClienteDTO cliente) throws RecordNotFoundException {
-        if(validationHelper.hasValidationErrors(cliente)){
-            return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(cliente));
-        }
-        return ResponseEntity.ok().body(clienteServicio.createClientFromApp(cliente));
-    }
+  @PostMapping(value = "/dni")
+  public ResponseEntity<?> validarDni(@RequestBody ValidarDniDTO validacion) throws RecordNotFoundException {
+    return ResponseEntity.ok().body(clienteServicio.validarDni(validacion));
+  }
 
-    @PostMapping(value = "")
-    @PreAuthorize("hasAuthority('CREAR_CLIENTES')")
-    public ResponseEntity<?> createFromWeb(@RequestBody GuardarClienteWebDTO cliente) throws Exception {
-        if(validationHelper.hasValidationErrors(cliente)){
-            return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(cliente));
-        }
-        return ResponseEntity.ok().body(clienteServicio.createFromWeb(cliente));
+  @PostMapping(value = "/app")
+  public ResponseEntity<?> createFromApp(@RequestBody GuardarClienteDTO cliente) throws RecordNotFoundException {
+    if (validationHelper.hasValidationErrors(cliente)) {
+      return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(cliente));
     }
+    return ResponseEntity.ok().body(clienteServicio.createClientFromApp(cliente));
+  }
 
-    @GetMapping(value = "/{id}/editar")
-    @PreAuthorize("hasAuthority('EDITAR_CLIENTES')")
-    public ResponseEntity<?> editClient(@PathVariable Long id) throws RecordNotFoundException {
-        return ResponseEntity.ok().body(clienteServicio.clienteForEdit(id));
+  @PostMapping(value = "")
+  @PreAuthorize("hasAuthority('CREAR_CLIENTES')")
+  public ResponseEntity<?> createFromWeb(@RequestBody GuardarClienteWebDTO cliente) throws Exception {
+    if (validationHelper.hasValidationErrors(cliente)) {
+      return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(cliente));
     }
+    return ResponseEntity.ok().body(clienteServicio.createFromWeb(cliente));
+  }
 
-    @PutMapping(value = "/{id}")
-    @PreAuthorize("hasAuthority('EDITAR_CLIENTES')")
-    public ResponseEntity<?> updateClientWeb(@PathVariable Long id, @RequestBody GuardarClienteWebDTO cliente) throws RecordNotFoundException {
-        return ResponseEntity.ok().body(clienteServicio.updateFromWeb(id, cliente));
+  @GetMapping(value = "/{id}/editar")
+  @PreAuthorize("hasAuthority('EDITAR_CLIENTES')")
+  public ResponseEntity<?> editClient(@PathVariable Long id) throws RecordNotFoundException {
+    return ResponseEntity.ok().body(clienteServicio.clienteForEdit(id));
+  }
+
+  @PutMapping(value = "/{id}")
+  @PreAuthorize("hasAuthority('EDITAR_CLIENTES')")
+  public ResponseEntity<?> updateClientWeb(@PathVariable Long id, @RequestBody GuardarClienteWebDTO cliente)
+      throws RecordNotFoundException, ClienteNoValidoUpdateException {
+    if (validationHelper.hasValidationErrors(cliente)) {
+      return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(cliente));
     }
+    return ResponseEntity.ok().body(clienteServicio.updateFromWeb(id, cliente));
+  }
 }

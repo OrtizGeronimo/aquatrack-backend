@@ -32,8 +32,8 @@ public class Reparto {
   @DateTimeFormat(pattern = "dd-MM-YYYY")
   private LocalDate fechaEjecucion;
 
-  @DateTimeFormat(pattern = "dd-MM-YYYY")
-  private LocalDate fechaHoraInicio;
+  @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
+  private LocalDateTime fechaHoraInicio;
 
   @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
   private LocalDateTime fechaHoraFin;
@@ -51,7 +51,4 @@ public class Reparto {
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "reparto")
   private List<Entrega> entregas;
-
-  @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
-  private LocalDateTime fechaYHoraInicio;
 }

@@ -1,4 +1,6 @@
 package com.example.aquatrack_backend.controller;
+import com.example.aquatrack_backend.exception.RecordNotFoundException;
+import com.example.aquatrack_backend.exception.UserNoValidoException;
 
 import com.example.aquatrack_backend.dto.RegisterRequestDTO;
 import com.example.aquatrack_backend.dto.UpdateUserDTO;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.aquatrack_backend.dto.ChangePasswordLoginDTO;
 import com.example.aquatrack_backend.dto.ChangePasswordDTO;
 import com.example.aquatrack_backend.dto.LoginRequestDTO;
+import com.example.aquatrack_backend.exception.ClienteWebUnauthorizedException;
 import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
 import com.example.aquatrack_backend.exception.PasswordDistintasException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
@@ -30,7 +33,7 @@ public class UsuarioControlador {
   private ValidationHelper validationHelper = new ValidationHelper<>();
 
   @PostMapping(value = "/login")
-  public ResponseEntity<?> login(@RequestBody LoginRequestDTO usuario) {
+  public ResponseEntity<?> login(@RequestBody LoginRequestDTO usuario) throws ClienteWebUnauthorizedException {
     if(validationHelper.hasValidationErrors(usuario)){
       return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(usuario));
     }
@@ -38,7 +41,7 @@ public class UsuarioControlador {
   }
 
   @PostMapping(value="/register")
-  public ResponseEntity<?> register(@RequestBody RegisterRequestDTO usuario){
+  public ResponseEntity<?> register(@RequestBody RegisterRequestDTO usuario) throws UserNoValidoException, RecordNotFoundException {
     if(validationHelper.hasValidationErrors(usuario)){
       return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(usuario));
     }

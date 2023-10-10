@@ -1,14 +1,15 @@
 package com.example.aquatrack_backend.service;
 
 import com.example.aquatrack_backend.config.BingMapsConfig;
+import com.example.aquatrack_backend.dto.ListarRepartosDTO;
+import com.example.aquatrack_backend.dto.ObjetoGenericoDTO;
 import com.example.aquatrack_backend.dto.RepartoDTO;
+import com.example.aquatrack_backend.dto.RepartoParametroDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.ValidacionException;
 import com.example.aquatrack_backend.model.*;
 import com.example.aquatrack_backend.repo.*;
-/*
 import com.google.ortools.Loader;
-*/
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -34,6 +36,7 @@ import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Service
 public class RepartoServicio extends ServicioBaseImpl<Reparto> {
@@ -70,9 +73,44 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
     }
 
 
-/*    static {
+    static {
         Loader.loadNativeLibraries();
-    }*/
+    }
+
+    public RepartoParametroDTO getParametrosReparto(){
+        RepartoParametroDTO response = new RepartoParametroDTO();
+
+        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+
+        List<Empleado> empleados = empleadoRepo.findAllByEmpresaIdAndTipoId(empresa.getId(), 2l);
+
+        List<Ruta> rutas = rutaRepo.findAllByEmpresaId(empresa.getId());
+
+        List<EstadoReparto> estadoRepartos = estadoRepartoRepo.findAll();
+
+        response.setRepartidores(empleados.stream().map(empleado -> {
+            ObjetoGenericoDTO dto = new ObjetoGenericoDTO();
+            dto.setId(empleado.getId());
+            dto.setNombre(empleado.getNombre() + " " + empleado.getApellido());
+            return dto;
+        }).collect(Collectors.toList()));
+
+        response.setRutas(rutas.stream().map(ruta -> {
+            ObjetoGenericoDTO dto = new ObjetoGenericoDTO();
+            dto.setNombre(ruta.getNombre());
+            dto.setId(ruta.getId());
+            return dto;
+        }).collect(Collectors.toList()));
+
+        response.setEstados(estadoRepartos.stream().map(estado -> {
+            ObjetoGenericoDTO dto = new ObjetoGenericoDTO();
+            dto.setId(estado.getId());
+            dto.setNombre(estado.getNombre());
+            return dto;
+        }).collect(Collectors.toList()));
+
+        return response;
+    }
 
     @Scheduled(cron = "0 * * * * 1-6")
     @Transactional
@@ -86,7 +124,9 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
         for (Empresa empresa: empresas) {
             if (empresa.getHoraGeneracionReparto().equals(today)){
-                crearReparto(empresa.getId());
+                for(Ruta ruta: empresa.getRutas()) {
+                    crearReparto(ruta.getId());
+                }
             }
         }
     }
@@ -108,8 +148,9 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
     }
 
-//    @Transactional
+    @Transactional
     public RepartoDTO crearReparto(Long id) throws RecordNotFoundException, ValidacionException {
+
         Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("La ruta no fue encontrada"));
 
 
@@ -118,17 +159,16 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
         DayOfWeek dayOfWeek = now.getDayOfWeek();
 
-
         Locale spanishLocale = new Locale("es", "ES");
         String nombreDia = dayOfWeek.getDisplayName(TextStyle.FULL, spanishLocale);
-
+        int idDia = dayOfWeek.getValue();
 
         List<Entrega> entregasARepartir = new ArrayList<>();
 
         domiciliosLoop:
         for (DomicilioRuta domicilio: ruta.getDomicilioRutas()) {
             for (DiaDomicilio dia: domicilio.getDomicilio().getDiaDomicilios()) {
-                if (dia.getDiaRuta().getDiaSemana().getNombre().equalsIgnoreCase(nombreDia)){
+                if (dia.getDiaRuta().getDiaSemana().getId().intValue() == idDia){
                     Entrega entrega = new Entrega();
                     entrega.setDomicilio(domicilio.getDomicilio());
                     entregasARepartir.add(entrega);
@@ -154,7 +194,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         if (entregasARepartir.isEmpty()){
             throw new ValidacionException("La ruta no contiene entregas a realizar en el dia");
         }
-        List<Entrega> rutaOptima = calcularRutaOptima(entregasARepartir);
+        List<Entrega> rutaOptima = calcularRutaOptima(entregasARepartir, ruta);
         EstadoReparto estado = estadoRepartoRepo.findByNombre("Pendiente de Asignación");
         EstadoEntrega estadoEntrega = estadoEntregaRepo.findByNombreEstadoEntrega("Programada");
 
@@ -180,12 +220,20 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
     }
 
-    private List<Entrega> calcularRutaOptima(List<Entrega> domicilioRutas) throws ValidacionException {
+    private List<Entrega> calcularRutaOptima(List<Entrega> domicilioRutas, Ruta ruta) throws ValidacionException {
         String apiKey = bingMapsConfig.getApiKey();
         try {
         StringBuilder urlBuilder = new StringBuilder("https://dev.virtualearth.net/REST/v1/Routes/Driving?");
 
-        String coordenadasInicio = null;
+        Ubicacion ubiEmpresa = ruta.getEmpresa().getUbicacion();
+
+        double latInicio = ubiEmpresa.getLatitud();
+        double lonInicio = ubiEmpresa.getLongitud();
+        String latEmpresa = Double.toString(latInicio).replace(',', '.');
+        String lonEmpresa = Double.toString(lonInicio).replace(',', '.');
+
+        String coordenadasInicio = latEmpresa + "," + lonEmpresa;
+
             for (int i = 0; i < domicilioRutas.size(); i++) {
 
                 Domicilio domicilio1 = domicilioRutas.get(i).getDomicilio();
@@ -197,8 +245,9 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
                 String coordinates = originLatitude + "," + originLongitude;
 
                 if (i == 0) {
-                    coordenadasInicio = coordinates;
-                    urlBuilder.append("wp." + (i + 1) + "=" + coordinates + "&");
+                    //coordenadasInicio = coordinates;
+                    //urlBuilder.append("wp." + (i + 1) + "=" + coordinates + "&");
+                    urlBuilder.append("wp." + (i + 1) + "=" + coordenadasInicio + "&");
                 } else {
                     urlBuilder.append("wp." + (i + 1) + "=" + coordinates + "&");
                     if (i == domicilioRutas.size() - 1){
@@ -258,17 +307,29 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
     }
 
 
-    public Page<RepartoDTO> listarRepartos(String nombreRuta, Integer cantidadEntregaDesde, Integer cantidadEntregaHasta, Integer estado, int page, int size) throws RecordNotFoundException {
+    public Page<ListarRepartosDTO> listarRepartos(Long estado, Long idRepartidor, Long idRuta, int page, int size) throws RecordNotFoundException {
 
         Pageable pageable = PageRequest.of(page, size/*, Sort.by("er.id, ru.nombre")*/);
 
-        Page<Reparto> repartos = repartoRepo.search(nombreRuta, cantidadEntregaDesde, cantidadEntregaHasta, estado, pageable);
+        Page<Reparto> repartos = repartoRepo.search(idRuta, idRepartidor, estado, pageable);
 
-        if (repartos == null || repartos.isEmpty()){
-            throw new RecordNotFoundException("No se encontraron repartos");
-        }
+//        if (repartos == null || repartos.isEmpty()){
+//            return null;
+//        }
 
-        return repartos.map(reparto -> mapper.map(reparto, RepartoDTO.class));
+        Page<ListarRepartosDTO> response = repartos.map(reparto -> {
+            ListarRepartosDTO dto = new ListarRepartosDTO();
+            dto.setId(reparto.getId());
+            dto.setEstado(reparto.getEstadoReparto().getNombre());
+            dto.setCantEntregas(reparto.getEntregas().size());
+            dto.setRepartidor(reparto.getRepartidor() == null ? "Sin Asignar " : reparto.getRepartidor().getNombre() + " " + reparto.getRepartidor().getApellido());
+            dto.setFechaEjecucion(reparto.getFechaEjecucion());
+            dto.setFechaHoraFin(reparto.getFechaHoraFin());
+            dto.setIdRuta(reparto.getRuta().getId());
+            return dto;
+        });
+
+        return response;
 
     }
 
@@ -323,7 +384,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         EstadoReparto enEjecucion = estadoRepartoRepo.findByNombre("En Ejecución");
 
         reparto.setEstadoReparto(enEjecucion);
-        reparto.setFechaYHoraInicio(LocalDateTime.now());
+        reparto.setFechaHoraInicio(LocalDateTime.now());
 
         EstadoEntrega pendiente = estadoEntregaRepo.findByNombreEstadoEntrega("Pendiente");
 

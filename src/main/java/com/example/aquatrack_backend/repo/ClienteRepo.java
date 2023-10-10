@@ -3,6 +3,9 @@ package com.example.aquatrack_backend.repo;
 import com.example.aquatrack_backend.dto.ClienteDTO;
 import com.example.aquatrack_backend.model.Cliente;
 import com.example.aquatrack_backend.model.Rol;
+
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,4 +31,8 @@ public interface ClienteRepo extends RepoBase<Cliente> {
     @Query(value = "SELECT count(*) as clientes FROM cliente c " +
             "WHERE c.dni = :dni AND c.empresa_id = :empresaId", nativeQuery = true)
     Integer validateUniqueDni(@Param("dni") Integer dni, @Param("empresaId")Long empresaId);
+
+    @Query(value = "SELECT c.id FROM cliente c " +
+            "WHERE c.dni = :dni AND c.empresa_id = :empresaId", nativeQuery = true)
+    List<Long> validateDniUpdate(@Param("dni") Integer dni, @Param("empresaId")Long empresaId);
 }

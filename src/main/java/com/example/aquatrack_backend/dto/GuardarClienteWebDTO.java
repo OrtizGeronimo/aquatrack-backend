@@ -27,4 +27,5 @@ public class GuardarClienteWebDTO {
     private String observaciones;
     private double latitud;
     private double longitud;
+    private String localidad;
 }

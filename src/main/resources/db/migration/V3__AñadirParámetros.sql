@@ -1,9 +1,16 @@
-INSERT INTO empresa(id, direccion, email, fecha_creacion, hora_generacion_reparto, nombre, num_telefono, url)
+INSERT INTO ubicacion(id, latitud, longitud)
 VALUES
-    (1, 'Severo del Castillo 1520', 'saura@gmail.com', CURRENT_DATE, '18:00:00.000000', 'Saura SA', '2614193591', 'http://saurasa.com'),
-    (2, 'Barrio Santa Ana', 'gero@gmail.com', CURRENT_DATE, '19:15:00.000000', 'Gerardo Soderos', '2613219806', 'http://gersodas.com'),
-    (3, 'Barrio Los Frutales', 'carrion@gmail.com', CURRENT_DATE, '16:00:00.000000', 'Carrión Aguas', '2613459654', 'http://caraguas.com'),
-    (4, 'Barrio Dalvian', 'juarroz@gmail.com', CURRENT_DATE, '15:00:00.000000', 'Distribuidora Juarroz', '2612314562', 'http://distjuarroz.com');
+    (1, -32.94558445730581, -68.81470070748412),
+    (2, -32.907671633244725, -68.76276409641262),
+    (3, -32.9252190419355, -68.72704073535638),
+    (4, -32.866800337392995, -68.89017292046799);
+
+INSERT INTO empresa(id, direccion, email, fecha_creacion, hora_generacion_reparto, nombre, num_telefono, url, ubicacion_id)
+VALUES
+    (1, 'Severo del Castillo 1520', 'saura@gmail.com', CURRENT_DATE, '18:00:00.000000', 'Saura SA', '2614193591', 'http://saurasa.com', 3),
+    (2, 'Barrio Santa Ana', 'gero@gmail.com', CURRENT_DATE, '19:15:00.000000', 'Gerardo Soderos', '2613219806', 'http://gersodas.com', 2),
+    (3, 'Barrio Los Frutales', 'carrion@gmail.com', CURRENT_DATE, '16:00:00.000000', 'Carrión Aguas', '2613459654', 'http://caraguas.com', 1),
+    (4, 'Barrio Dalvian', 'juarroz@gmail.com', CURRENT_DATE, '15:00:00.000000', 'Distribuidora Juarroz', '2612314562', 'http://distjuarroz.com', 4);
 
 INSERT INTO dia_semana(id, nombre)
 VALUES
@@ -14,6 +21,18 @@ VALUES
     (5, 'Viernes'),
     (6, 'Sabado'),
     (7, 'Domingo');
+
+INSERT INTO estado_cliente(id, nombre_estado_cliente)
+VALUES
+    (1, 'Creado'),
+    (2, 'Habilitado'),
+    (3, 'Deshabilitado');
+
+INSERT INTO estado_usuario(id, nombre_estado_usuario)
+VALUES
+    (1, 'Creado'),
+    (2, 'Habilitado'),
+    (3, 'Deshabilitado');
 
 INSERT INTO estado_entrega(id, nombre_estado_entrega)
 VALUES

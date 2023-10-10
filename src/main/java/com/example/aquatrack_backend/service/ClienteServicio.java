@@ -1,12 +1,13 @@
 package com.example.aquatrack_backend.service;
 
 import com.example.aquatrack_backend.dto.*;
-import com.example.aquatrack_backend.exception.ClienteWebNoValidoException;
+import com.example.aquatrack_backend.exception.ClienteNoValidoException;
+import com.example.aquatrack_backend.exception.ClienteNoValidoUpdateException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.helpers.UbicacionHelper;
 import com.example.aquatrack_backend.model.*;
-import com.example.aquatrack_backend.repo.EmpresaRepo;
-import com.example.aquatrack_backend.repo.UsuarioRepo;
+import com.example.aquatrack_backend.repo.*;
+import com.example.aquatrack_backend.validators.ClientValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,13 +15,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.example.aquatrack_backend.repo.ClienteRepo;
-import com.example.aquatrack_backend.repo.RepoBase;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
 import java.util.HashMap;
+import java.util.List;
 
 @Service
 public class ClienteServicio extends ServicioBaseImpl<Cliente> {
@@ -32,11 +32,13 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
   @Autowired
   private EmpresaRepo empresaRepo;
   @Autowired
-  private UsuarioServicio usuarioServicio;
-  @Autowired
   private UsuarioRepo usuarioRepo;
+  @Autowired
+  private EstadoUsuarioRepo estadoUsuarioRepo;
   private ModelMapper modelMapper = new ModelMapper();
-  private UbicacionHelper ubicacionHelper = new UbicacionHelper();
+
+  @Autowired
+  private ClientValidator clientValidator;
 
   public ClienteServicio(RepoBase<Cliente> repoBase) {
     super(repoBase);
@@ -58,7 +60,8 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
             .domicilio(cliente.getDomicilio() == null ? ""
                 : cliente.getDomicilio().getCalle() + " "
                     + nullableToEmptyString(cliente.getDomicilio().getNumero()) + " "
-                    + nullableToEmptyString(cliente.getDomicilio().getPisoDepartamento()))
+                    + nullableToEmptyString(cliente.getDomicilio().getPisoDepartamento())
+                    + ", " + nullableToEmptyString(cliente.getDomicilio().getLocalidad()))
             .build());
   }
 
@@ -130,6 +133,8 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
         .orElseThrow(() -> new RecordNotFoundException("No se encontro la empresa"));
     Usuario usuario = usuarioRepo.findById(cliente.getUsuarioId())
         .orElseThrow(() -> new RecordNotFoundException("No se encontro el usuario"));
+    usuario.setEstadoUsuario(estadoUsuarioRepo.findByNombreEstadoUsuario("Habilitado")
+            .orElseThrow(()-> new RecordNotFoundException("El estado no fue encontrado")));
     Cliente clienteNuevo = new ModelMapper().map(cliente, Cliente.class);
     clienteNuevo.setFechaCreacion(LocalDate.now());
     clienteNuevo.setEmpresa(empresa);
@@ -155,9 +160,9 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
   }
 
   @Transactional
-  public ClienteListDTO createFromWeb(GuardarClienteWebDTO cliente) throws ClienteWebNoValidoException {
+  public ClienteListDTO createFromWeb(GuardarClienteWebDTO cliente) throws ClienteNoValidoException {
     Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
-    validateWebClient(cliente, empresa);
+    clientValidator.validateWebClient(cliente, empresa);
 
     Cliente clienteNuevo = new Cliente();
     clienteNuevo.setNombre(cliente.getNombre());
@@ -172,6 +177,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     domicilio.setNumero(cliente.getNumero());
     domicilio.setPisoDepartamento(cliente.getPisoDepartamento());
     domicilio.setObservaciones(cliente.getObservaciones());
+    domicilio.setLocalidad(cliente.getLocalidad());
   
     Ubicacion ubicacion = new Ubicacion();
     ubicacion.setLatitud(cliente.getLatitud());
@@ -191,15 +197,17 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
         .domicilio(clienteNuevo.getDomicilio() == null ? ""
             : clienteNuevo.getDomicilio().getCalle() + " "
                 + nullableToEmptyString(clienteNuevo.getDomicilio().getNumero()) + " "
-                + nullableToEmptyString(clienteNuevo.getDomicilio().getPisoDepartamento()))
+                + nullableToEmptyString(clienteNuevo.getDomicilio().getPisoDepartamento())
+                + ", " + nullableToEmptyString(clienteNuevo.getDomicilio().getLocalidad()))
         .build();
   }
 
   @Transactional
-  public ClienteListDTO updateFromWeb(Long id, GuardarClienteWebDTO cliente) throws RecordNotFoundException {
+  public ClienteListDTO updateFromWeb(Long id, GuardarClienteWebDTO cliente) throws RecordNotFoundException, ClienteNoValidoUpdateException {
     Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
     Cliente clienteUpdate = clienteRepo.findById(id)
         .orElseThrow(() -> new RecordNotFoundException("El cliente solicitado no fue encontrado"));
+    clientValidator.validateWebClientUpdate(cliente, empresa);
     clienteUpdate.setNombre(cliente.getNombre());
     clienteUpdate.setApellido(cliente.getApellido());
     clienteUpdate.setDni(cliente.getDni());
@@ -211,6 +219,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     clienteUpdate.getDomicilio().setNumero(cliente.getNumero());
     clienteUpdate.getDomicilio().setPisoDepartamento(cliente.getPisoDepartamento());
     clienteUpdate.getDomicilio().setObservaciones(cliente.getObservaciones());
+    clienteUpdate.getDomicilio().setLocalidad(cliente.getLocalidad());
   
     clienteUpdate.getDomicilio().getUbicacion().setLatitud(cliente.getLatitud());
     clienteUpdate.getDomicilio().getUbicacion().setLongitud(cliente.getLongitud());
@@ -225,7 +234,8 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
         .domicilio(clienteUpdate.getDomicilio() == null ? ""
             : clienteUpdate.getDomicilio().getCalle() + " "
                 + nullableToEmptyString(clienteUpdate.getDomicilio().getNumero()) + " "
-                + nullableToEmptyString(clienteUpdate.getDomicilio().getPisoDepartamento()))
+                + nullableToEmptyString(clienteUpdate.getDomicilio().getPisoDepartamento())
+                + ", " + nullableToEmptyString(clienteUpdate.getDomicilio().getLocalidad()))
         .build();
   }
 
@@ -244,6 +254,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     .observaciones(cliente.getDomicilio().getObservaciones())
     .latitud(cliente.getDomicilio().getUbicacion().getLatitud())
     .longitud(cliente.getDomicilio().getUbicacion().getLongitud())
+    .localidad(cliente.getDomicilio().getLocalidad())
     .build();
   }
 
@@ -255,27 +266,47 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     }
   }
 
-  private void validateWebClient(GuardarClienteWebDTO clienteDTO, Empresa empresa) throws ClienteWebNoValidoException{
+/*  public void validateAppClient(UbicacionDTO ubicacion, Cobertura cobertura) throws ClienteNoValidoException{
+
     HashMap<String, String> errors = new HashMap<>();
 
-    if(!validateUniqueDni(clienteDTO.getDni(), empresa.getId())){
+    if(!validateIsContained(ubicacion, cobertura)){
+      errors.put("ubicacion", "El cliente ingresado no está contenido en la cobertura de la empresa.");
+    }
+
+    if(!errors.isEmpty()){
+      throw new ClienteNoValidoException(errors);
+    }
+  }
+
+  private void validateWebClient(GuardarClienteWebDTO clienteDTO, Empresa empresa) throws ClienteNoValidoException {
+
+    HashMap<String, String> errors = new HashMap<>();
+
+    if(!validateUniqueDni(clienteDTO.getDni(), empresa.getId(), clienteDTO.getId())){
       errors.put("dni", "El dni ingresado ya se encuentra vinculado a un cliente de la empresa");
     }
 
     UbicacionDTO ubicacionDTO = UbicacionDTO.builder().latitud(clienteDTO.getLatitud()).longitud(clienteDTO.getLongitud()).build();
     if(!validateIsContained(ubicacionDTO, empresa.getCobertura())){
-      errors.put("ubicacion", "El cliente ingresado no está contenido en la cobertura de la empresa.");
+      errors.put("root", "El cliente ingresado no está contenido en la cobertura de la empresa.");
     }
 
     if(!errors.isEmpty()){
-      throw new ClienteWebNoValidoException(errors);
+      throw new ClienteNoValidoException(errors);
     }
   }
 
-  private boolean validateUniqueDni(Integer dni, Long idE){
-    if(clienteRepo.validateUniqueDni(dni, idE) > 0){
+  private boolean validateUniqueDni(Integer dni, Long idE, Long idC){
+    List<Long> result = clienteRepo.validateUniqueDni(dni, idE);
+    if (idC == null && !result.isEmpty()){
       return false;
     }
+
+    if(idC != null && !result.contains(idC)){
+      return false;
+    }
+
     return true;
   }
 
@@ -285,5 +316,5 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
       return false;
     }
     return true;
-  }
+  }*/
 }

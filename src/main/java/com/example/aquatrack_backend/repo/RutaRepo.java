@@ -33,4 +33,6 @@ public interface RutaRepo extends RepoBase<Ruta> {
             "WHERE (r.ruta_id != :id OR r.ruta_id IS NULL) and c.empresa_id = :empresaId", nativeQuery = true)
     List<DomicilioProjection> buscarClientesAjenos(Long id, Long empresaId);
 
+    List<Ruta> findAllByEmpresaId(Long id);
+
  }

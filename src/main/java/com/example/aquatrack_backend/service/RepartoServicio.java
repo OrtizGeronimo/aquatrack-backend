@@ -1,7 +1,10 @@
 package com.example.aquatrack_backend.service;
 
 import com.example.aquatrack_backend.config.BingMapsConfig;
+import com.example.aquatrack_backend.dto.ListarRepartosDTO;
+import com.example.aquatrack_backend.dto.ObjetoGenericoDTO;
 import com.example.aquatrack_backend.dto.RepartoDTO;
+import com.example.aquatrack_backend.dto.RepartoParametroDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.ValidacionException;
 import com.example.aquatrack_backend.model.*;
@@ -16,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -71,6 +75,41 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
     static {
         Loader.loadNativeLibraries();
+    }
+
+    public RepartoParametroDTO getParametrosReparto(){
+        RepartoParametroDTO response = new RepartoParametroDTO();
+
+        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+
+        List<Empleado> empleados = empleadoRepo.findAllByEmpresaIdAndTipoId(empresa.getId(), 2l);
+
+        List<Ruta> rutas = rutaRepo.findAllByEmpresaId(empresa.getId());
+
+        List<EstadoReparto> estadoRepartos = estadoRepartoRepo.findAll();
+
+        response.setRepartidores(empleados.stream().map(empleado -> {
+            ObjetoGenericoDTO dto = new ObjetoGenericoDTO();
+            dto.setId(empleado.getId());
+            dto.setNombre(empleado.getNombre() + " " + empleado.getApellido());
+            return dto;
+        }).collect(Collectors.toList()));
+
+        response.setRutas(rutas.stream().map(ruta -> {
+            ObjetoGenericoDTO dto = new ObjetoGenericoDTO();
+            dto.setNombre(ruta.getNombre());
+            dto.setId(ruta.getId());
+            return dto;
+        }).collect(Collectors.toList()));
+
+        response.setEstados(estadoRepartos.stream().map(estado -> {
+            ObjetoGenericoDTO dto = new ObjetoGenericoDTO();
+            dto.setId(estado.getId());
+            dto.setNombre(estado.getNombre());
+            return dto;
+        }).collect(Collectors.toList()));
+
+        return response;
     }
 
     @Scheduled(cron = "0 * * * * 1-6")
@@ -268,17 +307,29 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
     }
 
 
-    public Page<RepartoDTO> listarRepartos(String nombreRuta, Integer cantidadEntregaDesde, Integer cantidadEntregaHasta, Integer estado, int page, int size) throws RecordNotFoundException {
+    public Page<ListarRepartosDTO> listarRepartos(Long estado, Long idRepartidor, Long idRuta, int page, int size) throws RecordNotFoundException {
 
         Pageable pageable = PageRequest.of(page, size/*, Sort.by("er.id, ru.nombre")*/);
 
-        Page<Reparto> repartos = repartoRepo.search(nombreRuta, cantidadEntregaDesde, cantidadEntregaHasta, estado, pageable);
+        Page<Reparto> repartos = repartoRepo.search(idRuta, idRepartidor, estado, pageable);
 
         if (repartos == null || repartos.isEmpty()){
             throw new RecordNotFoundException("No se encontraron repartos");
         }
 
-        return repartos.map(reparto -> mapper.map(reparto, RepartoDTO.class));
+        Page<ListarRepartosDTO> response = repartos.map(reparto -> {
+            ListarRepartosDTO dto = new ListarRepartosDTO();
+            dto.setId(reparto.getId());
+            dto.setEstado(reparto.getEstadoReparto().getNombre());
+            dto.setCantEntregas(reparto.getEntregas().size());
+            dto.setRepartidor(reparto.getRepartidor().getNombre() + " " + reparto.getRepartidor().getApellido());
+            dto.setFechaEjecucion(reparto.getFechaEjecucion());
+            dto.setFechaHoraFin(reparto.getFechaHoraFin());
+            dto.setIdRuta(reparto.getRuta().getId());
+            return dto;
+        });
+
+        return response;
 
     }
 

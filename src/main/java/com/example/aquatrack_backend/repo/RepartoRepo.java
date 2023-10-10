@@ -11,12 +11,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RepartoRepo extends RepoBase<Reparto> {
 
-    @Query(value = "SELECT * FROM reparto r JOIN estado_reparto er ON r.estado_reparto_id = er.id JOIN ruta ru ON ru.id = r.ruta_id " +
+    @Query(value = "SELECT * FROM reparto r JOIN estado_reparto er ON r.estado_reparto_id = er.id JOIN ruta ru ON ru.id = r.ruta_id LEFT JOIN empleado e ON e.id = r.repartidor_id " +
             " WHERE " +
-            "(:estado IS NULL OR er.id = :estado) " +
-            "AND (:nombreRuta IS NULL OR ru.nombre LIKE %:nombreRuta%) " +
-            "AND (:cantidadEntregaDesde IS NULL OR (SELECT COUNT(id) FROM entrega WHERE reparto_id = r.id) >= :cantidadEntregaDesde) " +
-            "AND (:cantidadEntregaHasta IS NULL OR (SELECT COUNT(id) FROM entrega WHERE reparto_id = r.id) < :cantidadEntregaHasta) ORDER BY er.id, ru.nombre "
+            "e.tipo_id = 2 " +
+            "AND (:idEstado IS NULL OR er.id = :idEstado) " +
+            "AND (:idRuta IS NULL OR ru.id = :idRuta) " +
+            "AND (:idRepartidor IS NULL OR e.id = :idRepartidor )" +
+            "ORDER BY er.id, ru.nombre "
             ,nativeQuery = true)
-    Page<Reparto> search(String nombreRuta, Integer cantidadEntregaDesde, Integer cantidadEntregaHasta, Integer estado, Pageable pageable);
+    Page<Reparto> search(Long idRuta, Long idRepartidor, Long idEstado, Pageable pageable);
 }

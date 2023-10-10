@@ -35,13 +35,12 @@ public class RepartoControlador{
 
     @GetMapping("")
     @PreAuthorize("hasAuthority('LISTAR_REPARTOS')")
-    public ResponseEntity<?> listarRepartos(@RequestParam(required = false) String nombreRuta,
-                                            @RequestParam(required = false) Integer cantidadEntregasDesde,
-                                            @RequestParam(required = false) Integer cantidadEntregasHasta,
-                                            @RequestParam(required = false) Integer estado,
+    public ResponseEntity<?> listarRepartos(@RequestParam(required = false) Long idRuta,
+                                            @RequestParam(required = false) Long idRepartidor,
+                                            @RequestParam(required = false) Long idEstado,
                                             @RequestParam(defaultValue = "0") int page,
                                             @RequestParam(defaultValue = "10") int size) throws RecordNotFoundException {
-        return ResponseEntity.ok().body(servicio.listarRepartos(nombreRuta, cantidadEntregasDesde, cantidadEntregasHasta, estado, page, size));
+        return ResponseEntity.ok().body(servicio.listarRepartos(idEstado, idRepartidor, idRuta, page, size));
     }
 
     @PutMapping("/desginarHorario")
@@ -79,6 +78,11 @@ public class RepartoControlador{
         }
         servicio.finalizarRepartoIncompleto(dto.getIdReparto(), dto.getObservaciones());
         return ResponseEntity.ok().body("El reparto fue finalizado como incompleto correctamente");
+    }
+
+    @GetMapping("/repartos/parametros")
+    public ResponseEntity<?> getParametrosRepartos(){
+        return ResponseEntity.ok().body(servicio.getParametrosReparto());
     }
 
 }

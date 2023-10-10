@@ -7,8 +7,10 @@ import java.util.stream.Collectors;
 
 import com.example.aquatrack_backend.dto.RegisterRequestDTO;
 import com.example.aquatrack_backend.dto.RegisterResponseDTO;
+import com.example.aquatrack_backend.dto.UpdateUserDTO;
 import com.example.aquatrack_backend.model.Rol;
 import com.example.aquatrack_backend.model.RolUsuario;
+import com.example.aquatrack_backend.repo.EmpleadoRepo;
 import com.example.aquatrack_backend.repo.RolRepo;
 import com.example.aquatrack_backend.repo.UsuarioRepo;
 import org.modelmapper.ModelMapper;
@@ -26,7 +28,9 @@ import com.example.aquatrack_backend.config.SecurityUser;
 import com.example.aquatrack_backend.dto.CurrentUserDTO;
 import com.example.aquatrack_backend.dto.LoginResponseDTO;
 import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
+import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.model.Empleado;
+import com.example.aquatrack_backend.model.Persona;
 import com.example.aquatrack_backend.model.Usuario;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +41,8 @@ public class UsuarioServicio {
   private AuthenticationManager authenticationManager;
   @Autowired
   private UsuarioRepo usuarioRepo;
+  @Autowired
+  private EmpleadoRepo empleadoRepo;
   @Autowired
   private JwtUtils jwtUtils;
   @Autowired
@@ -81,6 +87,7 @@ public class UsuarioServicio {
           .map(GrantedAuthority::getAuthority)
           .collect(Collectors.toList());
       return CurrentUserDTO.builder()
+          .id(getUsuarioFromContext().getId())
           .nombre(empleado.getNombre() + " " + empleado.getApellido())
           .empresa(empleado.getEmpresa().getNombre())
           .permisos(permisos)
@@ -103,6 +110,31 @@ public class UsuarioServicio {
     usuario.setRolesUsuario(rolUsuarios);
     usuarioRepo.save(usuario);
     return usuario;
+  }
+
+  @Transactional
+  public UpdateUserDTO updateUserProfile(Long id, UpdateUserDTO usuarioDTO) throws RecordNotFoundException{
+    Usuario usuario = usuarioRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El usuario solicitado no fue encontrado"));
+    Empleado empleado = empleadoRepo.findEmpleadoByUsuarioId(usuario.getId());
+    usuario.setDireccionEmail(usuarioDTO.getEmail());
+    empleado.setApellido(usuarioDTO.getApellido());
+    empleado.setNombre(usuarioDTO.getNombre());
+    empleado.setNumTelefono(usuarioDTO.getNroTelefono());
+    usuarioRepo.save(usuario);
+    empleadoRepo.save(empleado);
+    return usuarioDTO;
+  }
+
+  @Transactional
+  public UpdateUserDTO getUserProfile(Long id) throws RecordNotFoundException{
+    Usuario usuario = usuarioRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El usuario solicitado no fue encontrado"));
+    Empleado empleado = empleadoRepo.findEmpleadoByUsuarioId(usuario.getId());
+    UpdateUserDTO usuarioDTO = new UpdateUserDTO();
+    usuarioDTO.setEmail(usuario.getDireccionEmail());
+    usuarioDTO.setApellido(empleado.getApellido());
+    usuarioDTO.setNombre(empleado.getNombre());
+    usuarioDTO.setNroTelefono(empleado.getNumTelefono());
+    return usuarioDTO;
   }
 
   private Usuario getUsuarioFromContext() {

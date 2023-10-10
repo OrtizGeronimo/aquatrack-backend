@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CurrentUserDTO {
+    private Long id;
     private String nombre;
     private String empresa;
     private List<String> permisos;

@@ -13,4 +13,7 @@ public interface DiaDomicilioRepo extends RepoBase<DiaDomicilio> {
     @Modifying
     void deleteById(Long id);
 
+    @Query(value = "DELETE FROM dia_domicilio WHERE dia_ruta_id = :id ", nativeQuery = true)
+    @Modifying
+    void deleteByDiaRutaId(Long id);
 }

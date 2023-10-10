@@ -212,7 +212,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
     }
 
     for (DiaRuta dia: ruta.getDiaRutas().stream().filter(diaRuta -> !dias.contains(diaRuta)).collect(Collectors.toList())) {
-      ruta.getDiaRutas().remove(dia);
+      diaDomicilioRepo.deleteByDiaRutaId(dia.getId());
     }
     ruta.getDiaRutas().clear();
     ruta.getDiaRutas().addAll(dias);

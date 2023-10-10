@@ -13,7 +13,7 @@ public interface RepartoRepo extends RepoBase<Reparto> {
 
     @Query(value = "SELECT * FROM reparto r JOIN estado_reparto er ON r.estado_reparto_id = er.id JOIN ruta ru ON ru.id = r.ruta_id LEFT JOIN empleado e ON e.id = r.repartidor_id " +
             " WHERE " +
-            "AND (:idEstado IS NULL OR er.id = :idEstado) " +
+            "(:idEstado IS NULL OR er.id = :idEstado) " +
             "AND (:idRuta IS NULL OR ru.id = :idRuta) " +
             "AND (:idRepartidor IS NULL OR e.id = :idRepartidor )" +
             "ORDER BY er.id, ru.nombre "

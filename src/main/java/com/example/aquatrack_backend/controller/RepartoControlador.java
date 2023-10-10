@@ -80,7 +80,7 @@ public class RepartoControlador{
         return ResponseEntity.ok().body("El reparto fue finalizado como incompleto correctamente");
     }
 
-    @GetMapping("/repartos/parametros")
+    @GetMapping("/parametros")
     public ResponseEntity<?> getParametrosRepartos(){
         return ResponseEntity.ok().body(servicio.getParametrosReparto());
     }

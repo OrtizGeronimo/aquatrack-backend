@@ -113,9 +113,9 @@ public class UsuarioServicio {
   }
 
   @Transactional
-  public UpdateUserDTO updateUserProfile(Long id, UpdateUserDTO usuarioDTO) throws RecordNotFoundException{
-    Usuario usuario = usuarioRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El usuario solicitado no fue encontrado"));
-    Empleado empleado = empleadoRepo.findEmpleadoByUsuarioId(usuario.getId());
+  public UpdateUserDTO updateUserProfile(UpdateUserDTO usuarioDTO){
+    Usuario usuario = getUsuarioFromContext();
+    Empleado empleado = (Empleado) getUsuarioFromContext().getPersona();
     usuario.setDireccionEmail(usuarioDTO.getEmail());
     empleado.setApellido(usuarioDTO.getApellido());
     empleado.setNombre(usuarioDTO.getNombre());
@@ -126,9 +126,9 @@ public class UsuarioServicio {
   }
 
   @Transactional
-  public UpdateUserDTO getUserProfile(Long id) throws RecordNotFoundException{
-    Usuario usuario = usuarioRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El usuario solicitado no fue encontrado"));
-    Empleado empleado = empleadoRepo.findEmpleadoByUsuarioId(usuario.getId());
+  public UpdateUserDTO getUserProfile(){
+    Usuario usuario = getUsuarioFromContext();
+    Empleado empleado = (Empleado) getUsuarioFromContext().getPersona();
     UpdateUserDTO usuarioDTO = new UpdateUserDTO();
     usuarioDTO.setEmail(usuario.getDireccionEmail());
     usuarioDTO.setApellido(empleado.getApellido());

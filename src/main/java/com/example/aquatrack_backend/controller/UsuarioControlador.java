@@ -42,14 +42,14 @@ public class UsuarioControlador {
     return ResponseEntity.ok().body(usuarioServicio.clientRegister(usuario));
   }
 
-  @GetMapping(value = "/{id}")
-  public ResponseEntity<?> getUserProfile(@PathVariable Long id) throws RecordNotFoundException{
-    return ResponseEntity.ok().body(usuarioServicio.getUserProfile(id));
+  @GetMapping(value = "")
+  public ResponseEntity<?> getUserProfile(){
+    return ResponseEntity.ok().body(usuarioServicio.getUserProfile());
   }
 
-  @PutMapping(value = "/{id}")
-  public ResponseEntity<?> updateUserProfile(@PathVariable Long id, @RequestBody UpdateUserDTO usuario) throws RecordNotFoundException{
-    return ResponseEntity.ok().body(usuarioServicio.updateUserProfile(id, usuario));
+  @PutMapping(value = "")
+  public ResponseEntity<?> updateUserProfile(@RequestBody UpdateUserDTO usuario){
+    return ResponseEntity.ok().body(usuarioServicio.updateUserProfile( usuario));
   }
 
   @GetMapping(value = "/current")

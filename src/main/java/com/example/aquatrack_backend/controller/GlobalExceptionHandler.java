@@ -109,7 +109,7 @@ public class GlobalExceptionHandler {
             .build());
   }
 
-  @ExceptionHandler({ValidacionException.class})
+  @ExceptionHandler({ClienteNoCubiertoApp.class})
   public ResponseEntity<?> handleClienteNoCubierto(ClienteNoCubiertoApp ex){
     return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getMessage());
   }

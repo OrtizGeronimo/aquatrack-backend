@@ -94,11 +94,8 @@ public class ClientValidator {
 
     private boolean validateUniqueDniUpdate(Integer dni, Long idE, Long idC) {
         List<Long> result = clienteRepo.validateDniUpdate(dni, idE);
-        if (idC == null && !result.isEmpty()) {
-            return false;
-        }
 
-        if (idC != null && !result.contains(idC)) {
+        if (!result.isEmpty() && !result.contains(idC)) {
             return false;
         }
 

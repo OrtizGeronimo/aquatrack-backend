@@ -2,6 +2,7 @@ package com.example.aquatrack_backend.config;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -30,6 +31,22 @@ public class AuthTokenFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
+    // Get the request URI to determine the endpoint
+    String requestUri = request.getRequestURI();
+    // Define a list of endpoints that do not require JWT authentication
+    List<String> endpointsWithoutAuthentication = Arrays.asList(
+      // "/change-password/*", 
+      "/forgot-password",
+      "/email/sendPasswordEmail",
+      "/users/changePassword",
+      "/users/changePassword/**",
+      "/change-password/**");;
+    // Check if the request URI is in the list of endpoints that do not require authentication
+    if (endpointsWithoutAuthentication.contains(requestUri)) {
+        // Allow the request to proceed without JWT authentication
+        filterChain.doFilter(request, response);
+        return;
+    }
     final String jwt = parseJwt(request.getHeader("Authorization"));
     if (jwt == null) {
       handleJwtErrorResponse(response, "Debe estar logueado para realizar esta acción.");

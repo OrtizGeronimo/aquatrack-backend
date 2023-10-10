@@ -23,5 +23,9 @@ public class GuardarProductoDTO {
 
   @NotNull()
   private BigDecimal precio;
+
+  private String imagen;
+
+  private String codigo;
   
 }

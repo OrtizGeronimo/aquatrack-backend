@@ -32,6 +32,10 @@ public class Producto {
 
   private String descripcion;
 
+  private String imagen;
+
+  private String codigo;
+
   @DateTimeFormat(pattern = "dd-MM-YYYY")
   private LocalDateTime fechaFinVigencia;
 

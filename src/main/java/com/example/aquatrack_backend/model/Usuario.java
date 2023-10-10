@@ -22,6 +22,7 @@ public class Usuario {
     private String direccionEmail;
     private String contraseña;
     private Boolean validado;
+    private String tokenPassword;
 
     @DateTimeFormat(pattern = "dd-MM-YYYY")
     private LocalDate fechaCreacion;

@@ -29,7 +29,7 @@ create table pedido_producto (id bigint not null auto_increment, cantidad intege
 create table permiso (id bigint not null auto_increment, descripcion varchar(255), fecha_fin_vigencia datetime(6), primary key (id)) engine=InnoDB;
 create table permiso_rol (id bigint not null auto_increment, permiso_id bigint, rol_id bigint, primary key (id)) engine=InnoDB;
 create table precio (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), precio decimal, producto_id bigint, primary key (id)) engine=InnoDB;
-create table producto (id bigint not null auto_increment, descripcion varchar(255), fecha_fin_vigencia datetime(6), nombre varchar(255), empresa_id bigint, primary key (id)) engine=InnoDB;
+create table producto (id bigint not null auto_increment, descripcion varchar(255), fecha_fin_vigencia datetime(6), nombre varchar(255), codigo varchar(255), imagen varchar(255), empresa_id bigint, primary key (id)) engine=InnoDB;
 create table reparto (id bigint not null auto_increment, fecha_ejecucion datetime(6), fechayhora_fin datetime(6), estado_reparto_id bigint, repartidor_id bigint, ruta_id bigint, primary key (id)) engine=InnoDB;
 create table rol (id bigint not null auto_increment, fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), nombre varchar(255), empresa_id bigint, primary key (id)) engine=InnoDB;
 create table rol_usuario (id bigint not null auto_increment, rol_id bigint, usuario_id bigint, primary key (id)) engine=InnoDB;
@@ -37,7 +37,7 @@ create table ruta (id bigint not null auto_increment, nombre varchar(255), prima
 create table tipo_empleado (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre varchar(255), primary key (id)) engine=InnoDB;
 create table tipo_pedido (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre_tipo_pedido varchar(255), primary key (id)) engine=InnoDB;
 create table ubicacion (id bigint not null auto_increment, latitud double precision, longitud double precision, cobertura_id bigint, primary key (id)) engine=InnoDB;
-create table usuario (id bigint not null auto_increment, contraseña varchar(255), direccion_email varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), validado bit, primary key (id)) engine=InnoDB;
+create table usuario (id bigint not null auto_increment, contraseña varchar(255), direccion_email varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), token_password varchar(255), validado bit, primary key (id)) engine=InnoDB;
 create table usuario_codigo_validacion (id bigint not null auto_increment, codigo varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), usuario_id bigint, primary key (id)) engine=InnoDB;
 alter table cliente add constraint FK_id7jmosqg8hkqiqw4vf50xipm foreign key (usuario_id) references usuario (id);
     alter table cobertura add constraint FKb27p91f7hiunb5hdih43dthp6 foreign key (empresa_id) references empresa (id);

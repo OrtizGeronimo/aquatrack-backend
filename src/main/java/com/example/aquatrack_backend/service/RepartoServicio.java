@@ -313,9 +313,9 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
         Page<Reparto> repartos = repartoRepo.search(idRuta, idRepartidor, estado, pageable);
 
-        if (repartos == null || repartos.isEmpty()){
-            return null;
-        }
+//        if (repartos == null || repartos.isEmpty()){
+//            return null;
+//        }
 
         Page<ListarRepartosDTO> response = repartos.map(reparto -> {
             ListarRepartosDTO dto = new ListarRepartosDTO();

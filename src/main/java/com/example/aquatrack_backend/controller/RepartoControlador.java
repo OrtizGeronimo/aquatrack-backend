@@ -35,12 +35,12 @@ public class RepartoControlador{
 
     @GetMapping("")
     @PreAuthorize("hasAuthority('LISTAR_REPARTOS')")
-    public ResponseEntity<?> listarRepartos(@RequestParam(required = false) Long idRuta,
-                                            @RequestParam(required = false) Long idRepartidor,
-                                            @RequestParam(required = false) Long idEstado,
+    public ResponseEntity<?> listarRepartos(@RequestParam(required = false) Long ruta,
+                                            @RequestParam(required = false) Long repartidor,
+                                            @RequestParam(required = false) Long estado,
                                             @RequestParam(defaultValue = "0") int page,
                                             @RequestParam(defaultValue = "10") int size) throws RecordNotFoundException {
-        return ResponseEntity.ok().body(servicio.listarRepartos(idEstado, idRepartidor, idRuta, page, size));
+        return ResponseEntity.ok().body(servicio.listarRepartos(estado, repartidor, ruta, page, size));
     }
 
     @PutMapping("/desginarHorario")

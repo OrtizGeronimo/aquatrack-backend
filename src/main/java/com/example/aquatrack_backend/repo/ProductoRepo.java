@@ -1,5 +1,7 @@
 package com.example.aquatrack_backend.repo;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -25,6 +27,6 @@ public interface ProductoRepo extends RepoBase<Producto> {
                    "WHERE codigo LIKE %:code% " + 
                    "AND empresa_id = :id",
                    nativeQuery=true)
-    Producto findByCode(String code, Long id);
+    Optional<Producto> findByCode(String code, Long id);
 }
 

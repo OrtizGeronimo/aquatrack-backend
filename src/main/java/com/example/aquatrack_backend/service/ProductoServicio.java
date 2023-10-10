@@ -97,10 +97,10 @@ public class ProductoServicio extends ServicioBaseImpl<Producto> {
               });
   }
   
-  public void uploadImage(MultipartFile imageFile, String codigo) throws IOException {
+  public void uploadImage(MultipartFile imageFile, String codigo) throws IOException, RecordNotFoundException {
     try {
       Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
-      Producto producto = productoRepo.findByCode(codigo, empresa.getId());
+      Producto producto = productoRepo.findByCode(codigo, empresa.getId()).orElseThrow(() -> new RecordNotFoundException("El producto solicitado no fue encontrado"));
       // String relativePath = "src/main/resources/images/";
       int index = imageFile.getOriginalFilename().indexOf(".");
       String extension = "." + imageFile.getOriginalFilename().substring(index+1);
@@ -232,6 +232,16 @@ public class ProductoServicio extends ServicioBaseImpl<Producto> {
         productoRehabilitado.setFechaFinVigencia(null);
         productoRepo.save(productoRehabilitado);
         return new ModelMapper().map(productoRehabilitado, ProductoDTO.class);
+    }
+
+    public boolean verificarCodigoExistente(String codigo)  {
+        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+        Optional<Producto> producto = productoRepo.findByCode(codigo, empresa.getId());
+        boolean flag = false;
+        if (producto.isPresent()) {
+          flag = true;
+        }
+        return flag;
     }
 
 }

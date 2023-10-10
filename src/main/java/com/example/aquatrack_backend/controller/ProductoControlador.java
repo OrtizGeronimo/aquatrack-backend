@@ -57,7 +57,7 @@ public class ProductoControlador{
     }
 
     @PostMapping("/uploadImage/{codigo}")
-    public ResponseEntity<?> uploadImagen(@RequestParam("imagen") MultipartFile imagen, @PathVariable String codigo) throws IOException{     
+    public ResponseEntity<?> uploadImagen(@RequestParam("imagen") MultipartFile imagen, @PathVariable String codigo) throws IOException, RecordNotFoundException{     
         productoServicio.uploadImage(imagen, codigo);
         return ResponseEntity.ok("Image uploaded successfully");  
      }
@@ -88,6 +88,11 @@ public class ProductoControlador{
     @PreAuthorize("hasAuthority('EDITAR_PRODUCTOS')")
     public ResponseEntity<?> enable(@PathVariable Long id) throws RecordNotFoundException {
         return ResponseEntity.ok().body(productoServicio.enable(id));
+    }
+
+    @GetMapping(value = "/{codigo}")
+    public ResponseEntity<?> verificarCodigoExistente(@PathVariable String codigo) {
+        return ResponseEntity.ok().body(productoServicio.verificarCodigoExistente(codigo));
     }
   /*    @PostMapping("/{id}/precios")
     public ResponseEntity<?> setPrecio(@PathVariable Long id, @RequestBody Precio precio){

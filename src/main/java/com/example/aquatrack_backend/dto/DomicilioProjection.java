@@ -12,5 +12,7 @@ public interface DomicilioProjection {
 
     String getPisoDepartamento();
 
+    String getLocalidad();
+
     Long getCliente();
 }

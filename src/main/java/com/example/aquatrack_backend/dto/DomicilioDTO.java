@@ -14,6 +14,7 @@ public class DomicilioDTO {
     private Long idCliente;
     private String domicilio; //string con
     private String nombreApellidoCliente;
+    private String localidad;
 
     private UbicacionDTO ubicacion;
 }

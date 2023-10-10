@@ -14,4 +14,5 @@ public class DomicilioDetalleDTO {
     private String nombreCliente;
     private Double latitud;
     private Double longitud;
+    private String localidad;
 }

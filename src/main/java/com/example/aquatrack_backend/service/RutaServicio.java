@@ -54,6 +54,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
       domicilioDTO.setDomicilio(domicilio.getCalle() + nullableToEmptyString(domicilio.getNumero()) + nullableToEmptyString(domicilio.getPisoDepartamento()));
       domicilioDTO.setNombreApellidoCliente(domicilio.getCliente().getNombre() + " " + domicilio.getCliente().getApellido());
       domicilioDTO.setId(domicilio.getId());
+      domicilioDTO.setLocalidad(nullableToEmptyString(domicilio.getLocalidad()));
       domicilios.add(domicilioDTO);
     }
 
@@ -172,9 +173,10 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
         if (domicilio.getDomicilio().getDiaDomicilios().stream().anyMatch(diaDomicilio -> diaDomicilio.getDiaRuta().equals(dia))) {
           DomicilioDetalleDTO domicilioDTO = new DomicilioDetalleDTO();
           domicilioDTO.setId(domicilio.getId());
-          domicilioDTO.setDomicilio(domicilio.getDomicilio().getCalle() + " " + nullableToEmptyString(domicilio.getDomicilio().getNumero()) + " " + nullableToEmptyString(domicilio.getDomicilio().getPisoDepartamento()));
+          domicilioDTO.setDomicilio(domicilio.getDomicilio().getCalle() + " " + nullableToEmptyString(domicilio.getDomicilio().getNumero()) + " " + nullableToEmptyString(domicilio.getDomicilio().getPisoDepartamento()) + ", " + nullableToEmptyString(domicilio.getDomicilio().getLocalidad()));
           domicilioDTO.setLatitud(domicilio.getDomicilio().getUbicacion().getLatitud());
           domicilioDTO.setLongitud(domicilio.getDomicilio().getUbicacion().getLongitud());
+          domicilioDTO.setLocalidad(nullableToEmptyString(domicilio.getDomicilio().getLocalidad()));
           domicilioDTO.setNombreCliente(domicilio.getDomicilio().getCliente().getNombre() + " " + domicilio.getDomicilio().getCliente().getApellido());
           domicilios.add(domicilioDTO);
         }
@@ -270,11 +272,11 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
       DetalleRutaDTO rutaResponseDTO = new DetalleRutaDTO();
       rutaResponseDTO.setDia(dia.getDiaSemana().getNombre());
       rutaResponseDTO.setIdDia(dia.getDiaSemana().getId());
-      for (DomicilioRuta domicilio : ruta.getDomicilioRutas()) {
+      for (DomicilioRuta domicilio : rutaGuardada.getDomicilioRutas()) {
         if (domicilio.getDomicilio().getDiaDomicilios().stream().anyMatch(diaDomicilio -> diaDomicilio.getDiaRuta().equals(dia))) {
           DomicilioDetalleDTO domicilioDTO = new DomicilioDetalleDTO();
-          domicilioDTO.setId(domicilio.getId());
-          domicilioDTO.setDomicilio(domicilio.getDomicilio().getCalle() + " " + nullableToEmptyString(domicilio.getDomicilio().getNumero()) + " " + nullableToEmptyString(domicilio.getDomicilio().getPisoDepartamento()));
+          domicilioDTO.setId(domicilio.getDomicilio().getId());
+          domicilioDTO.setDomicilio(domicilio.getDomicilio().getCalle() + " " + nullableToEmptyString(domicilio.getDomicilio().getNumero()) + " " + nullableToEmptyString(domicilio.getDomicilio().getPisoDepartamento()) + ", " + nullableToEmptyString(domicilio.getDomicilio().getLocalidad()));
           domicilioDTO.setLatitud(domicilio.getDomicilio().getUbicacion().getLatitud());
           domicilioDTO.setLongitud(domicilio.getDomicilio().getUbicacion().getLongitud());
           domicilioDTO.setNombreCliente(domicilio.getDomicilio().getCliente().getNombre() + " " + domicilio.getDomicilio().getCliente().getApellido());
@@ -404,6 +406,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
       domicilio.setCalle(domicilioProjection.getCalle());
       domicilio.setNumero(domicilioProjection.getNumero());
       domicilio.setPisoDepartamento(domicilioProjection.getPisoDepartamento());
+      domicilio.setLocalidad(domicilioProjection.getLocalidad());
       domicilio.setCliente(clienteRepo.findById(domicilioProjection.getCliente()).get());
       return domicilio;
     }).filter(domicilio -> ruta.getDomicilioRutas().stream().noneMatch(domicilioRuta -> domicilioRuta.getDomicilio().getId().equals(domicilio.getId()))).collect(Collectors.toList());
@@ -415,6 +418,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
               " " +
               nullableToEmptyString(domicilio.getPisoDepartamento()));
       domicilioDTO.setId(domicilio.getId());
+      domicilioDTO.setLocalidad(domicilio.getLocalidad());
       domicilioDTO.setNombreCliente(domicilio.getCliente().getNombre() + " " + domicilio.getCliente().getApellido());
       return domicilioDTO;
     }).collect(Collectors.toList());
@@ -433,7 +437,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
   }
 
   public String obtenerDescripcionDomicilio(Domicilio domicilio){
-    return domicilio.getCalle() + " " + nullableToEmptyString(domicilio.getNumero()) + " " + nullableToEmptyString(domicilio.getPisoDepartamento());
+    return domicilio.getCalle() + " " + nullableToEmptyString(domicilio.getNumero()) + " " + nullableToEmptyString(domicilio.getPisoDepartamento() + ", " + nullableToEmptyString(domicilio.getLocalidad()));
   }
 
   public void deshabilitar(Long id) throws RecordNotFoundException {

@@ -154,7 +154,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         if (entregasARepartir.isEmpty()){
             throw new ValidacionException("La ruta no contiene entregas a realizar en el dia");
         }
-        List<Entrega> rutaOptima = calcularRutaOptima(entregasARepartir);
+        List<Entrega> rutaOptima = calcularRutaOptima(entregasARepartir, ruta);
         EstadoReparto estado = estadoRepartoRepo.findByNombre("Pendiente de Asignación");
         EstadoEntrega estadoEntrega = estadoEntregaRepo.findByNombreEstadoEntrega("Programada");
 
@@ -180,12 +180,20 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
     }
 
-    private List<Entrega> calcularRutaOptima(List<Entrega> domicilioRutas) throws ValidacionException {
+    private List<Entrega> calcularRutaOptima(List<Entrega> domicilioRutas, Ruta ruta) throws ValidacionException {
         String apiKey = bingMapsConfig.getApiKey();
         try {
         StringBuilder urlBuilder = new StringBuilder("https://dev.virtualearth.net/REST/v1/Routes/Driving?");
 
-        String coordenadasInicio = null;
+        Ubicacion ubiEmpresa = ruta.getEmpresa().getUbicacion();
+
+        double latInicio = ubiEmpresa.getLatitud();
+        double lonInicio = ubiEmpresa.getLongitud();
+        String latEmpresa = Double.toString(latInicio).replace(',', '.');
+        String lonEmpresa = Double.toString(lonInicio).replace(',', '.');
+
+        String coordenadasInicio = "wp.0=" + latEmpresa + "," + lonEmpresa + "&";
+
             for (int i = 0; i < domicilioRutas.size(); i++) {
 
                 Domicilio domicilio1 = domicilioRutas.get(i).getDomicilio();
@@ -197,8 +205,9 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
                 String coordinates = originLatitude + "," + originLongitude;
 
                 if (i == 0) {
-                    coordenadasInicio = coordinates;
-                    urlBuilder.append("wp." + (i + 1) + "=" + coordinates + "&");
+                    //coordenadasInicio = coordinates;
+                    //urlBuilder.append("wp." + (i + 1) + "=" + coordinates + "&");
+                    urlBuilder.append(coordenadasInicio);
                 } else {
                     urlBuilder.append("wp." + (i + 1) + "=" + coordinates + "&");
                     if (i == domicilioRutas.size() - 1){

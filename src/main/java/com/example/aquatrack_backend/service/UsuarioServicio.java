@@ -87,7 +87,7 @@ public class UsuarioServicio {
           .map(GrantedAuthority::getAuthority)
           .collect(Collectors.toList());
       return CurrentUserDTO.builder()
-          .id(getUsuarioFromContext().getId())
+          .password(userDetails.getPassword())
           .nombre(empleado.getNombre() + " " + empleado.getApellido())
           .empresa(empleado.getEmpresa().getNombre())
           .permisos(permisos)
@@ -125,7 +125,6 @@ public class UsuarioServicio {
     return usuarioDTO;
   }
 
-  @Transactional
   public UpdateUserDTO getUserProfile(){
     Usuario usuario = getUsuarioFromContext();
     Empleado empleado = (Empleado) getUsuarioFromContext().getPersona();
@@ -135,6 +134,14 @@ public class UsuarioServicio {
     usuarioDTO.setNombre(empleado.getNombre());
     usuarioDTO.setNroTelefono(empleado.getNumTelefono());
     return usuarioDTO;
+  }
+
+  @Transactional
+  public String changePassword(String password){
+    Usuario usuario = getUsuarioFromContext();
+    usuario.setContraseña(bCryptPasswordEncoder.encode(password));
+    usuarioRepo.save(usuario);
+    return "Contraseña cambiada con exito";
   }
 
   private Usuario getUsuarioFromContext() {

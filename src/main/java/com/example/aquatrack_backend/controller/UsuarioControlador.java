@@ -56,4 +56,9 @@ public class UsuarioControlador {
   public ResponseEntity<?> getCurrentUser() throws FailedToAuthenticateUserException {
     return ResponseEntity.ok().body(usuarioServicio.getCurrentUser());
   }
+
+  @PutMapping(value = "/changePassword")
+  public ResponseEntity<?> changePassword(@RequestBody String password)  {
+    return ResponseEntity.ok().body(usuarioServicio.changePassword(password));
+  }
 }

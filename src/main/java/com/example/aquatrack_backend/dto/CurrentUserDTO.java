@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CurrentUserDTO {
-    private Long id;
     private String nombre;
     private String empresa;
+    private String password;
     private List<String> permisos;
 }

@@ -31,4 +31,8 @@ public interface ClienteRepo extends RepoBase<Cliente> {
     @Query(value = "SELECT count(*) as clientes FROM cliente c " +
             "WHERE c.dni = :dni AND c.empresa_id = :empresaId", nativeQuery = true)
     Integer validateUniqueDni(@Param("dni") Integer dni, @Param("empresaId")Long empresaId);
+
+    @Query(value = "SELECT c.id FROM cliente c " +
+            "WHERE c.dni = :dni AND c.empresa_id = :empresaId", nativeQuery = true)
+    List<Long> validateDniUpdate(@Param("dni") Integer dni, @Param("empresaId")Long empresaId);
 }

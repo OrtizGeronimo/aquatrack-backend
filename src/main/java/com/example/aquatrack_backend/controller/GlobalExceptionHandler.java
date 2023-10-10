@@ -114,6 +114,11 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getMessage());
   }
 
+  @ExceptionHandler({ClienteNoValidoUpdateException.class})
+  public ResponseEntity<?> handleClienteWebUpdate(ClienteNoValidoUpdateException ex){
+    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());
+  }
+
   @ExceptionHandler({ValidacionException.class})
   public ResponseEntity<?> handleValidacionException(ValidacionException ex){
     return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());

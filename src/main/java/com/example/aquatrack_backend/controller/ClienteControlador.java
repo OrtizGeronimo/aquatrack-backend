@@ -3,6 +3,7 @@ package com.example.aquatrack_backend.controller;
 import com.example.aquatrack_backend.dto.*;
 import com.example.aquatrack_backend.exception.ClienteNoValidoException;
 import com.example.aquatrack_backend.exception.ClienteNoValidoException;
+import com.example.aquatrack_backend.exception.ClienteNoValidoUpdateException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.helpers.ValidationHelper;
 import com.example.aquatrack_backend.model.Cliente;
@@ -79,7 +80,7 @@ public class ClienteControlador {
   @PutMapping(value = "/{id}")
   @PreAuthorize("hasAuthority('EDITAR_CLIENTES')")
   public ResponseEntity<?> updateClientWeb(@PathVariable Long id, @RequestBody GuardarClienteWebDTO cliente)
-      throws RecordNotFoundException, ClienteNoValidoException {
+      throws RecordNotFoundException, ClienteNoValidoUpdateException {
     if (validationHelper.hasValidationErrors(cliente)) {
       return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(cliente));
     }

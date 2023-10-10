@@ -2,6 +2,7 @@ package com.example.aquatrack_backend.service;
 
 import com.example.aquatrack_backend.dto.*;
 import com.example.aquatrack_backend.exception.ClienteNoValidoException;
+import com.example.aquatrack_backend.exception.ClienteNoValidoUpdateException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.helpers.UbicacionHelper;
 import com.example.aquatrack_backend.model.*;
@@ -202,11 +203,11 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
   }
 
   @Transactional
-  public ClienteListDTO updateFromWeb(Long id, GuardarClienteWebDTO cliente) throws RecordNotFoundException, ClienteNoValidoException {
+  public ClienteListDTO updateFromWeb(Long id, GuardarClienteWebDTO cliente) throws RecordNotFoundException, ClienteNoValidoUpdateException {
     Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
     Cliente clienteUpdate = clienteRepo.findById(id)
         .orElseThrow(() -> new RecordNotFoundException("El cliente solicitado no fue encontrado"));
-    clientValidator.validateWebClient(cliente, empresa);
+    clientValidator.validateWebClientUpdate(cliente, empresa);
     clienteUpdate.setNombre(cliente.getNombre());
     clienteUpdate.setApellido(cliente.getApellido());
     clienteUpdate.setDni(cliente.getDni());

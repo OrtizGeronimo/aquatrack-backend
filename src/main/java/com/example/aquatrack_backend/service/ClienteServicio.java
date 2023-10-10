@@ -35,7 +35,9 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
   @Autowired
   private EstadoUsuarioRepo estadoUsuarioRepo;
   private ModelMapper modelMapper = new ModelMapper();
-  private ClientValidator clientValidator = new ClientValidator();
+
+  @Autowired
+  private ClientValidator clientValidator;
 
   public ClienteServicio(RepoBase<Cliente> repoBase) {
     super(repoBase);

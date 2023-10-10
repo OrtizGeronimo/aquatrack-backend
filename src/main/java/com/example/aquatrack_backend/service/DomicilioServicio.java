@@ -37,6 +37,7 @@ public class DomicilioServicio extends ServicioBaseImpl<Domicilio> {
     Domicilio domicilio = domicilioRepo.findById(cliente.getDomicilio().getId()).orElseThrow(() -> new RecordNotFoundException("No se encontro el domicilio"));
     Ubicacion ubicacion = ubicaciónServicio.guardarUbicacion(ubicacionDTO);
     domicilio.setUbicacion(ubicacion);
+    domicilio.setLocalidad(ubicacionDTO.getLocalidad());
     domicilioRepo.save(domicilio);
     return true;
   }

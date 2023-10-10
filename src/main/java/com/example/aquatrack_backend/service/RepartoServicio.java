@@ -118,17 +118,16 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
         DayOfWeek dayOfWeek = now.getDayOfWeek();
 
-
         Locale spanishLocale = new Locale("es", "ES");
         String nombreDia = dayOfWeek.getDisplayName(TextStyle.FULL, spanishLocale);
-
+        int idDia = dayOfWeek.getValue();
 
         List<Entrega> entregasARepartir = new ArrayList<>();
 
         domiciliosLoop:
         for (DomicilioRuta domicilio: ruta.getDomicilioRutas()) {
             for (DiaDomicilio dia: domicilio.getDomicilio().getDiaDomicilios()) {
-                if (dia.getDiaRuta().getDiaSemana().getNombre().equalsIgnoreCase(nombreDia)){
+                if (dia.getDiaRuta().getDiaSemana().getId().intValue() == idDia){
                     Entrega entrega = new Entrega();
                     entrega.setDomicilio(domicilio.getDomicilio());
                     entregasARepartir.add(entrega);

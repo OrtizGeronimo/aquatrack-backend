@@ -5,10 +5,10 @@ import lombok.Data;
 import java.util.HashMap;
 
 @Data
-public class ClienteWebNoValidoException extends Exception{
+public class ClienteNoValidoException extends Exception{
 
     private HashMap<String, String> errors;
-    public ClienteWebNoValidoException(HashMap<String, String> errors) {
+    public ClienteNoValidoException(HashMap<String, String> errors) {
         this.errors = errors;
     }
 }

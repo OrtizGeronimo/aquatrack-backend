@@ -7,12 +7,16 @@ import java.util.stream.Collectors;
 
 import com.example.aquatrack_backend.dto.RegisterRequestDTO;
 import com.example.aquatrack_backend.dto.RegisterResponseDTO;
-import com.example.aquatrack_backend.model.Rol;
-import com.example.aquatrack_backend.model.RolUsuario;
+import com.example.aquatrack_backend.exception.RecordNotFoundException;
+import com.example.aquatrack_backend.exception.UserNoValidoException;
+import com.example.aquatrack_backend.model.*;
+import com.example.aquatrack_backend.repo.EstadoUsuarioRepo;
 import com.example.aquatrack_backend.repo.RolRepo;
 import com.example.aquatrack_backend.repo.UsuarioRepo;
+import com.example.aquatrack_backend.validators.UserValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -45,7 +49,10 @@ public class UsuarioServicio {
   private JwtUtils jwtUtils;
   @Autowired
   private RolRepo rolRepo;
+  @Autowired
+  private EstadoUsuarioRepo estadoUsuarioRepo;
   private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+  private UserValidator userValidator = new UserValidator();
 
   public LoginResponseDTO login(String direccionEmail, String contraseña) throws ClienteWebUnauthorizedException{
     Authentication authentication = authenticationManager
@@ -69,8 +76,10 @@ public class UsuarioServicio {
   }
 
   @Transactional
-  public RegisterResponseDTO clientRegister(RegisterRequestDTO register){
+  public RegisterResponseDTO clientRegister(RegisterRequestDTO register) throws UserNoValidoException, RecordNotFoundException {
+    userValidator.validateClientUser(register.getDireccionEmail());
     Usuario usuario = createUser(register.getDireccionEmail(), register.getContraseña(), register.getConfirmacionContraseña());
+    usuario.setEstadoUsuario(estadoUsuarioRepo.findByNombreEstadoUsuario("Creado").orElseThrow(()->new RecordNotFoundException("El estado no fue encontrado.")));
     Rol rol = rolRepo.findClientRole();
     List<RolUsuario> rolUsuarios = new ArrayList<>();
     rolUsuarios.add(new RolUsuario(rol, usuario));
@@ -96,21 +105,6 @@ public class UsuarioServicio {
     } else {
       throw new FailedToAuthenticateUserException("Error de autenticación. Intente mas tarde.");
     }
-  }
-
-  @Transactional
-  public Usuario createUserClient(String email, String password, Long empresaId){
-    Usuario usuario = new Usuario();
-    usuario.setDireccionEmail(email);
-    usuario.setContraseña(bCryptPasswordEncoder.encode(password));
-    usuario.setFechaCreacion(LocalDate.now());
-    usuario.setValidado(true);
-    Rol rol = rolRepo.findClientRole();
-    List<RolUsuario> rolUsuarios = new ArrayList<>();
-    rolUsuarios.add(new RolUsuario(rol, usuario));
-    usuario.setRolesUsuario(rolUsuarios);
-    usuarioRepo.save(usuario);
-    return usuario;
   }
 
   private Usuario getUsuarioFromContext() {

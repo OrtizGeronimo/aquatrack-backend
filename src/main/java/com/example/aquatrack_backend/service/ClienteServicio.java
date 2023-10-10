@@ -1,12 +1,12 @@
 package com.example.aquatrack_backend.service;
 
 import com.example.aquatrack_backend.dto.*;
-import com.example.aquatrack_backend.exception.ClienteWebNoValidoException;
+import com.example.aquatrack_backend.exception.ClienteNoValidoException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.helpers.UbicacionHelper;
 import com.example.aquatrack_backend.model.*;
-import com.example.aquatrack_backend.repo.EmpresaRepo;
-import com.example.aquatrack_backend.repo.UsuarioRepo;
+import com.example.aquatrack_backend.repo.*;
+import com.example.aquatrack_backend.validators.ClientValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,8 +14,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.example.aquatrack_backend.repo.ClienteRepo;
-import com.example.aquatrack_backend.repo.RepoBase;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -33,11 +31,11 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
   @Autowired
   private EmpresaRepo empresaRepo;
   @Autowired
-  private UsuarioServicio usuarioServicio;
-  @Autowired
   private UsuarioRepo usuarioRepo;
+  @Autowired
+  private EstadoUsuarioRepo estadoUsuarioRepo;
   private ModelMapper modelMapper = new ModelMapper();
-  private UbicacionHelper ubicacionHelper = new UbicacionHelper();
+  private ClientValidator clientValidator = new ClientValidator();
 
   public ClienteServicio(RepoBase<Cliente> repoBase) {
     super(repoBase);
@@ -132,6 +130,8 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
         .orElseThrow(() -> new RecordNotFoundException("No se encontro la empresa"));
     Usuario usuario = usuarioRepo.findById(cliente.getUsuarioId())
         .orElseThrow(() -> new RecordNotFoundException("No se encontro el usuario"));
+    usuario.setEstadoUsuario(estadoUsuarioRepo.findByNombreEstadoUsuario("Habilitado")
+            .orElseThrow(()-> new RecordNotFoundException("El estado no fue encontrado")));
     Cliente clienteNuevo = new ModelMapper().map(cliente, Cliente.class);
     clienteNuevo.setFechaCreacion(LocalDate.now());
     clienteNuevo.setEmpresa(empresa);
@@ -157,9 +157,9 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
   }
 
   @Transactional
-  public ClienteListDTO createFromWeb(GuardarClienteWebDTO cliente) throws ClienteWebNoValidoException {
+  public ClienteListDTO createFromWeb(GuardarClienteWebDTO cliente) throws ClienteNoValidoException {
     Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
-    validateWebClient(cliente, empresa);
+    clientValidator.validateWebClient(cliente, empresa);
 
     Cliente clienteNuevo = new Cliente();
     clienteNuevo.setNombre(cliente.getNombre());
@@ -263,7 +263,21 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     }
   }
 
-  private void validateWebClient(GuardarClienteWebDTO clienteDTO, Empresa empresa) throws ClienteWebNoValidoException{
+/*  public void validateAppClient(UbicacionDTO ubicacion, Cobertura cobertura) throws ClienteNoValidoException{
+
+    HashMap<String, String> errors = new HashMap<>();
+
+    if(!validateIsContained(ubicacion, cobertura)){
+      errors.put("ubicacion", "El cliente ingresado no está contenido en la cobertura de la empresa.");
+    }
+
+    if(!errors.isEmpty()){
+      throw new ClienteNoValidoException(errors);
+    }
+  }
+
+  private void validateWebClient(GuardarClienteWebDTO clienteDTO, Empresa empresa) throws ClienteNoValidoException {
+
     HashMap<String, String> errors = new HashMap<>();
 
     if(!validateUniqueDni(clienteDTO.getDni(), empresa.getId(), clienteDTO.getId())){
@@ -276,7 +290,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     }
 
     if(!errors.isEmpty()){
-      throw new ClienteWebNoValidoException(errors);
+      throw new ClienteNoValidoException(errors);
     }
   }
 
@@ -299,5 +313,5 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
       return false;
     }
     return true;
-  }
+  }*/
 }

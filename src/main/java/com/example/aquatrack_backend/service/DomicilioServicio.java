@@ -1,6 +1,7 @@
 package com.example.aquatrack_backend.service;
 
 import com.example.aquatrack_backend.dto.UbicacionDTO;
+import com.example.aquatrack_backend.exception.ClienteNoCubiertoApp;
 import com.example.aquatrack_backend.exception.ClienteNoValidoException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.model.Cliente;
@@ -30,7 +31,7 @@ public class DomicilioServicio extends ServicioBaseImpl<Domicilio> {
     super(repoBase);
   }
 
-  public boolean crearDomicilioUbicacion(UbicacionDTO ubicacionDTO) throws RecordNotFoundException, ClienteNoValidoException {
+  public boolean crearDomicilioUbicacion(UbicacionDTO ubicacionDTO) throws RecordNotFoundException, ClienteNoCubiertoApp {
     Cliente cliente = clienteServicio.findClientById(ubicacionDTO.getIdCliente());
     Empresa empresa = cliente.getEmpresa();
     clientValidator.validateAppClient(ubicacionDTO, empresa.getCobertura());

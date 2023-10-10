@@ -108,8 +108,14 @@ public class GlobalExceptionHandler {
             .message("Error inesperado del servidor, intente mas tarde.")
             .build());
   }
-    @ExceptionHandler({ValidacionException.class})
-    public ResponseEntity<?> handleValidacionException(ValidacionException ex){
-      return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());
-    }
+
+  @ExceptionHandler({ValidacionException.class})
+  public ResponseEntity<?> handleClienteNoCubierto(ClienteNoCubiertoApp ex){
+    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getMessage());
+  }
+
+  @ExceptionHandler({ValidacionException.class})
+  public ResponseEntity<?> handleValidacionException(ValidacionException ex){
+    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());
+  }
 }

@@ -2,6 +2,7 @@ package com.example.aquatrack_backend.validators;
 
 import com.example.aquatrack_backend.dto.GuardarClienteWebDTO;
 import com.example.aquatrack_backend.dto.UbicacionDTO;
+import com.example.aquatrack_backend.exception.ClienteNoCubiertoApp;
 import com.example.aquatrack_backend.exception.ClienteNoValidoException;
 import com.example.aquatrack_backend.helpers.UbicacionHelper;
 import com.example.aquatrack_backend.model.Cobertura;
@@ -29,7 +30,7 @@ public class ClientValidator {
 
     private UbicacionHelper ubicacionHelper = new UbicacionHelper();
 
-    public void validateAppClient(UbicacionDTO ubicacion, Cobertura cobertura) throws ClienteNoValidoException {
+    public void validateAppClient(UbicacionDTO ubicacion, Cobertura cobertura) throws ClienteNoCubiertoApp {
 
         HashMap<String, String> errors = new HashMap<>();
 
@@ -38,7 +39,7 @@ public class ClientValidator {
         }
 
         if(!errors.isEmpty()){
-            throw new ClienteNoValidoException(errors);
+            throw new ClienteNoCubiertoApp("El cliente no se encuentra contenido en la cobertura de la empresa");
         }
     }
 

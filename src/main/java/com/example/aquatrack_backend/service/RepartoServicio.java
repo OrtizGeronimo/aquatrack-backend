@@ -6,9 +6,7 @@ import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.ValidacionException;
 import com.example.aquatrack_backend.model.*;
 import com.example.aquatrack_backend.repo.*;
-/*
 import com.google.ortools.Loader;
-*/
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
@@ -34,6 +32,7 @@ import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Service
 public class RepartoServicio extends ServicioBaseImpl<Reparto> {
@@ -70,9 +69,9 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
     }
 
 
-/*    static {
+    static {
         Loader.loadNativeLibraries();
-    }*/
+    }
 
     @Scheduled(cron = "0 * * * * 1-6")
     @Transactional
@@ -86,7 +85,9 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
         for (Empresa empresa: empresas) {
             if (empresa.getHoraGeneracionReparto().equals(today)){
-                crearReparto(empresa.getId());
+                for(Ruta ruta: empresa.getRutas()) {
+                    crearReparto(ruta.getId());
+                }
             }
         }
     }
@@ -322,7 +323,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         EstadoReparto enEjecucion = estadoRepartoRepo.findByNombre("En Ejecución");
 
         reparto.setEstadoReparto(enEjecucion);
-        reparto.setFechaYHoraInicio(LocalDateTime.now());
+        reparto.setFechaHoraInicio(LocalDateTime.now());
 
         EstadoEntrega pendiente = estadoEntregaRepo.findByNombreEstadoEntrega("Pendiente");
 

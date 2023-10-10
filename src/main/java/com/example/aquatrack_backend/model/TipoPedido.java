@@ -31,5 +31,5 @@ public class TipoPedido {
     private LocalDateTime fechaFinVigencia;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "tipoPedido")
-    private List<PedidoExtraordinario> pedidos;
+    private List<Pedido> pedidosExtraordinarios;
 }

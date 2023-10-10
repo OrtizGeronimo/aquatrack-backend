@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.aquatrack_backend.dto.GuardarProductoDTO;
+import com.example.aquatrack_backend.dto.ImagenDTO;
 import com.example.aquatrack_backend.dto.ProductoDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.model.Empleado;
@@ -65,27 +66,27 @@ public class ProductoServicio extends ServicioBaseImpl<Producto> {
       return productoRepo.getProductosActivos(id, nombre, mostrarInactivos, precio1, precio2, paging)
               .map(producto -> {
                   ProductoDTO productoDTO = new ModelMapper().map(producto, ProductoDTO.class);
-                  String imagenFileName = producto.getImagen();
-                  if (imagenFileName != null) {
-                      try {
-                            String relativePath = "src/main/resources/images/";
-                            String uploadDirectory = System.getProperty("user.dir") + "/" + relativePath;
-                            String imagePath = Paths.get(uploadDirectory, imagenFileName).toString();
+                  // String imagenFileName = producto.getImagen();
+                  // if (imagenFileName != null) {
+                  //     try {
+                  //           String relativePath = "src/main/resources/images/";
+                  //           String uploadDirectory = System.getProperty("user.dir") + "/" + relativePath;
+                  //           String imagePath = Paths.get(uploadDirectory, imagenFileName).toString();
 
-                            // Check if the image file exists
-                            if (Files.exists(Paths.get(imagePath))) {
-                              // Read the image file as bytes
-                              byte[] imageBytes = Files.readAllBytes(Paths.get(imagePath));
+                  //           // Check if the image file exists
+                  //           if (Files.exists(Paths.get(imagePath))) {
+                  //             // Read the image file as bytes
+                  //             byte[] imageBytes = Files.readAllBytes(Paths.get(imagePath));
 
-                              // Encode the image bytes to base64
-                              String base64Image = Base64.getEncoder().encodeToString(imageBytes);
-                              productoDTO.setImagen(base64Image);
-                            }
-                      } catch (IOException e) {
-                          // Handle the IOException or rethrow it as a more specific exception
-                          throw new RuntimeException("Error while processing image file", e);
-                      }
-                  }
+                  //             // Encode the image bytes to base64
+                  //             String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+                  //             productoDTO.setImagen(base64Image);
+                  //           }
+                  //     } catch (IOException e) {
+                  //         // Handle the IOException or rethrow it as a more specific exception
+                  //         throw new RuntimeException("Error while processing image file", e);
+                  //     }
+                  // }
                   
                   for (Precio precio : producto.getPrecios()) {
                       if (precio.getFechaFinVigencia() == null) {
@@ -96,11 +97,39 @@ public class ProductoServicio extends ServicioBaseImpl<Producto> {
                   return productoDTO;
               });
   }
+
+  public ImagenDTO getImagen(Long id) throws RecordNotFoundException{
+    ImagenDTO imagenDTO = new ImagenDTO();
+    Producto producto = productoRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El producto solicitado no fue encontrado"));
+    String imagenFileName = producto.getImagen();
+    // String imagen = "";
+        if (imagenFileName != null) {
+             try {
+                      String relativePath = "src/main/resources/images/";
+                      String uploadDirectory = System.getProperty("user.dir") + "/" + relativePath;
+                      String imagePath = Paths.get(uploadDirectory, imagenFileName).toString();
+
+                            // Check if the image file exists
+                      if (Files.exists(Paths.get(imagePath))) {
+                              // Read the image file as bytes
+                          byte[] imageBytes = Files.readAllBytes(Paths.get(imagePath));
+
+                              // Encode the image bytes to base64
+                          String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+                          imagenDTO.setBase64(base64Image);
+                      }
+                      } catch (IOException e) {
+                          // Handle the IOException or rethrow it as a more specific exception
+                          throw new RuntimeException("Error while processing image file", e);
+                      }
+                  }
+        return imagenDTO;
+  }
   
-  public void uploadImage(MultipartFile imageFile, String codigo) throws IOException, RecordNotFoundException {
+  public void uploadImage(MultipartFile imageFile, Long id) throws IOException, RecordNotFoundException {
     try {
-      Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
-      Producto producto = productoRepo.findByCode(codigo, empresa.getId()).orElseThrow(() -> new RecordNotFoundException("El producto solicitado no fue encontrado"));
+      // Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+      Producto producto = productoRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El producto solicitado no fue encontrado"));
       // String relativePath = "src/main/resources/images/";
       int index = imageFile.getOriginalFilename().indexOf(".");
       String extension = "." + imageFile.getOriginalFilename().substring(index+1);
@@ -142,36 +171,6 @@ public class ProductoServicio extends ServicioBaseImpl<Producto> {
     // Handle the exception or return an error response if necessary
   }
 }
-
-  // public String uploadImage(MultipartFile imagen, String codigo){
-  //   try{
-  //       // String folderPath = "classpath:images/"; // Path to the folder inside resources
-  //       String folderPath = "C:/Users/marti/OneDrive/Documentos/GitHub/aquatrack-backend/src/main/resources/images";
-  //       Resource resource = resourceLoader.getResource(folderPath);
-  //       String ruta = resource.getFile().getAbsolutePath();
-  //       Path directoryPath = Paths.get(ruta);
-  //       if (!Files.exists(directoryPath)) {
-  //           Files.createDirectories(directoryPath);
-  //       }
-  //       System.out.println(ruta);
-  //       System.out.println(resource.getFilename());
-  //       Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
-  //       Producto producto = productoRepo.findByCode(codigo, empresa.getId());
-  //       int index = imagen.getOriginalFilename().indexOf(".");
-  //       String extension = "." + imagen.getOriginalFilename().substring(index+1);
-  //       String nombre = Calendar.getInstance().getTimeInMillis() + extension;
-  //       // Path rutaAbsoluta = Paths.get(ruta + "//" + nombre);
-  //       // Path rutaAbsoluta = Paths.get(ruta, nombre);
-  //       Path rutaAbsoluta = producto.getImagen() != null ?  Paths.get(ruta, producto.getImagen()) : 
-  //                                                           Paths.get(ruta, nombre);
-  //       Files.write(rutaAbsoluta, imagen.getBytes());
-  //       producto.setImagen(nombre);
-  //       productoRepo.save(producto);
-  //       return "Exito";
-  //   } catch (Exception e){
-  //       return e.getMessage();
-  //   }
-  // }
 
   @Transactional
     public ProductoDTO createProducto(GuardarProductoDTO producto) {

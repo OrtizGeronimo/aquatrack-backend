@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Calendar;
+import java.util.HashMap;
 
 import com.example.aquatrack_backend.model.Precio;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,10 +57,18 @@ public class ProductoControlador{
     return ResponseEntity.ok().body(productoServicio.getProductosActivos(page, size, nombre, mostrar_inactivos, precio1, precio2));
     }
 
-    @PostMapping("/uploadImage/{codigo}")
-    public ResponseEntity<?> uploadImagen(@RequestParam("imagen") MultipartFile imagen, @PathVariable String codigo) throws IOException, RecordNotFoundException{     
-        productoServicio.uploadImage(imagen, codigo);
-        return ResponseEntity.ok("Image uploaded successfully");  
+    @GetMapping("/image/{id}")
+    public ResponseEntity<?> getImagen(@PathVariable Long id) throws IOException, RecordNotFoundException{     
+        // productoServicio.getImagen(id);
+        return ResponseEntity.ok(productoServicio.getImagen(id));  
+     }
+
+    @PostMapping("/uploadImage/{id}")
+    public ResponseEntity<?> uploadImagen(@RequestParam("imagen") MultipartFile imagen, @PathVariable Long id) throws IOException, RecordNotFoundException{     
+        productoServicio.uploadImage(imagen, id);
+        HashMap<String,String> map = new HashMap(); 
+        map.put("message","Image uploaded successfully");
+        return ResponseEntity.ok().body(map);  
      }
 
     @PostMapping(value = "")

@@ -82,7 +82,12 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler({ ClienteNoValidoException.class })
-  public ResponseEntity<?> handleClientWebNotValidatedException(ClienteNoValidoException ex) {
+  public ResponseEntity<?> handleClientNotValidatedException(ClienteNoValidoException ex) {
+    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());
+  }
+
+  @ExceptionHandler({ UserNoValidoException.class })
+  public ResponseEntity<?> handleUserNotValidatedException(UserNoValidoException ex) {
     return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());
   }
 

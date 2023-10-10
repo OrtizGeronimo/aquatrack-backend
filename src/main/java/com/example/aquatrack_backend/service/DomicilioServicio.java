@@ -6,6 +6,7 @@ import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.model.Cliente;
 import com.example.aquatrack_backend.model.Empresa;
 import com.example.aquatrack_backend.model.Ubicacion;
+import com.example.aquatrack_backend.validators.ClientValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class DomicilioServicio extends ServicioBaseImpl<Domicilio> {
   @Autowired
   private ClienteServicio clienteServicio;
   private ModelMapper mapper = new ModelMapper();
+  private ClientValidator clientValidator = new ClientValidator();
 
   public DomicilioServicio(RepoBase<Domicilio> repoBase) {
     super(repoBase);
@@ -31,7 +33,7 @@ public class DomicilioServicio extends ServicioBaseImpl<Domicilio> {
   public boolean crearDomicilioUbicacion(UbicacionDTO ubicacionDTO) throws RecordNotFoundException, ClienteNoValidoException {
     Cliente cliente = clienteServicio.findClientById(ubicacionDTO.getIdCliente());
     Empresa empresa = cliente.getEmpresa();
-    clienteServicio.validateAppClient(ubicacionDTO, empresa.getCobertura());
+    clientValidator.validateAppClient(ubicacionDTO, empresa.getCobertura());
     Domicilio domicilio = domicilioRepo.findById(cliente.getDomicilio().getId()).orElseThrow(() -> new RecordNotFoundException("No se encontro el domicilio"));
     Ubicacion ubicacion = ubicaciónServicio.guardarUbicacion(ubicacionDTO);
     domicilio.setUbicacion(ubicacion);

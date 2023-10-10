@@ -23,4 +23,7 @@ public class Cliente extends Persona {
 
   @ManyToOne()
   private Empresa empresa;
+
+  @ManyToOne()
+  private EstadoCliente estadoCliente;
 }

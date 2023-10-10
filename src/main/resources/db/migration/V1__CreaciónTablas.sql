@@ -1,4 +1,4 @@
-create table cliente (id bigint not null, apellido varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), nombre varchar(255), num_telefono varchar(255), usuario_id bigint, empresa_id bigint, dni integer, primary key (id)) engine=InnoDB;
+create table cliente (id bigint not null, apellido varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), nombre varchar(255), num_telefono varchar(255), usuario_id bigint, empresa_id bigint, estado_cliente_id bigint, dni integer, primary key (id)) engine=InnoDB;
 create table cobertura (id bigint not null auto_increment, empresa_id bigint, primary key (id)) engine=InnoDB;
 create table codigo_temporal (id bigint not null auto_increment, codigo varchar(255), fecha_expiracion datetime(6), empresa_id bigint, primary key (id)) engine=InnoDB;
 create table deuda (id bigint not null auto_increment, fecha_ultima_actualizacion datetime(6), monto decimal not null, monto_maximo decimal not null, domicilio_id bigint, primary key (id)) engine=InnoDB;
@@ -12,11 +12,13 @@ create table domicilio_ruta (id bigint not null auto_increment, domicilio_id big
 create table empleado (id bigint not null, apellido varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), nombre varchar(255), num_telefono varchar(255), usuario_id bigint, fecha_fin_vacaciones datetime(6), fecha_ingreso datetime(6), fecha_inicio_vacaciones datetime(6), legajo integer, empresa_id bigint, tipo_id bigint, primary key (id)) engine=InnoDB;
 create table empresa (id bigint not null auto_increment, direccion varchar(255), email varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), hora_actualizacion datetime(6), nombre varchar(255), num_telefono varchar(255), url varchar(255), ubicacion_id bigint, primary key (id)) engine=InnoDB;
 create table entrega (id bigint not null auto_increment, orden_visita bigint, fecha_hora_visita datetime(6), domicilio_id bigint, estado_entrega_id bigint, pago_id bigint, reparto_id bigint, primary key (id)) engine=InnoDB;
+create table estado_cliente (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre_estado_cliente varchar(255), primary key (id)) engine=InnoDB;
 create table entrega_detalle (id bigint not null auto_increment, cantidad_entregada integer, cantidad_recibida integer, entrega_id bigint, producto_id bigint, primary key (id)) engine=InnoDB;
 create table estado_entrega (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre_estado_entrega varchar(255), primary key (id)) engine=InnoDB;
 create table estado_pago (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre varchar(255), primary key (id)) engine=InnoDB;
 create table estado_pedido (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre_estado_pedido varchar(255), primary key (id)) engine=InnoDB;
 create table estado_reparto (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre varchar(255), primary key (id)) engine=InnoDB;
+create table estado_usuario (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre_estado_usuario varchar(255), primary key (id)) engine=InnoDB;
 create table hibernate_sequence (next_val bigint) engine=InnoDB;
 insert into hibernate_sequence values ( 1 );
 create table hibernate_sequences (sequence_name varchar(255) not null, next_val bigint, primary key (sequence_name)) engine=InnoDB;
@@ -36,10 +38,11 @@ create table ruta (id bigint not null auto_increment, nombre varchar(255), prima
 create table tipo_empleado (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre varchar(255), primary key (id)) engine=InnoDB;
 create table tipo_pedido (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre_tipo_pedido varchar(255), primary key (id)) engine=InnoDB;
 create table ubicacion (id bigint not null auto_increment, latitud double precision, longitud double precision, cobertura_id bigint, primary key (id)) engine=InnoDB;
-create table usuario (id bigint not null auto_increment, contraseña varchar(255), direccion_email varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), validado bit, primary key (id)) engine=InnoDB;
+create table usuario (id bigint not null auto_increment, contraseña varchar(255), direccion_email varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), validado bit, estado_usuario_id bigint, primary key (id)) engine=InnoDB;
 create table usuario_codigo_validacion (id bigint not null auto_increment, codigo varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), usuario_id bigint, primary key (id)) engine=InnoDB;
 alter table cliente add constraint FK_id7jmosqg8hkqiqw4vf50xipm foreign key (usuario_id) references usuario (id);
     alter table cliente add constraint FK_id7jmosqg8hkqiqw4vf52axzq foreign key (empresa_id) references usuario (id);
+    alter table cliente add constraint FKlq5bi6ct62v3aame1pixcaswq foreign key (estado_cliente_id) references estado_cliente (id);
     alter table cobertura add constraint FKb27p91f7hiunb5hdih43dthp6 foreign key (empresa_id) references empresa (id);
     alter table codigo_temporal add constraint FKc13itnhg09x7be6gawnwx5ya4 foreign key (empresa_id) references empresa (id);
     alter table deuda add constraint FKf0o1s8woy0y0sy1yu8e4eh2w8 foreign key (domicilio_id) references domicilio (id);
@@ -85,4 +88,5 @@ alter table cliente add constraint FK_id7jmosqg8hkqiqw4vf50xipm foreign key (usu
     alter table rol_usuario add constraint FKoc5d5rx86a1ba0lwq9dxcr4ia foreign key (rol_id) references rol (id);
     alter table rol_usuario add constraint FK99qbb42lm96u3n0tjojmb6ktm foreign key (usuario_id) references usuario (id);
     alter table ubicacion add constraint FK1ss12bcqh71c1gf98s9mi035b foreign key (cobertura_id) references cobertura (id);
+    alter table usuario add constraint FKlq5bi6ct62v3aame1pixchbqt foreign key (estado_usuario_id) references estado_usuario (id);
     alter table usuario_codigo_validacion add constraint FK7wim923ngjhstxdgroodgtwck foreign key (usuario_id) references usuario (id);

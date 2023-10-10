@@ -1,6 +1,8 @@
 package com.example.aquatrack_backend.controller;
 
 import com.example.aquatrack_backend.dto.RegisterRequestDTO;
+import com.example.aquatrack_backend.exception.RecordNotFoundException;
+import com.example.aquatrack_backend.exception.UserNoValidoException;
 import com.example.aquatrack_backend.helpers.ValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +33,7 @@ public class UsuarioControlador {
   }
 
   @PostMapping(value="/register")
-  public ResponseEntity<?> register(@RequestBody RegisterRequestDTO usuario){
+  public ResponseEntity<?> register(@RequestBody RegisterRequestDTO usuario) throws UserNoValidoException, RecordNotFoundException {
     if(validationHelper.hasValidationErrors(usuario)){
       return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(usuario));
     }

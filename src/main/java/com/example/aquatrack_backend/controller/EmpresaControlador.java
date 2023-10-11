@@ -30,7 +30,7 @@ public class EmpresaControlador{
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> detalleEmpresa(@PathVariable Long id) throws RecordNotFoundException {
-        return ResponseEntity.ok().body(empresaServicio.detalleEmpresa(id));
+    public ResponseEntity<?> detalleEmpresa() throws RecordNotFoundException {
+        return ResponseEntity.ok().body(empresaServicio.detalleEmpresa());
     }
 }

@@ -2,6 +2,7 @@ package com.example.aquatrack_backend.service;
 
 import com.example.aquatrack_backend.dto.EmpresaDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
+import com.example.aquatrack_backend.model.Empleado;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +20,9 @@ public class EmpresaServicio extends ServicioBaseImpl<Empresa> {
     super(repoBase);
   }
 
-  public EmpresaDTO detalleEmpresa(Long id) throws RecordNotFoundException {
-    Empresa empresa = empresaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("La empresa con id " + id + " no fue encontrada"));
+  public EmpresaDTO detalleEmpresa() throws RecordNotFoundException {
 
+    Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
     EmpresaDTO response = new EmpresaDTO();
 
     response.setId(empresa.getId());

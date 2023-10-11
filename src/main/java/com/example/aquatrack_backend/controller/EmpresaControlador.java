@@ -38,7 +38,7 @@ public class EmpresaControlador{
     }
 
     @PutMapping("")
-    public ResponseEntity<?> editarEmpresa(EmpresaDTO dto) throws EntidadNoValidaException {
+    public ResponseEntity<?> editarEmpresa(@RequestBody EmpresaDTO dto) throws EntidadNoValidaException {
         return ResponseEntity.ok().body(empresaServicio.editarEmpresa(dto));
     }
 }

@@ -50,6 +50,8 @@ public class EmpresaServicio extends ServicioBaseImpl<Empresa> {
 
     Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
 
+    dto.setId(empresa.getId());
+
     empresaValidator.validateEmpresa(dto, empresa.getCobertura());
 
     empresa.setNombre(dto.getNombreEmpresa());

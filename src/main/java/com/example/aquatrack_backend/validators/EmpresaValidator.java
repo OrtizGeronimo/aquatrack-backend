@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 @Data
 @Service
@@ -25,13 +26,15 @@ public class EmpresaValidator {
     public void validateEmpresa(EmpresaDTO empresa, Cobertura cobertura) throws EntidadNoValidaException {
         HashMap<String, String> errors = new HashMap<>();
 
-        if (empresaRepo.findByEmail(empresa.getMailEmpresa()).isPresent()){
+        Optional<Empresa> empresaGuardada = empresaRepo.findByEmail(empresa.getMailEmpresa());
+
+        if (empresaGuardada.isPresent() && !empresaGuardada.get().getId().equals(empresa.getId())){
             errors.put("email", "Ya existe una empresa con el email ingresado");
         }
 
         UbicacionDTO ubicacion = new UbicacionDTO();
-        ubicacion.setLatitud(empresa.getUbicacion().getLatitud());
-        ubicacion.setLongitud(empresa.getUbicacion().getLongitud());
+        ubicacion.setLatitud(empresa.getLatitud());
+        ubicacion.setLongitud(empresa.getLongitud());
 
         if (!ubicacionHelper.estaContenida(ubicacion, cobertura)){
             errors.put("root","La ubicación ingresada no se encuentra dentro de la cobertura");

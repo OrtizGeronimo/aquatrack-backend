@@ -104,7 +104,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
 
     EmpresaDTO empresaDTO = new EmpresaDTO();
     empresaDTO.setId(empresa_id);
-    empresaDTO.setNombre(empresa.getNombre());
+    empresaDTO.setNombreEmpresa(empresa.getNombre());
     return empresaDTO;
   }
 

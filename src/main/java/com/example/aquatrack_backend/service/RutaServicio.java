@@ -449,6 +449,12 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
 
     ruta.setFechaFinVigencia(LocalDateTime.now());
 
+    for (DiaRuta diaRuta: ruta.getDiaRutas()) {
+      for (DiaDomicilio dia: diaRuta.getDiaDomicilios()) {
+        diaDomicilioRepo.deleteById(dia.getId());
+      }
+    }
+
     rutaRepo.save(ruta);
 
   }

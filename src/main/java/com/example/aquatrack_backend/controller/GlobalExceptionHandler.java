@@ -5,7 +5,6 @@ import com.example.aquatrack_backend.exception.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.example.aquatrack_backend.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -40,7 +39,7 @@ public class GlobalExceptionHandler {
             .build());
   }
 
-  @ExceptionHandler({ ClienteWebUnauthorizedException.class })
+  @ExceptionHandler({ UserUnauthorizedException.class })
   public ResponseEntity<?> handleClienteWebException(Exception ex) {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
         .body(ErrorResponseDTO.builder()

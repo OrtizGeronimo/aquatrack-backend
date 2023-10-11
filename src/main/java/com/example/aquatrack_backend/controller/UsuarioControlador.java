@@ -17,11 +17,19 @@ public class UsuarioControlador {
   private ValidationHelper validationHelper = new ValidationHelper<>();
 
   @PostMapping(value = "/login")
-  public ResponseEntity<?> login(@RequestBody LoginRequestDTO usuario) throws ClienteWebUnauthorizedException {
+  public ResponseEntity<?> login(@RequestBody LoginRequestDTO usuario) throws UserUnauthorizedException {
     if(validationHelper.hasValidationErrors(usuario)){
       return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(usuario));
     }
     return ResponseEntity.ok().body(usuarioServicio.login(usuario.getDireccionEmail(), usuario.getContraseña()));
+  }
+
+  @PostMapping(value = "/login/mobile")
+  public ResponseEntity<?> loginMobile(@RequestBody LoginRequestDTO usuario) throws UserUnauthorizedException{
+    if(validationHelper.hasValidationErrors(usuario)){
+      return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(usuario));
+    }
+    return ResponseEntity.ok().body(usuarioServicio.loginMobile(usuario.getDireccionEmail(), usuario.getContraseña()));
   }
 
   @PostMapping(value="/register")
@@ -45,6 +53,11 @@ public class UsuarioControlador {
   @GetMapping(value = "/current")
   public ResponseEntity<?> getCurrentUser() throws FailedToAuthenticateUserException {
     return ResponseEntity.ok().body(usuarioServicio.getCurrentUser());
+  }
+
+  @GetMapping(value = "/current/mobile")
+  public ResponseEntity<?> getCurrentUserMobile() throws FailedToAuthenticateUserException {
+    return ResponseEntity.ok().body(usuarioServicio.getCurrentUserMobile());
   }
 
   @PutMapping(value = "/changePasswordProfile")

@@ -22,8 +22,5 @@ public class Cliente extends Persona {
   private Domicilio domicilio;
 
   @ManyToOne()
-  private Empresa empresa;
-
-  @ManyToOne()
   private EstadoCliente estadoCliente;
 }

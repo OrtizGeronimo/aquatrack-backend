@@ -1,6 +1,5 @@
 package com.example.aquatrack_backend.validators;
 
-import com.example.aquatrack_backend.dto.GuardarClienteDTO;
 import com.example.aquatrack_backend.dto.GuardarClienteWebDTO;
 import com.example.aquatrack_backend.dto.UbicacionDTO;
 import com.example.aquatrack_backend.exception.ClienteNoCubiertoApp;
@@ -15,7 +14,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -95,10 +96,20 @@ public class ClientValidator {
     private boolean validateUniqueDniUpdate(Integer dni, Long idE, Long idC) {
         List<Long> result = clienteRepo.validateDniUpdate(dni, idE);
 
-        if (!result.isEmpty() && !result.contains(idC)) {
+        if(!result.isEmpty() && !result.contains(idC)) {
             return false;
         }
 
         return true;
+    }
+
+    @Transactional
+    @Scheduled(cron = "0 * * * * *")
+    public void cleanUnusedClient(){
+        List<Long> idsClients = clienteRepo.findAllUnusedClients();
+        for (Long client: idsClients) {
+            clienteRepo.deleteClientDomicily(client);
+            clienteRepo.deleteById(client);
+        }
     }
 }

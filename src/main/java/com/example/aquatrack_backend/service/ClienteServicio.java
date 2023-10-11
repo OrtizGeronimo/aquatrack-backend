@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,8 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
   private UsuarioRepo usuarioRepo;
   @Autowired
   private EstadoUsuarioRepo estadoUsuarioRepo;
+  @Autowired
+  private EstadoClienteRepo estadoClienteRepo;
   private ModelMapper modelMapper = new ModelMapper();
 
   @Autowired
@@ -133,8 +136,6 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
         .orElseThrow(() -> new RecordNotFoundException("No se encontro la empresa"));
     Usuario usuario = usuarioRepo.findById(cliente.getUsuarioId())
         .orElseThrow(() -> new RecordNotFoundException("No se encontro el usuario"));
-    usuario.setEstadoUsuario(estadoUsuarioRepo.findByNombreEstadoUsuario("Habilitado")
-            .orElseThrow(()-> new RecordNotFoundException("El estado no fue encontrado")));
     Cliente clienteNuevo = new ModelMapper().map(cliente, Cliente.class);
     clienteNuevo.setFechaCreacion(LocalDate.now());
     clienteNuevo.setEmpresa(empresa);
@@ -147,6 +148,9 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
       domicilio = clienteExist.getDomicilio();
       Ubicacion ubicacion = domicilio.getUbicacion();
       ubicacionDTO = modelMapper.map(ubicacion, UbicacionDTO.class);
+    } else {
+      clienteNuevo.setEstadoCliente(estadoClienteRepo.findByNombreEstadoCliente("En proceso de creación")
+              .orElseThrow(()->new RecordNotFoundException("El estado no fue encontrado.")));
     }
     domicilio.setCalle(cliente.getCalle());
     domicilio.setNumero(cliente.getNumero());
@@ -265,56 +269,4 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
       return value.toString();
     }
   }
-
-/*  public void validateAppClient(UbicacionDTO ubicacion, Cobertura cobertura) throws ClienteNoValidoException{
-
-    HashMap<String, String> errors = new HashMap<>();
-
-    if(!validateIsContained(ubicacion, cobertura)){
-      errors.put("ubicacion", "El cliente ingresado no está contenido en la cobertura de la empresa.");
-    }
-
-    if(!errors.isEmpty()){
-      throw new ClienteNoValidoException(errors);
-    }
-  }
-
-  private void validateWebClient(GuardarClienteWebDTO clienteDTO, Empresa empresa) throws ClienteNoValidoException {
-
-    HashMap<String, String> errors = new HashMap<>();
-
-    if(!validateUniqueDni(clienteDTO.getDni(), empresa.getId(), clienteDTO.getId())){
-      errors.put("dni", "El dni ingresado ya se encuentra vinculado a un cliente de la empresa");
-    }
-
-    UbicacionDTO ubicacionDTO = UbicacionDTO.builder().latitud(clienteDTO.getLatitud()).longitud(clienteDTO.getLongitud()).build();
-    if(!validateIsContained(ubicacionDTO, empresa.getCobertura())){
-      errors.put("root", "El cliente ingresado no está contenido en la cobertura de la empresa.");
-    }
-
-    if(!errors.isEmpty()){
-      throw new ClienteNoValidoException(errors);
-    }
-  }
-
-  private boolean validateUniqueDni(Integer dni, Long idE, Long idC){
-    List<Long> result = clienteRepo.validateUniqueDni(dni, idE);
-    if (idC == null && !result.isEmpty()){
-      return false;
-    }
-
-    if(idC != null && !result.contains(idC)){
-      return false;
-    }
-
-    return true;
-  }
-
-  private boolean validateIsContained(UbicacionDTO ubiCliente, Cobertura cobertura){
-    boolean isContained = ubicacionHelper.estaContenida(ubiCliente, cobertura);
-    if(!isContained){
-      return false;
-    }
-    return true;
-  }*/
 }

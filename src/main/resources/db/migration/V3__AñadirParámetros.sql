@@ -24,13 +24,13 @@ VALUES
 
 INSERT INTO estado_cliente(id, nombre_estado_cliente)
 VALUES
-    (1, 'Creado'),
+    (1, 'En proceso de creación'),
     (2, 'Habilitado'),
     (3, 'Deshabilitado');
 
 INSERT INTO estado_usuario(id, nombre_estado_usuario)
 VALUES
-    (1, 'Creado'),
+    (1, 'En proceso de creación'),
     (2, 'Habilitado'),
     (3, 'Deshabilitado');
 

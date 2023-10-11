@@ -72,5 +72,9 @@ public class EntregaServicio extends ServicioBaseImpl<Entrega> {
             .id(entrega.getId())
             .build();
   }
+
+  public boolean procesarEntrega(Long idEntrega){
+    return true;
+  }
   
 }

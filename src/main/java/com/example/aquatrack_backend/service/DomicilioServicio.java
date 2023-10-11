@@ -7,14 +7,13 @@ import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.model.Cliente;
 import com.example.aquatrack_backend.model.Empresa;
 import com.example.aquatrack_backend.model.Ubicacion;
+import com.example.aquatrack_backend.repo.*;
 import com.example.aquatrack_backend.validators.ClientValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.aquatrack_backend.model.Domicilio;
-import com.example.aquatrack_backend.repo.DomicilioRepo;
-import com.example.aquatrack_backend.repo.RepoBase;
 
 @Service
 public class DomicilioServicio extends ServicioBaseImpl<Domicilio> {
@@ -24,6 +23,10 @@ public class DomicilioServicio extends ServicioBaseImpl<Domicilio> {
   private UbicaciónServicio ubicaciónServicio;
   @Autowired
   private ClienteServicio clienteServicio;
+  @Autowired
+  private EstadoClienteRepo estadoClienteRepo;
+  @Autowired
+  private EstadoUsuarioRepo estadoUsuarioRepo;
   private ModelMapper mapper = new ModelMapper();
   private ClientValidator clientValidator = new ClientValidator();
 
@@ -35,10 +38,14 @@ public class DomicilioServicio extends ServicioBaseImpl<Domicilio> {
     Cliente cliente = clienteServicio.findClientById(ubicacionDTO.getIdCliente());
     Empresa empresa = cliente.getEmpresa();
     clientValidator.validateAppClient(ubicacionDTO, empresa.getCobertura());
-    Domicilio domicilio = domicilioRepo.findById(cliente.getDomicilio().getId()).orElseThrow(() -> new RecordNotFoundException("No se encontro el domicilio"));
+    Domicilio domicilio = cliente.getDomicilio();
     Ubicacion ubicacion = ubicaciónServicio.guardarUbicacion(ubicacionDTO);
     domicilio.setUbicacion(ubicacion);
     domicilio.setLocalidad(ubicacionDTO.getLocalidad());
+    cliente.setEstadoCliente(estadoClienteRepo.findByNombreEstadoCliente("Habilitado")
+            .orElseThrow(()-> new RecordNotFoundException("El estado habilitado no fue encontrado.")));
+    cliente.getUsuario().setEstadoUsuario(estadoUsuarioRepo.findByNombreEstadoUsuario("Habilitado")
+            .orElseThrow(()-> new RecordNotFoundException("El estado habilitado no fue encontrado.")));
     domicilioRepo.save(domicilio);
     return true;
   }

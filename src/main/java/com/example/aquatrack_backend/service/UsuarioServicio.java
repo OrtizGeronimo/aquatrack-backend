@@ -11,6 +11,7 @@ import com.example.aquatrack_backend.repo.RolRepo;
 import com.example.aquatrack_backend.repo.UsuarioRepo;
 import com.example.aquatrack_backend.validators.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -53,15 +54,36 @@ public class UsuarioServicio {
   private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
 
-  public LoginResponseDTO login(String direccionEmail, String contraseña) throws ClienteWebUnauthorizedException{
+  public LoginResponseDTO login(String direccionEmail, String contraseña) throws UserUnauthorizedException {
     Authentication authentication = authenticationManager
       .authenticate(new UsernamePasswordAuthenticationToken(direccionEmail, contraseña));
     Persona persona = ((SecurityUser) authentication.getPrincipal()).getUsuario().getPersona();
     if (persona instanceof Cliente) {
-      throw new ClienteWebUnauthorizedException("No puede iniciar sesión como cliente en AquaTrack Web.");
+      throw new UserUnauthorizedException("No puede iniciar sesión como cliente en AquaTrack Web.");
     }
     String jwt = jwtUtils.generateJwtToken(authentication);
     return LoginResponseDTO.builder().token(jwt).build();
+  }
+
+  public LoginMobileResponseDTO loginMobile(String direccionEmail, String contraseña) throws UserUnauthorizedException{
+    Authentication authentication = authenticationManager
+            .authenticate(new UsernamePasswordAuthenticationToken(direccionEmail, contraseña));
+    Persona persona = ((SecurityUser) authentication.getPrincipal()).getUsuario().getPersona();
+    String tipoPersona;
+    if (persona instanceof Empleado) {
+      if(((Empleado) persona).getTipo().getNombre().equalsIgnoreCase("repartidor")){
+        tipoPersona = "repartidor";
+      } else {
+        throw new UserUnauthorizedException("El usuario ingresado no puede acceder a la aplicación mobile.");
+      }
+    } else {
+      tipoPersona = "cliente";
+    }
+    String jwt = jwtUtils.generateJwtToken(authentication);
+    return LoginMobileResponseDTO.builder()
+            .token(jwt)
+            .tipoPersona(tipoPersona)
+            .build();
   }
 
   private Usuario createUser(String mail, String password, String confirmacionPassword){
@@ -78,7 +100,7 @@ public class UsuarioServicio {
   public RegisterResponseDTO clientRegister(RegisterRequestDTO register) throws UserNoValidoException, RecordNotFoundException {
     userValidator.validateClientUser(register.getDireccionEmail());
     Usuario usuario = createUser(register.getDireccionEmail(), register.getContraseña(), register.getConfirmacionContraseña());
-    usuario.setEstadoUsuario(estadoUsuarioRepo.findByNombreEstadoUsuario("Creado").orElseThrow(()->new RecordNotFoundException("El estado no fue encontrado.")));
+    usuario.setEstadoUsuario(estadoUsuarioRepo.findByNombreEstadoUsuario("En proceso de creación").orElseThrow(()->new RecordNotFoundException("El estado no fue encontrado.")));
     Rol rol = rolRepo.findClientRole();
     List<RolUsuario> rolUsuarios = new ArrayList<>();
     rolUsuarios.add(new RolUsuario(rol, usuario));
@@ -107,19 +129,19 @@ public class UsuarioServicio {
     }
   }
 
-  @Transactional
-  public Usuario createUserClient(String email, String password, Long empresaId){
-    Usuario usuario = new Usuario();
-    usuario.setDireccionEmail(email);
-    usuario.setContraseña(bCryptPasswordEncoder.encode(password));
-    usuario.setFechaCreacion(LocalDate.now());
-    usuario.setValidado(true);
-    Rol rol = rolRepo.findClientRole();
-    List<RolUsuario> rolUsuarios = new ArrayList<>();
-    rolUsuarios.add(new RolUsuario(rol, usuario));
-    usuario.setRolesUsuario(rolUsuarios);
-    usuarioRepo.save(usuario);
-    return usuario;
+  public CurrentUserMobileDTO getCurrentUserMobile() throws FailedToAuthenticateUserException {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+    if (authentication != null && authentication.isAuthenticated()) {
+      Persona persona = getUsuarioFromContext().getPersona();
+      return CurrentUserMobileDTO.builder()
+              .nombre(persona.getNombre() + " " + persona.getApellido())
+              .empresa(persona.getEmpresa().getNombre())
+              .tipoPersona(persona instanceof Empleado ? "repartidor" : "cliente")
+              .build();
+    } else {
+      throw new FailedToAuthenticateUserException("Error de autenticación. Intente mas tarde.");
+    }
   }
 
   @Transactional
@@ -183,6 +205,16 @@ public class UsuarioServicio {
       return dto;
     } else {
       throw new IllegalArgumentException("No se encontró el usuario correspondiente al token");
+    }
+  }
+
+  @Transactional
+  @Scheduled(cron = "0 */20 * * * *")
+  public void cleanUnusedClientUsers(){
+    List<Long> idsUsers = usuarioRepo.findAllUnusedUsers();
+    for (Long user: idsUsers) {
+      usuarioRepo.deleteUserRoles(user);
+      usuarioRepo.deleteById(user);
     }
   }
 }

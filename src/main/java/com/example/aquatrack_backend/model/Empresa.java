@@ -56,7 +56,7 @@ public class Empresa {
   @OneToOne(mappedBy = "empresa")
   private Cobertura cobertura;
 
-  @OneToOne()
+  @OneToOne(cascade = CascadeType.ALL)
   private Ubicacion ubicacion;
 
   @LazyCollection(LazyCollectionOption.FALSE)

@@ -29,7 +29,7 @@ public class EmpresaControlador{
         return ResponseEntity.ok().body(codigoTemporalServicio.generarCodigoAlta());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("")
     public ResponseEntity<?> detalleEmpresa() throws RecordNotFoundException {
         return ResponseEntity.ok().body(empresaServicio.detalleEmpresa());
     }

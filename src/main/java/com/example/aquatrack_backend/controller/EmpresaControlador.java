@@ -1,6 +1,9 @@
 package com.example.aquatrack_backend.controller;
 
+import com.example.aquatrack_backend.dto.EditarEmpresaDTO;
+import com.example.aquatrack_backend.dto.EmpresaDTO;
 import com.example.aquatrack_backend.dto.UbicacionDTO;
+import com.example.aquatrack_backend.exception.EntidadNoValidaException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.model.Empresa;
 import com.example.aquatrack_backend.service.CodigoTemporalServicio;
@@ -32,5 +35,10 @@ public class EmpresaControlador{
     @GetMapping("")
     public ResponseEntity<?> detalleEmpresa() throws RecordNotFoundException {
         return ResponseEntity.ok().body(empresaServicio.detalleEmpresa());
+    }
+
+    @PutMapping("")
+    public ResponseEntity<?> editarEmpresa(EmpresaDTO dto) throws EntidadNoValidaException {
+        return ResponseEntity.ok().body(empresaServicio.editarEmpresa(dto));
     }
 }

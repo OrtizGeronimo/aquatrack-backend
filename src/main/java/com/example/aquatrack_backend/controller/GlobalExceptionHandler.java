@@ -5,7 +5,6 @@ import com.example.aquatrack_backend.exception.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.example.aquatrack_backend.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -114,8 +113,8 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getMessage());
   }
 
-  @ExceptionHandler({ClienteNoValidoUpdateException.class})
-  public ResponseEntity<?> handleClienteWebUpdate(ClienteNoValidoUpdateException ex){
+  @ExceptionHandler({EntidadNoValidaException.class})
+  public ResponseEntity<?> handleClienteWebUpdate(EntidadNoValidaException ex){
     return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());
   }
 

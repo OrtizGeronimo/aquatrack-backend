@@ -125,7 +125,9 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         for (Empresa empresa: empresas) {
             if (empresa.getHoraGeneracionReparto().equals(today)){
                 for(Ruta ruta: empresa.getRutas()) {
-                    crearReparto(ruta.getId());
+                    if (ruta.getFechaFinVigencia() == null) {
+                        crearReparto(ruta.getId());
+                    }
                 }
             }
         }
@@ -233,28 +235,28 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         String lonEmpresa = Double.toString(lonInicio).replace(',', '.');
 
         String coordenadasInicio = latEmpresa + "," + lonEmpresa;
+        urlBuilder.append("wp.1=" + coordenadasInicio + "&");
+        for (int i = 0; i < domicilioRutas.size(); i++) {
 
-            for (int i = 0; i < domicilioRutas.size(); i++) {
+            Domicilio domicilio1 = domicilioRutas.get(i).getDomicilio();
+            double lat1 = domicilio1.getUbicacion().getLatitud();
+            double lon1 = domicilio1.getUbicacion().getLongitud();
+            String originLatitude = Double.toString(lat1).replace(',', '.');
+            String originLongitude = Double.toString(lon1).replace(',', '.');
 
-                Domicilio domicilio1 = domicilioRutas.get(i).getDomicilio();
-                double lat1 = domicilio1.getUbicacion().getLatitud();
-                double lon1 = domicilio1.getUbicacion().getLongitud();
-                String originLatitude = Double.toString(lat1).replace(',', '.');
-                String originLongitude = Double.toString(lon1).replace(',', '.');
+            String coordinates = originLatitude + "," + originLongitude;
 
-                String coordinates = originLatitude + "," + originLongitude;
+            /*if (i == 0) {
+                urlBuilder.append("wp." + (i + 1) + "=" + coordenadasInicio + "&");
+            } else {*/
+            urlBuilder.append("wp." + (i + 2) + "=" + coordinates + "&");
+//                    if (i == domicilioRutas.size() - 1){
+//                        urlBuilder.append("wp." + (i + 2) + "=" + coordenadasInicio + "&");
+//                    }
+//                }
+        }
+        urlBuilder.append("wp." + (domicilioRutas.size() + 2) + "=" + coordenadasInicio + "&");
 
-                if (i == 0) {
-                    //coordenadasInicio = coordinates;
-                    //urlBuilder.append("wp." + (i + 1) + "=" + coordinates + "&");
-                    urlBuilder.append("wp." + (i + 1) + "=" + coordenadasInicio + "&");
-                } else {
-                    urlBuilder.append("wp." + (i + 1) + "=" + coordinates + "&");
-                    if (i == domicilioRutas.size() - 1){
-                        urlBuilder.append("wp." + (i + 2) + "=" + coordenadasInicio + "&");
-                    }
-                }
-            }
 
         urlBuilder.append("optimizeWaypoints=true&optmz=distance&key=" + apiKey);
 
@@ -283,7 +285,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
                     .getJSONObject(0)
                     .getJSONArray("waypointsOrder");
 
-            for (int i = 0; i < coordinates.length()-1; i++) {
+            for (int i = 0; i < coordinates.length()-2; i++) {
                 String coordenada = coordinates.getString(i);
                 String[] partes = coordenada.split("\\.");
 
@@ -311,7 +313,9 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
         Pageable pageable = PageRequest.of(page, size/*, Sort.by("er.id, ru.nombre")*/);
 
-        Page<Reparto> repartos = repartoRepo.search(idRuta, idRepartidor, estado, pageable);
+        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+
+        Page<Reparto> repartos = repartoRepo.search(empresa.getId(), idRuta, idRepartidor, estado, pageable);
 
 //        if (repartos == null || repartos.isEmpty()){
 //            return null;

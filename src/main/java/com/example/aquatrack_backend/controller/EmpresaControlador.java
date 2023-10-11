@@ -1,6 +1,7 @@
 package com.example.aquatrack_backend.controller;
 
 import com.example.aquatrack_backend.dto.UbicacionDTO;
+import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.model.Empresa;
 import com.example.aquatrack_backend.service.CodigoTemporalServicio;
 import com.example.aquatrack_backend.service.EmpresaServicio;
@@ -26,5 +27,10 @@ public class EmpresaControlador{
     @PreAuthorize("hasAuthority('CREAR_CLIENTES')")
     public ResponseEntity<?> obtenerCodigoAlta(){
         return ResponseEntity.ok().body(codigoTemporalServicio.generarCodigoAlta());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> detalleEmpresa(@PathVariable Long id) throws RecordNotFoundException {
+        return ResponseEntity.ok().body(empresaServicio.detalleEmpresa(id));
     }
 }

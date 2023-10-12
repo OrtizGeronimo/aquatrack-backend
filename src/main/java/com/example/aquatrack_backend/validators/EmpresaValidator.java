@@ -29,7 +29,7 @@ public class EmpresaValidator {
         Optional<Empresa> empresaGuardada = empresaRepo.findByEmail(empresa.getMailEmpresa());
 
         if (empresaGuardada.isPresent() && !empresaGuardada.get().getId().equals(empresa.getId())){
-            errors.put("email", "Ya existe una empresa con el email ingresado");
+            errors.put("mailEmpresa", "Ya existe una empresa con el email ingresado");
         }
 
         UbicacionDTO ubicacion = new UbicacionDTO();

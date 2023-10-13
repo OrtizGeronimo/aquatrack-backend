@@ -101,9 +101,12 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
 
   @Transactional
   public EmpresaDTO altaEmpresa(CodigoDTO codigo) throws RecordNotFoundException {
+
     Long empresa_id = codigoTemporalServicio.obtenerEmpresaPorCodigo(codigo.getCodigo());
     Empresa empresa = empresaRepo.findById(empresa_id)
         .orElseThrow(() -> new RecordNotFoundException("La empresa solicitado no fue encontrado"));
+
+    codigoTemporalServicio.eliminarCodigoUtilizado(codigo.getCodigo());
 
     EmpresaDTO empresaDTO = new EmpresaDTO();
     empresaDTO.setId(empresa_id);

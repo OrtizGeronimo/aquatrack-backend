@@ -28,9 +28,10 @@ import java.util.List;
 public class ClientValidator {
     @Autowired
     private ClienteRepo clienteRepo;
-
     @Autowired
     private UsuarioRepo usuarioRepo;
+    @Autowired
+    private UserValidator userValidator;
 
     private UbicacionHelper ubicacionHelper = new UbicacionHelper();
 
@@ -111,5 +112,6 @@ public class ClientValidator {
             clienteRepo.deleteClientDomicily(client);
             clienteRepo.deleteById(client);
         }
+        userValidator.cleanUnusedClientUsers();
     }
 }

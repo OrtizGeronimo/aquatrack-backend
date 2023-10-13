@@ -59,6 +59,11 @@ public class CodigoTemporalServicio extends ServicioBaseImpl<CodigoTemporal>{
     }
 
     @Transactional
+    public void eliminarCodigoUtilizado(String codigo){
+        codigoTemporalRepo.deleteUsedCode(codigo);
+    }
+
+    @Transactional
     @Scheduled(cron = "0 */15 * * * *")
     public void eliminarCodigosExpirados(){
         codigoTemporalRepo.deleteExpiratedCodes();

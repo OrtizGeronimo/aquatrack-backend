@@ -76,5 +76,5 @@ public class EntregaServicio extends ServicioBaseImpl<Entrega> {
   public boolean procesarEntrega(Long idEntrega){
     return true;
   }
-  
+
 }

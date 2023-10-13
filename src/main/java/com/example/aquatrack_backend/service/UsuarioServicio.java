@@ -207,14 +207,4 @@ public class UsuarioServicio {
       throw new IllegalArgumentException("No se encontró el usuario correspondiente al token");
     }
   }
-
-  @Transactional
-  @Scheduled(cron = "0 */20 * * * *")
-  public void cleanUnusedClientUsers(){
-    List<Long> idsUsers = usuarioRepo.findAllUnusedUsers();
-    for (Long user: idsUsers) {
-      usuarioRepo.deleteUserRoles(user);
-      usuarioRepo.deleteById(user);
-    }
-  }
 }

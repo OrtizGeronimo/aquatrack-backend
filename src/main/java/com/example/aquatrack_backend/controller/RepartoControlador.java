@@ -65,10 +65,16 @@ public class RepartoControlador{
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/asignarRepartidor")
+    @GetMapping("/asignarRepartidor")
     @PreAuthorize("hasAuthority('EDITAR_REPARTOS')")
-    public ResponseEntity<?> asignarRepartidor(@RequestBody AsignarRepartidorDTO dto) throws RecordNotFoundException, ValidacionException {
-        return ResponseEntity.ok().body(servicio.asignarRepartidor(dto.getIdReparto(), dto.getIdRepartidor()));
+    public ResponseEntity<?> getAsignarRepartidores() {
+        return ResponseEntity.ok().body(servicio.getAsignarRepartidor());
+    }
+  
+    @PutMapping("/{id}/asignarRepartidor/{repartidor_id}")
+    @PreAuthorize("hasAuthority('EDITAR_REPARTOS')")
+    public ResponseEntity<?> asignarRepartidor(@PathVariable("id") Long id, @PathVariable("repartidor_id") Long repartidorId) throws RecordNotFoundException, ValidacionException {
+        return ResponseEntity.ok().body(servicio.asignarRepartidor(id, repartidorId));
     }
 
     @PutMapping("/iniciarReparto")

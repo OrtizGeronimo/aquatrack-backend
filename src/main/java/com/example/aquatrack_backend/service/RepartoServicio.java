@@ -3,6 +3,7 @@ package com.example.aquatrack_backend.service;
 import com.example.aquatrack_backend.config.BingMapsConfig;
 import com.example.aquatrack_backend.dto.ListarRepartosDTO;
 import com.example.aquatrack_backend.dto.ObjetoGenericoDTO;
+import com.example.aquatrack_backend.dto.RepartidorAsignableDTO;
 import com.example.aquatrack_backend.dto.RepartoDTO;
 import com.example.aquatrack_backend.dto.RepartoParametroDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
@@ -36,6 +37,7 @@ import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -377,9 +379,24 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         }
         return crearReparto(ruta.getId());
     }
+  
+    @Transactional
+    public List<RepartidorAsignableDTO> getAsignarRepartidor() {
+        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+
+        List<Empleado> repartidores = empleadoRepo.findRepartidoresLibres(empresa.getId());
+
+        return repartidores.stream()
+                           .map( empleado -> RepartidorAsignableDTO.builder()
+                                                                   .id(empleado.getId())
+                                                                   .nombreRepartidor(empleado.getNombre() + " " + empleado.getApellido())
+                                                                   .build())
+                           .collect(Collectors.toList());
+                                                                  
+    }
 
     @Transactional
-    public RepartoDTO asignarRepartidor(Long idReparto, Long idRepartidor) throws RecordNotFoundException, ValidacionException {
+    public ListarRepartosDTO asignarRepartidor(Long idReparto, Long idRepartidor) throws RecordNotFoundException, ValidacionException {
         Reparto reparto = repartoRepo.findById(idReparto).orElseThrow(() -> new RecordNotFoundException("El id del reparto ingresado no corresponde a uno existente"));
         Empleado empleado = empleadoRepo.findById(idRepartidor).orElseThrow(() -> new RecordNotFoundException("El id del repartidor ingresado no corresponde a uno existente"));
 
@@ -396,8 +413,18 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
         repartoRepo.save(reparto);
 
-        return mapper.map(reparto, RepartoDTO.class);
-
+        ListarRepartosDTO dto = new ListarRepartosDTO();
+        dto.setId(reparto.getId());
+        dto.setEstado(reparto.getEstadoReparto().getNombre());
+        dto.setRepartidor(reparto.getRepartidor() == null ? "Sin Asignar " : reparto.getRepartidor().getNombre() + " " + reparto.getRepartidor().getApellido());
+        dto.setFechaEjecucion(reparto.getFechaEjecucion());
+        dto.setFechaHoraFin(reparto.getFechaHoraFin());
+        dto.setFechaHoraInicio(reparto.getFechaHoraInicio());
+        dto.setIdRuta(reparto.getRuta().getId());
+        dto.setNombreRuta(reparto.getRuta().getNombre());
+        dto.setLatitudInicio(empleado.getEmpresa().getUbicacion().getLatitud());
+        dto.setLongitudInicio(empleado.getEmpresa().getUbicacion().getLongitud());
+        return dto;
     }
 
     @Transactional

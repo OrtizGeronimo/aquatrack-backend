@@ -33,7 +33,7 @@ public interface EmpleadoRepo extends RepoBase<Empleado> {
         @Query(value = "SELECT * FROM empleado e " +
           "JOIN tipo_empleado t ON t.id = e.tipo_id " +
           "LEFT JOIN reparto r ON r.repartidor_id = e.id " +
-          "WHERE (r.repartidor_id IS NOT NULL AND r.estado_reparto_id NOT IN (3)) OR e.tipo_id = 2 AND e.empresa_id = :id_empresa AND e.fecha_fin_vigencia IS NULL",
+          "WHERE (r.repartidor_id IS NOT NULL AND r.estado_reparto_id NOT IN (2, 3)) OR e.tipo_id = 2 AND e.empresa_id = :id_empresa AND e.fecha_fin_vigencia IS NULL",
           nativeQuery = true
         )
         List<Empleado> findRepartidoresLibres(@Param("id_empresa") Long idEmpresa);

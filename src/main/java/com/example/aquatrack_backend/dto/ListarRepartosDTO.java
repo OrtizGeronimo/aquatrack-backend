@@ -18,5 +18,9 @@ public class ListarRepartosDTO {
     private String estado;
     private Integer cantEntregas;
     private LocalDate fechaEjecucion;
+    private LocalDateTime fechaHoraInicio;
     private LocalDateTime fechaHoraFin;
+    private double latitudInicio;
+    private double longitudInicio;
+    private String nombreRuta;
 }

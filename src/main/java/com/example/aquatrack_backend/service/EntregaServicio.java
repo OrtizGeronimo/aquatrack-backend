@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,6 +24,8 @@ public class EntregaServicio extends ServicioBaseImpl<Entrega> {
   @Autowired
   private EntregaRepo entregaRepo;
   @Autowired
+  private RepartoRepo repartoRepo;
+  @Autowired
   private EstadoEntregaRepo estadoEntregaRepo;
 
   public EntregaServicio(RepoBase<Entrega> repoBase) {
@@ -30,15 +33,21 @@ public class EntregaServicio extends ServicioBaseImpl<Entrega> {
   }
 
   @Transactional
-  public Page<EntregaListDTO> findAllEntregasByReparto(Long idReparto, int page, int size){
-    Pageable paging = PageRequest.of(page, size);
+  public List<EntregaListDTO> findAllEntregasByReparto(Long idReparto) throws RecordNotFoundException{
+    Reparto reparto = repartoRepo.findById(idReparto).orElseThrow(()-> new RecordNotFoundException("No se encontró el reparto"));
     return entregaRepo
-            .findAllByRepartoPaged(idReparto, paging)
+            .findAllByReparto(reparto.getId())
+            .stream()
             .map(entrega -> EntregaListDTO.builder()
                     .id(entrega.getId())
                     .fechaHoraVisita(entrega.getFechaHoraVisita())
                     .estadoEntregaId(entrega.getEstadoEntrega().getId())
-                    .build());
+                    .ordenVisita(entrega.getOrdenVisita())
+                    .latitudDomicilio(entrega.getDomicilio().getUbicacion().getLatitud())
+                    .longitudDomicilio(entrega.getDomicilio().getUbicacion().getLongitud())
+                    .cliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido())
+                    .build())
+            .collect(Collectors.toList());
   }
 
   @Transactional

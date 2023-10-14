@@ -55,6 +55,14 @@ public class GlobalExceptionHandler {
             .build());
   }
 
+  @ExceptionHandler({ EntidadNoVigenteException.class })
+  public ResponseEntity<?> handleEntidadNoVigente(Exception ex) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(ErrorResponseDTO.builder()
+            .message(ex.getMessage())
+            .build());
+  }
+
   @ExceptionHandler({ RecordNotFoundException.class })
   public ResponseEntity<?> handleRecordNotFound(Exception ex) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND)

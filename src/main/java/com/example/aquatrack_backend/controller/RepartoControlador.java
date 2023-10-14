@@ -5,6 +5,7 @@ import com.example.aquatrack_backend.dto.FinalizarRepartoIncompletoDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.ValidacionException;
 import com.example.aquatrack_backend.helpers.ValidationHelper;
+import com.example.aquatrack_backend.service.EntregaServicio;
 import com.example.aquatrack_backend.service.RepartoServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,9 @@ public class RepartoControlador{
     @Autowired
     private RepartoServicio servicio;
 
+    @Autowired
+    private EntregaServicio entregaServicio;
+
     private ValidationHelper validationHelper = new ValidationHelper();
 
 
@@ -26,6 +30,17 @@ public class RepartoControlador{
 //    public ResponseEntity<?> crearReparto(@PathVariable("id") Long id) throws RecordNotFoundException, ValidacionException {
 //            return ResponseEntity.ok().body(servicio.crearReparto(id));
 //    }
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('LISTAR_REPARTOS')")
+    public ResponseEntity<?> detallarReparto(@PathVariable("id") Long id) throws RecordNotFoundException{
+      return ResponseEntity.ok().body(servicio.detalleReparto(id));
+    }
+
+    @GetMapping("/{id}/entregas")
+    @PreAuthorize("hasAuthority('LISTAR_ENTREGAS')")
+    public ResponseEntity<?> listarEntregasReparto(@PathVariable("id") Long id) throws RecordNotFoundException {
+      return ResponseEntity.ok().body(entregaServicio.findAllEntregasByReparto(id));
+    }
 
     @PostMapping("/{id}")
     @PreAuthorize("hasAuthority('CREAR_REPARTOS')")

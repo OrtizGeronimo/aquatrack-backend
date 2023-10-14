@@ -77,6 +77,24 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         Loader.loadNativeLibraries();
     }
 
+    public ListarRepartosDTO detalleReparto(Long id) throws RecordNotFoundException {
+        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+        Reparto reparto = repartoRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El id del reparto ingresado no corresponde a uno existente"));
+
+        ListarRepartosDTO dto = new ListarRepartosDTO();
+        dto.setId(reparto.getId());
+        dto.setEstado(reparto.getEstadoReparto().getNombre());
+        dto.setRepartidor(reparto.getRepartidor() == null ? "Sin Asignar " : reparto.getRepartidor().getNombre() + " " + reparto.getRepartidor().getApellido());
+        dto.setFechaEjecucion(reparto.getFechaEjecucion());
+        dto.setFechaHoraFin(reparto.getFechaHoraFin());
+        dto.setFechaHoraInicio(reparto.getFechaHoraInicio());
+        dto.setIdRuta(reparto.getRuta().getId());
+        dto.setNombreRuta(reparto.getRuta().getNombre());
+        dto.setLatitudInicio(empresa.getUbicacion().getLatitud());
+        dto.setLongitudInicio(empresa.getUbicacion().getLongitud());
+        return dto;
+    }
+
     public RepartoParametroDTO getParametrosReparto(){
         RepartoParametroDTO response = new RepartoParametroDTO();
 
@@ -330,6 +348,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
             dto.setFechaEjecucion(reparto.getFechaEjecucion());
             dto.setFechaHoraFin(reparto.getFechaHoraFin());
             dto.setIdRuta(reparto.getRuta().getId());
+            dto.setNombreRuta(reparto.getRuta().getNombre());
             return dto;
         });
 

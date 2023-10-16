@@ -1,18 +1,15 @@
 package com.example.aquatrack_backend.model;
 
 import java.time.LocalDateTime;
-import java.time.LocalDate;
 import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.TableGenerator;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -32,8 +29,8 @@ public class Empleado extends Persona {
   private Long id;
 
   private Integer legajo;
-  @DateTimeFormat(pattern = "dd-MM-YYYY")
-  private LocalDate fechaIngreso;
+  @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
+  private LocalDateTime fechaIngreso;
   @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
   private LocalDateTime fechaInicioVacaciones;
 

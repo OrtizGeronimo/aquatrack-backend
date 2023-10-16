@@ -45,6 +45,7 @@ public class EntregaServicio extends ServicioBaseImpl<Entrega> {
                     .ordenVisita(entrega.getOrdenVisita())
                     .latitudDomicilio(entrega.getDomicilio().getUbicacion().getLatitud())
                     .longitudDomicilio(entrega.getDomicilio().getUbicacion().getLongitud())
+                    .estadoEntrega(entrega.getEstadoEntrega().getNombreEstadoEntrega())
                     .cliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido())
                     .build())
             .collect(Collectors.toList());

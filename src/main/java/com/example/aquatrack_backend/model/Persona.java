@@ -1,9 +1,8 @@
 package com.example.aquatrack_backend.model;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -34,11 +33,11 @@ public abstract class Persona {
 
   private String numTelefono;
 
-  @DateTimeFormat(pattern = "dd-MM-YYYY")
-  private LocalDate fechaCreacion;
+  @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
+  private LocalDateTime fechaCreacion = LocalDateTime.now();
 
-  @DateTimeFormat(pattern = "dd-MM-YYYY")
-  private LocalDate fechaFinVigencia;
+  @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
+  private LocalDateTime fechaFinVigencia;
 
   @OneToOne()
   private Usuario usuario;

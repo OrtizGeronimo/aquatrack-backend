@@ -1,5 +1,32 @@
 package com.example.aquatrack_backend.service;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.TextStyle;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+
 import com.example.aquatrack_backend.config.BingMapsConfig;
 import com.example.aquatrack_backend.dto.ListarRepartosDTO;
 import com.example.aquatrack_backend.dto.ObjetoGenericoDTO;
@@ -9,40 +36,25 @@ import com.example.aquatrack_backend.dto.RepartoParametroDTO;
 import com.example.aquatrack_backend.exception.EntidadNoValidaException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.ValidacionException;
-import com.example.aquatrack_backend.model.*;
-import com.example.aquatrack_backend.repo.*;
+import com.example.aquatrack_backend.model.DiaDomicilio;
+import com.example.aquatrack_backend.model.Domicilio;
+import com.example.aquatrack_backend.model.DomicilioRuta;
+import com.example.aquatrack_backend.model.Empleado;
+import com.example.aquatrack_backend.model.Empresa;
+import com.example.aquatrack_backend.model.Entrega;
+import com.example.aquatrack_backend.model.EstadoEntrega;
+import com.example.aquatrack_backend.model.EstadoReparto;
+import com.example.aquatrack_backend.model.Reparto;
+import com.example.aquatrack_backend.model.Ruta;
+import com.example.aquatrack_backend.model.Ubicacion;
+import com.example.aquatrack_backend.repo.EmpleadoRepo;
+import com.example.aquatrack_backend.repo.EmpresaRepo;
+import com.example.aquatrack_backend.repo.EstadoEntregaRepo;
+import com.example.aquatrack_backend.repo.EstadoRepartoRepo;
+import com.example.aquatrack_backend.repo.RepartoRepo;
+import com.example.aquatrack_backend.repo.RepoBase;
+import com.example.aquatrack_backend.repo.RutaRepo;
 import com.google.ortools.Loader;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.TextStyle;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 @Service
 public class RepartoServicio extends ServicioBaseImpl<Reparto> {
@@ -181,7 +193,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("La ruta no fue encontrada"));
 
 
-        LocalDate now = LocalDate.now();
+        LocalDateTime now = LocalDateTime.now();
 
 
         DayOfWeek dayOfWeek = now.getDayOfWeek();
@@ -373,7 +385,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         EstadoReparto enEjecucion = estadoRepartoRepo.findByNombre("En Ejecución");
 
         if (ruta.getRepartos() != null && !ruta.getRepartos().isEmpty()){
-            LocalDate now = LocalDate.now();
+            LocalDateTime now = LocalDateTime.now();
             for (Reparto repartoExistente: ruta.getRepartos()) {
                 if (repartoExistente.getFechaEjecucion().equals(now)){
                     if (repartoExistente.getEstadoReparto().equals(pendienteAsignacion) || repartoExistente.getEstadoReparto().equals(pendienteEjecucion) || repartoExistente.getEstadoReparto().equals(enEjecucion)){

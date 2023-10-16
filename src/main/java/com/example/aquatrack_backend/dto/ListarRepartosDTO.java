@@ -1,11 +1,12 @@
 package com.example.aquatrack_backend.dto;
 
+import java.time.LocalDateTime;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -17,8 +18,11 @@ public class ListarRepartosDTO {
     private String repartidor;
     private String estado;
     private Integer cantEntregas;
-    private LocalDate fechaEjecucion;
+    @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
+    private LocalDateTime fechaEjecucion;
+    @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
     private LocalDateTime fechaHoraInicio;
+    @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
     private LocalDateTime fechaHoraFin;
     private double latitudInicio;
     private double longitudInicio;

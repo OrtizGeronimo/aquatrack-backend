@@ -1,6 +1,7 @@
 package com.example.aquatrack_backend.service;
 
 import com.example.aquatrack_backend.dto.*;
+import com.example.aquatrack_backend.exception.EntidadNoVigenteException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.ValidacionException;
 import com.example.aquatrack_backend.model.*;
@@ -151,9 +152,13 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
     }
   }
 
-  public ResponseDetalleRutaDTO detalleRuta(Long id) throws RecordNotFoundException {
+  public ResponseDetalleRutaDTO detalleRuta(Long id) throws RecordNotFoundException, EntidadNoVigenteException {
 
     Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id" + id));
+
+    if (ruta.getFechaFinVigencia() != null){
+      throw new EntidadNoVigenteException("La ruta no se encuentra vigente.");
+    }
 
     ResponseDetalleRutaDTO response = new ResponseDetalleRutaDTO();
 
@@ -192,7 +197,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
 
 
   @Transactional
-  public ResponseDetalleRutaDTO editarDiasRuta(Long id, GuardarRutaDTO dto) throws RecordNotFoundException {
+  public ResponseDetalleRutaDTO editarDiasRuta(Long id, GuardarRutaDTO dto) throws RecordNotFoundException, EntidadNoVigenteException {
 
     Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + id));
 
@@ -225,7 +230,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
   }
 
   @Transactional
-  public ResponseDetalleRutaDTO asignarClientesRuta(Long idRuta, GuardarRutaDTO rutaDTO) throws RecordNotFoundException, ValidacionException {
+  public ResponseDetalleRutaDTO asignarClientesRuta(Long idRuta, GuardarRutaDTO rutaDTO) throws RecordNotFoundException, ValidacionException, EntidadNoVigenteException {
 
     Ruta ruta = rutaRepo.findById(idRuta).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + idRuta));
 
@@ -305,7 +310,7 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
   }
 
   @Transactional
-  public ResponseDetalleRutaDTO editarClientesRuta(Long id, GuardarRutaDTO dto) throws RecordNotFoundException, ValidacionException {
+  public ResponseDetalleRutaDTO editarClientesRuta(Long id, GuardarRutaDTO dto) throws RecordNotFoundException, ValidacionException, EntidadNoVigenteException {
 
     Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + id));
 
@@ -448,6 +453,12 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
     Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id " + id));
 
     ruta.setFechaFinVigencia(LocalDateTime.now());
+
+    for (DiaRuta diaRuta: ruta.getDiaRutas()) {
+      for (DiaDomicilio dia: diaRuta.getDiaDomicilios()) {
+        diaDomicilioRepo.deleteById(dia.getId());
+      }
+    }
 
     rutaRepo.save(ruta);
 

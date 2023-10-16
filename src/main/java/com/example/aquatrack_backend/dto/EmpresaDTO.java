@@ -13,10 +13,14 @@ import java.util.List;
 @NoArgsConstructor
 public class EmpresaDTO {
     private Long id;
-    private String nombre;
+    private String nombreEmpresa;
     private String numTelefono;
     private String urlEmpresa;
-    private String direccionEmail;
+    private String mailEmpresa;
     private UbicacionDTO ubicacion;
+    private Integer hora;
+    private Integer minuto;
+    private Double latitud;
+    private Double longitud;
     private List<RolDTO> roles;
 }

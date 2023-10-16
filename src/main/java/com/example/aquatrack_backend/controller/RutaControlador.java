@@ -1,6 +1,7 @@
 package com.example.aquatrack_backend.controller;
 
 import com.example.aquatrack_backend.dto.GuardarRutaDTO;
+import com.example.aquatrack_backend.exception.EntidadNoVigenteException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.ValidacionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,13 +42,13 @@ public class RutaControlador{
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('LISTAR_RUTAS')")
-    public ResponseEntity<?> detalle(@PathVariable Long id) throws RecordNotFoundException {
+    public ResponseEntity<?> detalle(@PathVariable Long id) throws RecordNotFoundException, EntidadNoVigenteException {
         return ResponseEntity.ok().body(rutaServicio.detalleRuta(id));
     }
 
     @PutMapping("/{id}/edit")
     @PreAuthorize("hasAuthority('EDITAR_RUTAS')")
-    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody GuardarRutaDTO dto) throws RecordNotFoundException {
+    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody GuardarRutaDTO dto) throws RecordNotFoundException, EntidadNoVigenteException {
         return ResponseEntity.ok().body(rutaServicio.editarDiasRuta(id, dto));
     }
 
@@ -65,13 +66,13 @@ public class RutaControlador{
 
     @PutMapping("/{id}/clientes")
     @PreAuthorize("hasAuthority('EDITAR_RUTAS')")
-    public ResponseEntity<?> asignarClientes(@PathVariable Long id, @RequestBody GuardarRutaDTO dto) throws RecordNotFoundException, ValidacionException {
+    public ResponseEntity<?> asignarClientes(@PathVariable Long id, @RequestBody GuardarRutaDTO dto) throws RecordNotFoundException, ValidacionException, EntidadNoVigenteException {
         return ResponseEntity.ok().body(rutaServicio.asignarClientesRuta(id, dto));
     }
 
     @PutMapping("/{id}/editClientes")
     @PreAuthorize("hasAuthority('EDITAR_RUTAS')")
-    public ResponseEntity<?> editarClientes(@PathVariable Long id, @RequestBody GuardarRutaDTO dto) throws RecordNotFoundException, ValidacionException {
+    public ResponseEntity<?> editarClientes(@PathVariable Long id, @RequestBody GuardarRutaDTO dto) throws RecordNotFoundException, ValidacionException, EntidadNoVigenteException {
         return ResponseEntity.ok().body(rutaServicio.editarClientesRuta(id, dto));
     }
 

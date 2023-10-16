@@ -37,6 +37,7 @@ import com.example.aquatrack_backend.exception.EntidadNoValidaException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.ValidacionException;
 import com.example.aquatrack_backend.model.DiaDomicilio;
+import com.example.aquatrack_backend.model.DiaRuta;
 import com.example.aquatrack_backend.model.Domicilio;
 import com.example.aquatrack_backend.model.DomicilioRuta;
 import com.example.aquatrack_backend.model.Empleado;
@@ -192,30 +193,26 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
         Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("La ruta no fue encontrada"));
 
-
         LocalDateTime now = LocalDateTime.now();
-
 
         DayOfWeek dayOfWeek = now.getDayOfWeek();
 
-        Locale spanishLocale = new Locale("es", "ES");
-        String nombreDia = dayOfWeek.getDisplayName(TextStyle.FULL, spanishLocale);
-        int idDia = dayOfWeek.getValue();
+        int idDia = dayOfWeek.getValue() + 1;
 
         List<Entrega> entregasARepartir = new ArrayList<>();
-
-        domiciliosLoop:
-        for (DomicilioRuta domicilio: ruta.getDomicilioRutas()) {
-            for (DiaDomicilio dia: domicilio.getDomicilio().getDiaDomicilios()) {
-                if (dia.getDiaRuta().getDiaSemana().getId().intValue() == idDia){
-                    Entrega entrega = new Entrega();
-                    entrega.setDomicilio(domicilio.getDomicilio());
-                    entregasARepartir.add(entrega);
-                    continue domiciliosLoop;
-                }
+        for(DiaRuta dia : ruta.getDiaRutas()){
+          if(dia.getDiaSemana().getId() == idDia){
+            for (DiaDomicilio diaDomicilio : dia.getDiaDomicilios()) {
+              if(diaDomicilio.getDomicilio().getFechaFinVigencia() == null){
+                Entrega entrega = new Entrega();
+                Domicilio domicilio = diaDomicilio.getDomicilio();
+                entrega.setDomicilio(domicilio);
+                entregasARepartir.add(entrega);
+              }
             }
+          }
         }
-
+        
         EstadoReparto estadoAnticipado = estadoRepartoRepo.findByNombre("Anticipado");
 
         Reparto reparto = new Reparto();
@@ -274,7 +271,6 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         String coordenadasInicio = latEmpresa + "," + lonEmpresa;
         urlBuilder.append("wp.1=" + coordenadasInicio + "&");
         for (int i = 0; i < domicilioRutas.size(); i++) {
-
             Domicilio domicilio1 = domicilioRutas.get(i).getDomicilio();
             double lat1 = domicilio1.getUbicacion().getLatitud();
             double lon1 = domicilio1.getUbicacion().getLongitud();
@@ -282,15 +278,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
             String originLongitude = Double.toString(lon1).replace(',', '.');
 
             String coordinates = originLatitude + "," + originLongitude;
-
-            /*if (i == 0) {
-                urlBuilder.append("wp." + (i + 1) + "=" + coordenadasInicio + "&");
-            } else {*/
             urlBuilder.append("wp." + (i + 2) + "=" + coordinates + "&");
-//                    if (i == domicilioRutas.size() - 1){
-//                        urlBuilder.append("wp." + (i + 2) + "=" + coordenadasInicio + "&");
-//                    }
-//                }
         }
         urlBuilder.append("wp." + (domicilioRutas.size() + 2) + "=" + coordenadasInicio + "&");
 
@@ -322,13 +310,13 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
                     .getJSONObject(0)
                     .getJSONArray("waypointsOrder");
 
-            for (int i = 0; i < coordinates.length()-2; i++) {
+            for (int i = 1; i <= coordinates.length() - 2; i++) {
                 String coordenada = coordinates.getString(i);
                 String[] partes = coordenada.split("\\.");
 
                 String numeroString = partes[1];
 
-                Integer indiceCoordenada = Integer.parseInt(numeroString);
+                Integer indiceCoordenada = Integer.parseInt(numeroString) - 1;
 
                 ubicacionesOrdenadas.add(domicilioRutas.get(indiceCoordenada));
             }

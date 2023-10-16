@@ -107,15 +107,6 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());
   }
 
-  @ExceptionHandler({ Exception.class })
-  public ResponseEntity<?> handleUnexpectedException(Exception ex) {
-    ex.printStackTrace();
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body(ErrorResponseDTO.builder()
-            .message("Error inesperado del servidor, intente mas tarde.")
-            .build());
-  }
-
   @ExceptionHandler({ClienteNoCubiertoApp.class})
   public ResponseEntity<?> handleClienteNoCubierto(ClienteNoCubiertoApp ex){
     return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getMessage());
@@ -128,6 +119,21 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler({ValidacionException.class})
   public ResponseEntity<?> handleValidacionException(ValidacionException ex){
-    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());
+    if(ex.getErrors() != null){
+      return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());
+    }else{
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponseDTO.builder()
+            .message(ex.getMessage())
+            .build());
+    }
+  }
+
+  @ExceptionHandler({ Exception.class })
+  public ResponseEntity<?> handleUnexpectedException(Exception ex) {
+    ex.printStackTrace();
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(ErrorResponseDTO.builder()
+            .message("Error inesperado del servidor, intente mas tarde.")
+            .build());
   }
 }

@@ -2,6 +2,7 @@ package com.example.aquatrack_backend.controller;
 
 import com.example.aquatrack_backend.dto.AsignarRepartidorDTO;
 import com.example.aquatrack_backend.dto.FinalizarRepartoIncompletoDTO;
+import com.example.aquatrack_backend.exception.EntidadNoValidaException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.ValidacionException;
 import com.example.aquatrack_backend.helpers.ValidationHelper;
@@ -84,21 +85,23 @@ public class RepartoControlador{
         return ResponseEntity.ok().body("El reparto inició su ejecución");
     }
 
-    @PutMapping("/cancelarReparto")
+    @PutMapping("/{id}/cancelarReparto")
     @PreAuthorize("hasAuthority('EDITAR_REPARTOS')")
-    public ResponseEntity<?> cancelarReparto(@RequestParam Long idReparto) throws RecordNotFoundException, ValidacionException {
-        servicio.cancelarReparto(idReparto);
-        return ResponseEntity.ok().body("El reparto fue cancelado");
+    public ResponseEntity<?> cancelarReparto(@PathVariable("id") Long idReparto) throws RecordNotFoundException, ValidacionException {
+        return ResponseEntity.ok().body(servicio.cancelarReparto(idReparto));
     }
 
-    @PutMapping("/finalizarRepartoIncompleto")
+    @GetMapping("/{id}/entregasPendientes")
     @PreAuthorize("hasAuthority('EDITAR_REPARTOS')")
-    public ResponseEntity<?> finalizarRepartoIncompleto(@RequestBody FinalizarRepartoIncompletoDTO dto) throws RecordNotFoundException, ValidacionException {
-        if(validationHelper.hasValidationErrors(dto)){
-            return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(dto));
-        }
-        servicio.finalizarRepartoIncompleto(dto.getIdReparto(), dto.getObservaciones());
-        return ResponseEntity.ok().body("El reparto fue finalizado como incompleto correctamente");
+    public ResponseEntity<?> entregasPendientes(@PathVariable("id") Long idReparto) throws RecordNotFoundException, ValidacionException {
+        return ResponseEntity.ok().body(servicio.checkEntregasIncompletas(idReparto));
+    }
+
+
+    @PutMapping("/{id}/finalizarReparto")
+    @PreAuthorize("hasAuthority('EDITAR_REPARTOS')")
+    public ResponseEntity<?> finalizarRepartoIncompleto(@PathVariable("id") Long idReparto, @RequestBody FinalizarRepartoIncompletoDTO dto) throws RecordNotFoundException, EntidadNoValidaException {
+        return ResponseEntity.ok().body(servicio.finalizarReparto(idReparto, dto.getObservaciones()));
     }
 
     @GetMapping("/parametros")

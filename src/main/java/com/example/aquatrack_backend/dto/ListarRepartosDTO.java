@@ -23,4 +23,5 @@ public class ListarRepartosDTO {
     private double latitudInicio;
     private double longitudInicio;
     private String nombreRuta;
+    private String observaciones;
 }

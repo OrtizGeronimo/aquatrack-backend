@@ -6,11 +6,13 @@ import com.example.aquatrack_backend.dto.ObjetoGenericoDTO;
 import com.example.aquatrack_backend.dto.RepartidorAsignableDTO;
 import com.example.aquatrack_backend.dto.RepartoDTO;
 import com.example.aquatrack_backend.dto.RepartoParametroDTO;
+import com.example.aquatrack_backend.exception.EntidadNoValidaException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.ValidacionException;
 import com.example.aquatrack_backend.model.*;
 import com.example.aquatrack_backend.repo.*;
 import com.google.ortools.Loader;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
@@ -35,8 +37,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -91,6 +95,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         dto.setFechaHoraFin(reparto.getFechaHoraFin());
         dto.setFechaHoraInicio(reparto.getFechaHoraInicio());
         dto.setIdRuta(reparto.getRuta().getId());
+        dto.setObservaciones(reparto.getObservaciones());
         dto.setNombreRuta(reparto.getRuta().getNombre());
         dto.setLatitudInicio(empresa.getUbicacion().getLatitud());
         dto.setLongitudInicio(empresa.getUbicacion().getLongitud());
@@ -421,6 +426,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         dto.setFechaHoraFin(reparto.getFechaHoraFin());
         dto.setFechaHoraInicio(reparto.getFechaHoraInicio());
         dto.setIdRuta(reparto.getRuta().getId());
+        dto.setObservaciones(reparto.getObservaciones());
         dto.setNombreRuta(reparto.getRuta().getNombre());
         dto.setLatitudInicio(empleado.getEmpresa().getUbicacion().getLatitud());
         dto.setLongitudInicio(empleado.getEmpresa().getUbicacion().getLongitud());
@@ -449,9 +455,9 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
     }
 
     @Transactional
-    public void cancelarReparto(Long idReparto) throws ValidacionException, RecordNotFoundException {
-        Reparto reparto = repartoRepo.findById(idReparto).orElseThrow(() -> new RecordNotFoundException("El id del reparto ingresado no corresponde a uno existente"));
-
+    public ListarRepartosDTO cancelarReparto(Long idReparto) throws ValidacionException, RecordNotFoundException {
+        Reparto reparto = repartoRepo.findById(idReparto).orElseThrow(() -> new RecordNotFoundException("El ID del reparto ingresado no corresponde a uno existente"));
+        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
         EstadoReparto enEjecucion = estadoRepartoRepo.findByNombre("En Ejecución");
         EstadoReparto cancelado = estadoRepartoRepo.findByNombre("Cancelado");
         EstadoReparto finalizado = estadoRepartoRepo.findByNombre("Finalizado");
@@ -467,32 +473,99 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         }
 
         reparto.setEstadoReparto(cancelado);
-
+        EstadoEntrega cancelada = estadoEntregaRepo.findByNombreEstadoEntrega("Cancelada");
+        for (Entrega entrega : reparto.getEntregas()) {
+          entrega.setEstadoEntrega(cancelada);
+        }
         repartoRepo.save(reparto);
+        ListarRepartosDTO dto = new ListarRepartosDTO();
+        dto.setId(reparto.getId());
+        dto.setEstado(reparto.getEstadoReparto().getNombre());
+        dto.setRepartidor(reparto.getRepartidor() == null ? "Sin Asignar " : reparto.getRepartidor().getNombre() + " " + reparto.getRepartidor().getApellido());
+        dto.setFechaEjecucion(reparto.getFechaEjecucion());
+        dto.setFechaHoraFin(reparto.getFechaHoraFin());
+        dto.setFechaHoraInicio(reparto.getFechaHoraInicio());
+        dto.setIdRuta(reparto.getRuta().getId());
+        dto.setNombreRuta(reparto.getRuta().getNombre());
+        dto.setObservaciones(reparto.getObservaciones());
+        dto.setLatitudInicio(empresa.getUbicacion().getLatitud());
+        dto.setLongitudInicio(empresa.getUbicacion().getLongitud());
+        return dto;
     }
 
+    public Map<String, Integer> checkEntregasIncompletas(long idReparto) throws RecordNotFoundException, ValidacionException {
+      Reparto reparto = repartoRepo.findById(idReparto).orElseThrow(() -> new RecordNotFoundException("El id del reparto ingresado no corresponde a uno existente"));
+      EstadoReparto enEjecucion = estadoRepartoRepo.findByNombre("En Ejecución");
+
+      if (!reparto.getEstadoReparto().equals(enEjecucion)){
+        throw new ValidacionException("No se puede finalizar un reparto que no se encuentra en ejecución");
+      }
+
+      EstadoEntrega pendiente = estadoEntregaRepo.findByNombreEstadoEntrega("Pendiente");
+      Integer cantEntregasPendientes = 0;
+      for (Entrega entrega : reparto.getEntregas()) {
+        if(entrega.getEstadoEntrega().equals(pendiente)){
+          cantEntregasPendientes++;
+        }
+      }
+      HashMap<String, Integer> response = new HashMap<>();
+      response.put("cant_entregas_pendientes", cantEntregasPendientes);
+      return response;
+    }
 
     @Transactional
-    public void finalizarRepartoIncompleto(Long idReparto, String observaciones) throws ValidacionException, RecordNotFoundException {
+    public ListarRepartosDTO finalizarReparto(Long idReparto, String observaciones) throws EntidadNoValidaException, RecordNotFoundException {
         Reparto reparto = repartoRepo.findById(idReparto).orElseThrow(() -> new RecordNotFoundException("El id del reparto ingresado no corresponde a uno existente"));
+        HashMap<String, String> errors = new HashMap<>();
 
-        if (observaciones == null){
-            throw new ValidacionException("Debe ingresar observaciones");
+        if (observaciones == null || observaciones.isEmpty()){
+          errors.put("observaciones", "No puede tener observaciones en blanco.");
         }
 
         EstadoReparto enEjecucion = estadoRepartoRepo.findByNombre("En Ejecución");
 
         if (!reparto.getEstadoReparto().equals(enEjecucion)){
-            throw new ValidacionException("No se puede finalizar un reparto que no se encuentra en ejecución");
+          errors.put("root", "No se puede finalizar un reparto que no se encuentra en ejecución");
         }
 
-        EstadoReparto incompleto = estadoRepartoRepo.findByNombre("Incompleto");
+        if(!errors.isEmpty()){
+          throw new EntidadNoValidaException(errors);
+        }
 
         reparto.setObservaciones(observaciones);
-        reparto.setEstadoReparto(incompleto);
+        reparto.setFechaHoraFin(LocalDateTime.now());
+        
+        EstadoEntrega pendiente = estadoEntregaRepo.findByNombreEstadoEntrega("Pendiente");
+        EstadoEntrega cancelada = estadoEntregaRepo.findByNombreEstadoEntrega("Cancelada");
+        Integer cantEntregasPendientes = 0;
+        for (Entrega entrega : reparto.getEntregas()) {
+          if(entrega.getEstadoEntrega().equals(pendiente)){
+            entrega.setEstadoEntrega(cancelada);
+            cantEntregasPendientes++;
+          }
+        }
 
+        if(cantEntregasPendientes > 0){
+          reparto.setEstadoReparto(estadoRepartoRepo.findByNombre("Incompleto"));
+        }else{
+          reparto.setEstadoReparto(estadoRepartoRepo.findByNombre("Finalizado"));
+        } 
         repartoRepo.save(reparto);
 
+        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+        ListarRepartosDTO dto = new ListarRepartosDTO();
+        dto.setId(reparto.getId());
+        dto.setEstado(reparto.getEstadoReparto().getNombre());
+        dto.setRepartidor(reparto.getRepartidor() == null ? "Sin Asignar " : reparto.getRepartidor().getNombre() + " " + reparto.getRepartidor().getApellido());
+        dto.setFechaEjecucion(reparto.getFechaEjecucion());
+        dto.setFechaHoraFin(reparto.getFechaHoraFin());
+        dto.setFechaHoraInicio(reparto.getFechaHoraInicio());
+        dto.setIdRuta(reparto.getRuta().getId());
+        dto.setNombreRuta(reparto.getRuta().getNombre());
+        dto.setLatitudInicio(empresa.getUbicacion().getLatitud());
+        dto.setObservaciones(reparto.getObservaciones());
+        dto.setLongitudInicio(empresa.getUbicacion().getLongitud());
+        return dto;
     }
 }
 

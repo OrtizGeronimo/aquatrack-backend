@@ -33,11 +33,13 @@ public class EmpresaControlador{
     }
 
     @GetMapping("")
+    @PreAuthorize("hasAuthority('DETALLAR_EMPRESAS')")
     public ResponseEntity<?> detalleEmpresa() throws RecordNotFoundException {
         return ResponseEntity.ok().body(empresaServicio.detalleEmpresa());
     }
 
     @PutMapping("")
+    @PreAuthorize("hasAuthority('EDITAR_EMPRESAS')")
     public ResponseEntity<?> editarEmpresa(@RequestBody EmpresaDTO dto) throws EntidadNoValidaException {
         return ResponseEntity.ok().body(empresaServicio.editarEmpresa(dto));
     }

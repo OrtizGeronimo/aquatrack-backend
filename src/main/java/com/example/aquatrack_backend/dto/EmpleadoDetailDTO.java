@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.dto;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -19,8 +20,7 @@ public class EmpleadoDetailDTO {
     private Integer legajo;
     private String numTelefono;
     private Long tipo;
-    @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
-    private LocalDateTime fechaIngreso;
+    private LocalDate fechaIngreso;
     @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
     private LocalDateTime fechaFinVigencia;
     private UsuarioAddEmpleadoDTO usuario;

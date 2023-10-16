@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.dto;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import javax.validation.constraints.NotBlank;
@@ -27,8 +28,7 @@ public class GuardarEmpleadoDTO {
 
   private String numTelefono;
 
-  @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
-  private LocalDateTime fechaIngreso;
+  private LocalDate fechaIngreso;
 
   private Long tipo;
 

@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,8 +30,8 @@ public class Empleado extends Persona {
   private Long id;
 
   private Integer legajo;
-  @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
-  private LocalDateTime fechaIngreso;
+
+  private LocalDate fechaIngreso;
   @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
   private LocalDateTime fechaInicioVacaciones;
 

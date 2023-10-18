@@ -4,11 +4,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.example.aquatrack_backend.dto.*;
-import org.hibernate.criterion.Example;
+import org.apache.tomcat.jni.Local;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,11 +16,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.aquatrack_backend.dto.EmpleadoDTO;
+import com.example.aquatrack_backend.dto.EmpleadoDetailDTO;
+import com.example.aquatrack_backend.dto.GuardarEmpleadoDTO;
+import com.example.aquatrack_backend.dto.TipoEmpleadoDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.model.Empleado;
 import com.example.aquatrack_backend.model.Empresa;
-import com.example.aquatrack_backend.model.Precio;
-import com.example.aquatrack_backend.model.Producto;
 import com.example.aquatrack_backend.model.Rol;
 import com.example.aquatrack_backend.model.RolUsuario;
 import com.example.aquatrack_backend.model.TipoEmpleado;
@@ -67,8 +67,8 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
         empleadoDTO.setNombre((String) empleado.getNombre());
         empleadoDTO.setApellido((String) empleado.getApellido());
         empleadoDTO.setLegajo((Integer) empleado.getLegajo());
-        empleadoDTO.setFechaFinVigencia((LocalDate) empleado.getFechaFinVigencia());
-        empleadoDTO.setFechaIngreso((LocalDate) empleado.getFechaIngreso());
+        empleadoDTO.setFechaFinVigencia(empleado.getFechaFinVigencia());
+        empleadoDTO.setFechaIngreso(empleado.getFechaIngreso());
         empleadoDTO.setTipo((String) empleado.getTipo().getNombre());
         return empleadoDTO;
     });
@@ -92,7 +92,6 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
 //        }
          usuarioNuevo.setDireccionEmail(empleado.getUsuario().getDireccionEmail());
          usuarioNuevo.setContraseña(encoder.encode(empleado.getUsuario().getContrasenia()));
-         usuarioNuevo.setFechaCreacion(LocalDate.now());
          List<RolUsuario> roles = new ArrayList<>();
          for (Long idRol : empleado.getUsuario().getRoles()) {
              Rol rol = rolRepo.findById(idRol).get();
@@ -109,7 +108,6 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
         empleadoNuevo.setApellido(empleado.getApellido());
         empleadoNuevo.setLegajo(empleado.getLegajo());
         empleadoNuevo.setNumTelefono(empleado.getNumTelefono());
-        empleadoNuevo.setFechaCreacion(LocalDate.now());
         empleadoNuevo.setFechaIngreso(empleado.getFechaIngreso());
         empleadoNuevo.setEmpresa(empresa);
         empleadoNuevo.setTipo(tipo);
@@ -197,8 +195,8 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
     public void disable(Long id) throws Exception {
         Empleado empleadoDeshabilitado = empleadoRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El empleado solicitado no fue encontrado"));
         Usuario usuarioDeshabilitado = empleadoDeshabilitado.getUsuario();
-        usuarioDeshabilitado.setFechaFinVigencia(LocalDate.now());
-        empleadoDeshabilitado.setFechaFinVigencia(LocalDate.now());
+        usuarioDeshabilitado.setFechaFinVigencia(LocalDateTime.now());
+        empleadoDeshabilitado.setFechaFinVigencia(LocalDateTime.now());
         empleadoRepo.save(empleadoDeshabilitado);
         usuarioRepo.save(usuarioDeshabilitado);
     }

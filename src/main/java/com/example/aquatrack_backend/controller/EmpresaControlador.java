@@ -1,6 +1,10 @@
 package com.example.aquatrack_backend.controller;
 
+import com.example.aquatrack_backend.dto.EditarEmpresaDTO;
+import com.example.aquatrack_backend.dto.EmpresaDTO;
 import com.example.aquatrack_backend.dto.UbicacionDTO;
+import com.example.aquatrack_backend.exception.EntidadNoValidaException;
+import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.model.Empresa;
 import com.example.aquatrack_backend.service.CodigoTemporalServicio;
 import com.example.aquatrack_backend.service.EmpresaServicio;
@@ -26,5 +30,17 @@ public class EmpresaControlador{
     @PreAuthorize("hasAuthority('CREAR_CLIENTES')")
     public ResponseEntity<?> obtenerCodigoAlta(){
         return ResponseEntity.ok().body(codigoTemporalServicio.generarCodigoAlta());
+    }
+
+    @GetMapping("")
+    @PreAuthorize("hasAuthority('DETALLAR_EMPRESAS')")
+    public ResponseEntity<?> detalleEmpresa() throws RecordNotFoundException {
+        return ResponseEntity.ok().body(empresaServicio.detalleEmpresa());
+    }
+
+    @PutMapping("")
+    @PreAuthorize("hasAuthority('EDITAR_EMPRESAS')")
+    public ResponseEntity<?> editarEmpresa(@RequestBody EmpresaDTO dto) throws EntidadNoValidaException {
+        return ResponseEntity.ok().body(empresaServicio.editarEmpresa(dto));
     }
 }

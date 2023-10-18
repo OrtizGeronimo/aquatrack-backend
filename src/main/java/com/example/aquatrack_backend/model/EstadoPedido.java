@@ -29,7 +29,7 @@ public class EstadoPedido {
 
   private String nombreEstadoPedido;
 
-  @DateTimeFormat(pattern = "dd-MM-YYYY")
+  @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
   private LocalDateTime fechaFinVigencia;
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "estadoPedido")

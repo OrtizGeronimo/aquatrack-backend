@@ -28,6 +28,9 @@ public class EmailService{
     @Value("${mail.urlFront}")
     private String urlEmail;
 
+    @Value("${mail.urlConfirm}")
+    private String urlConfirm;
+
 
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
@@ -70,6 +73,31 @@ public class EmailService{
         String from = "aquatrack.help@gmail.com";
         String subject = "Cambio de contraseña - Aquatrack";
         String body = usuario.getPersona().getNombre() + ", usted ha solicitado un cambio de contraseña. Por favor ingrese en el siguiente link para realizarlo: " + urlEmail + token;
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(from);
+        message.setTo(dto.getEmail());
+        message.setSubject(subject);
+        message.setText(body);
+        mailSender.send(message);
+        usuarioRepo.save(usuario);
+        return dto;
+    }
+
+
+    public SendEmailDTO sendConfirmEmail( SendEmailDTO dto ) throws RecordNotFoundException{
+        Optional<Usuario> usuarioOpt = usuarioRepo.findByDireccionEmail(dto.getEmail());
+        if (!usuarioOpt.isPresent()) {
+            throw new RecordNotFoundException("El usuario no fue encontrado");
+        }
+        Usuario usuario = usuarioOpt.get();
+        UUID uuid = UUID.randomUUID();
+        String token = uuid.toString();
+
+        usuario.setTokenEmail(token);
+        dto.setTokenPassword(token);
+        String from = "aquatrack.help@gmail.com";
+        String subject = "Activación de cuenta - Aquatrack";
+        String body = usuario.getPersona().getNombre() + ", para activar su cuenta por favor haga click en el siguiente link: " + urlConfirm + token;
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(from);
         message.setTo(dto.getEmail());

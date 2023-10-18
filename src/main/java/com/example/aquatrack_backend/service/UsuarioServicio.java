@@ -11,6 +11,7 @@ import com.example.aquatrack_backend.repo.RolRepo;
 import com.example.aquatrack_backend.repo.UsuarioRepo;
 import com.example.aquatrack_backend.validators.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -69,7 +70,7 @@ public class UsuarioServicio {
     usuario.setDireccionEmail(mail);
     usuario.setContraseña(bCryptPasswordEncoder.encode(password));
     usuario.setConfirmacionContraseña(bCryptPasswordEncoder.encode(confirmacionPassword));
-    usuario.setValidado(true);
+    usuario.setValidado(false);
     usuario.setFechaCreacion(LocalDate.now());
     return usuario;
   }
@@ -113,7 +114,7 @@ public class UsuarioServicio {
     usuario.setDireccionEmail(email);
     usuario.setContraseña(bCryptPasswordEncoder.encode(password));
     usuario.setFechaCreacion(LocalDate.now());
-    usuario.setValidado(true);
+    usuario.setValidado(false);
     Rol rol = rolRepo.findClientRole();
     List<RolUsuario> rolUsuarios = new ArrayList<>();
     rolUsuarios.add(new RolUsuario(rol, usuario));
@@ -184,5 +185,13 @@ public class UsuarioServicio {
     } else {
       throw new IllegalArgumentException("No se encontró el usuario correspondiente al token");
     }
+  }
+
+  public void confirmAccount(String token) throws RecordNotFoundException {
+    Usuario usuario = usuarioRepo.findByTokenEmail(token).orElseThrow(() -> new RecordNotFoundException("No se encontró el correo vinculado al token ingresado"));
+
+    usuario.setValidado(true);
+
+    usuarioRepo.save(usuario);
   }
 }

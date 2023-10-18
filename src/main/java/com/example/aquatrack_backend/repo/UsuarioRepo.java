@@ -19,4 +19,6 @@ public interface UsuarioRepo extends JpaRepository<Usuario, Long> {
            "AND fecha_fin_vigencia IS NULL",
            nativeQuery=true)
     Usuario findByEmail(String email);
+
+    Optional<Usuario> findByTokenEmail(String token);
 }

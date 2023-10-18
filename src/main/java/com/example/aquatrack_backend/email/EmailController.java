@@ -22,4 +22,10 @@ public class EmailController {
     return ResponseEntity.ok().body(emailService.sendPasswordChangeEmail(dto));
   }
 
+  @PostMapping("/sendEmailConfirm")
+    public ResponseEntity<?> sendEmailConfirm(@RequestBody SendEmailDTO dto) throws RecordNotFoundException {
+      emailService.sendConfirmEmail(dto);
+      return ResponseEntity.ok().build();
+  }
+
 }

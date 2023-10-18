@@ -8,17 +8,21 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.example.aquatrack_backend.config.SecurityUser;
 import com.example.aquatrack_backend.dto.SendEmailDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
+import com.example.aquatrack_backend.exception.UsuarioYaValidadoException;
 import com.example.aquatrack_backend.model.Usuario;
 import com.example.aquatrack_backend.repo.UsuarioRepo;
 
 @Service
-public class EmailService{
+public class EmailService {
 
     @Autowired
     UsuarioRepo usuarioRepo;
@@ -27,6 +31,9 @@ public class EmailService{
 
     @Value("${mail.urlFront}")
     private String urlEmail;
+
+    @Value("${mail.urlConfirm}")
+    private String urlConfirm;
 
 
     public EmailService(JavaMailSender mailSender) {
@@ -78,6 +85,32 @@ public class EmailService{
         mailSender.send(message);
         usuarioRepo.save(usuario);
         return dto;
+    }
+
+
+    public void sendConfirmEmail() throws RecordNotFoundException, UsuarioYaValidadoException, MailException {
+        Usuario usuario = ((SecurityUser) SecurityContextHolder.getContext()
+                                                               .getAuthentication()
+                                                               .getPrincipal())
+                                                               .getUsuario();
+        if(usuario.getValidado()){
+          throw new UsuarioYaValidadoException("El usuario ya se encuentra validado.");
+        }
+
+        UUID uuid = UUID.randomUUID();
+        String token = uuid.toString();
+
+        usuario.setTokenEmail(token);
+        String from = "aquatrack.help@gmail.com";
+        String subject = "Activación de cuenta - Aquatrack";
+        String body = usuario.getPersona().getNombre() + " " + usuario.getPersona().getApellido() + ", para activar su cuenta de AquaTrack por favor haga click en el siguiente link: " + urlConfirm + token;
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(from);
+        message.setTo(usuario.getDireccionEmail());
+        message.setSubject(subject);
+        message.setText(body);
+        mailSender.send(message);
+        usuarioRepo.save(usuario);
     }
 
     // public static String shortenUUID(UUID uuid) {

@@ -77,11 +77,11 @@ INSERT INTO tipo_pedido(id, nombre_tipo_pedido)
 VALUES
     (1, 'Atípico');
 
-INSERT INTO usuario (id,contraseña,direccion_email,fecha_creacion,fecha_fin_vigencia)
-VALUES (1,'$2a$12$QxJltIw5pIXkdc8LzTck4O.4nZsMf2WjM4jsDm99JbMidBLtlFbrS','geroortiz@gmail.com',CURRENT_DATE,NULL),
-       (2,'$2a$12$QxJltIw5pIXkdc8LzTck4O.4nZsMf2WjM4jsDm99JbMidBLtlFbrS','nicosaurina@gmail.com',CURRENT_DATE,NULL),
-       (3,'$2a$12$a/uNsJUletX9QpjDrT4tRe3hFQUWKpI6rp8nqe6uaPz9KxWDIqW6i','martijuarroz@gmail.com',CURRENT_DATE,NULL),
-       (4,'$2a$12$gcZud6yzQV3PcXE/CMUUD.VhWZunoYgPQNl7/k5LaVDZDX/rhSgh2','martincarrion@gmail.com',CURRENT_DATE,CURRENT_DATE);
+INSERT INTO usuario (id,contraseña,direccion_email,fecha_creacion,fecha_fin_vigencia, validado)
+VALUES (1,'$2a$12$QxJltIw5pIXkdc8LzTck4O.4nZsMf2WjM4jsDm99JbMidBLtlFbrS','geroortiz@gmail.com',CURRENT_DATE,NULL, b'1'),
+       (2,'$2a$12$QxJltIw5pIXkdc8LzTck4O.4nZsMf2WjM4jsDm99JbMidBLtlFbrS','nicosaurina@gmail.com',CURRENT_DATE,NULL, b'1'),
+       (3,'$2a$12$a/uNsJUletX9QpjDrT4tRe3hFQUWKpI6rp8nqe6uaPz9KxWDIqW6i','martijuarroz@gmail.com',CURRENT_DATE,NULL, b'1'),
+       (4,'$2a$12$gcZud6yzQV3PcXE/CMUUD.VhWZunoYgPQNl7/k5LaVDZDX/rhSgh2','martincarrion@gmail.com',CURRENT_DATE,CURRENT_DATE, b'1');
 
 INSERT INTO rol (id,fecha_creacion,fecha_fin_vigencia,nombre,empresa_id)
 VALUES (1,CURRENT_DATE,NULL,'Administrador',1),

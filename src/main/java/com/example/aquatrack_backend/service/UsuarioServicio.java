@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -111,11 +112,15 @@ public class UsuarioServicio {
       List<String> permisos = userDetails.getAuthorities().stream()
           .map(GrantedAuthority::getAuthority)
           .collect(Collectors.toList());
+      Rol rol = rolRepo.findRolWithHighestPermissions(getUsuarioFromContext().getId());
       return CurrentUserDTO.builder()
           .password(userDetails.getPassword())
           .nombre(empleado.getNombre() + " " + empleado.getApellido())
           .empresa(empleado.getEmpresa().getNombre())
+          .rolPrincipal(rol.getNombre())
+          .validado(getUsuarioFromContext().getValidado())
           .permisos(permisos)
+          .direccionEmail(getUsuarioFromContext().getDireccionEmail())
           .build();
     } else {
       throw new FailedToAuthenticateUserException("Error de autenticación. Intente mas tarde.");
@@ -198,5 +203,13 @@ public class UsuarioServicio {
     } else {
       throw new IllegalArgumentException("No se encontró el usuario correspondiente al token");
     }
+  }
+
+  public void confirmAccount(String token) throws RecordNotFoundException {
+    Usuario usuario = usuarioRepo.findByTokenEmail(token).orElseThrow(() -> new RecordNotFoundException("No se puede verificar el usuario con este enlace."));
+
+    usuario.setValidado(true);
+
+    usuarioRepo.save(usuario);
   }
 }

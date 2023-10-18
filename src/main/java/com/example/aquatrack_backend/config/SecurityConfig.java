@@ -28,6 +28,11 @@ public class SecurityConfig {
   }
 
   @Bean
+  public UserValidatedFilter userValidatedFilter() {
+    return new UserValidatedFilter();
+  }
+
+  @Bean
   public DaoAuthenticationProvider authenticationProvider(UserDetailsServiceImpl userDetailsService) {
     DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
     authProvider.setUserDetailsService(userDetailsService);
@@ -69,6 +74,7 @@ public class SecurityConfig {
         .and()
         .authenticationProvider(authenticationProvider(new UserDetailsServiceImpl()))
         .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
+        .addFilterAfter(userValidatedFilter(), AuthTokenFilter.class)
         .httpBasic();
     return http.build();
   }

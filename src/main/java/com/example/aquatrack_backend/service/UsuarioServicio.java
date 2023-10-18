@@ -112,11 +112,15 @@ public class UsuarioServicio {
       List<String> permisos = userDetails.getAuthorities().stream()
           .map(GrantedAuthority::getAuthority)
           .collect(Collectors.toList());
+      Rol rol = rolRepo.findRolWithHighestPermissions(getUsuarioFromContext().getId());
       return CurrentUserDTO.builder()
           .password(userDetails.getPassword())
           .nombre(empleado.getNombre() + " " + empleado.getApellido())
           .empresa(empleado.getEmpresa().getNombre())
+          .rolPrincipal(rol.getNombre())
+          .validado(getUsuarioFromContext().getValidado())
           .permisos(permisos)
+          .direccionEmail(getUsuarioFromContext().getDireccionEmail())
           .build();
     } else {
       throw new FailedToAuthenticateUserException("Error de autenticación. Intente mas tarde.");
@@ -202,7 +206,7 @@ public class UsuarioServicio {
   }
 
   public void confirmAccount(String token) throws RecordNotFoundException {
-    Usuario usuario = usuarioRepo.findByTokenEmail(token).orElseThrow(() -> new RecordNotFoundException("No se encontró el correo vinculado al token ingresado"));
+    Usuario usuario = usuarioRepo.findByTokenEmail(token).orElseThrow(() -> new RecordNotFoundException("No se puede verificar el usuario con este enlace."));
 
     usuario.setValidado(true);
 

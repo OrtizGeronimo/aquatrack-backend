@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -115,6 +116,22 @@ public class GlobalExceptionHandler {
   @ExceptionHandler({EntidadNoValidaException.class})
   public ResponseEntity<?> handleClienteWebUpdate(EntidadNoValidaException ex){
     return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());
+  }
+
+  @ExceptionHandler({UsuarioYaValidadoException.class})
+  public ResponseEntity<?> handleUsuarioYaValidado(UsuarioYaValidadoException ex){
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(ErrorResponseDTO.builder()
+            .message(ex.getMessage())
+            .build());
+  }
+
+  @ExceptionHandler({MailException.class})
+  public ResponseEntity<?> handleMailException(MailException ex){
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(ErrorResponseDTO.builder()
+            .message("Ocurrió un error al mandar el correo electŕonico. Intente nuevamente mas tarde.")
+            .build());
   }
 
   @ExceptionHandler({ValidacionException.class})

@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.example.aquatrack_backend.dto.ErrorResponseDTO;
+import com.example.aquatrack_backend.model.Usuario;
 import com.example.aquatrack_backend.service.UserDetailsServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -31,22 +32,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
-    // Get the request URI to determine the endpoint
-    String requestUri = request.getRequestURI();
-    // Define a list of endpoints that do not require JWT authentication
-    List<String> endpointsWithoutAuthentication = Arrays.asList(
-      // "/change-password/*", 
-      "/forgot-password",
-      "/email/sendPasswordEmail",
-      "/users/changePassword",
-      "/users/changePassword/**",
-      "/change-password/**");;
-    // Check if the request URI is in the list of endpoints that do not require authentication
-    if (endpointsWithoutAuthentication.contains(requestUri)) {
-        // Allow the request to proceed without JWT authentication
-        filterChain.doFilter(request, response);
-        return;
-    }
     final String jwt = parseJwt(request.getHeader("Authorization"));
     if (jwt == null) {
       handleJwtErrorResponse(response, "Debe estar logueado para realizar esta acción.");
@@ -87,7 +72,15 @@ public class AuthTokenFilter extends OncePerRequestFilter {
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
     String path = request.getRequestURI();
-    return Arrays.asList("/users/login", "/users/register", "/coberturas/conocer_cercana", "/clientes/app", "/clientes/codigo", "/clientes/dni", "/domicilios/ubicacion")
+    return Arrays.asList("/users/login",
+        "/users/register",
+        "/coberturas/conocer_cercana",
+        "/clientes/app",
+        "/clientes/codigo",
+        "/clientes/dni",
+        "/users/confirmEmail",
+        "/domicilios/ubicacion", "/forgot-password", "/email/sendPasswordEmail", "/users/changePassword",
+        "/users/changePassword/**", "/change-password/**")
         .stream().anyMatch(p -> p.equals(path));
   }
 }

@@ -28,8 +28,10 @@ public class Entrega {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-
+  
   private Integer ordenVisita;
+
+  private String observaciones;
 
   @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
   private LocalDateTime fechaHoraVisita;

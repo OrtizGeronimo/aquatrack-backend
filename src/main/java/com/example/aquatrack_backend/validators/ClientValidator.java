@@ -4,7 +4,7 @@ import com.example.aquatrack_backend.dto.GuardarClienteWebDTO;
 import com.example.aquatrack_backend.dto.UbicacionDTO;
 import com.example.aquatrack_backend.exception.ClienteNoCubiertoApp;
 import com.example.aquatrack_backend.exception.ClienteNoValidoException;
-import com.example.aquatrack_backend.exception.ClienteNoValidoUpdateException;
+import com.example.aquatrack_backend.exception.EntidadNoValidaException;
 import com.example.aquatrack_backend.helpers.UbicacionHelper;
 import com.example.aquatrack_backend.model.Cobertura;
 import com.example.aquatrack_backend.model.Empresa;
@@ -66,7 +66,7 @@ public class ClientValidator {
         }
     }
 
-    public void validateWebClientUpdate(GuardarClienteWebDTO clienteDTO, Empresa empresa) throws ClienteNoValidoUpdateException {
+    public void validateWebClientUpdate(GuardarClienteWebDTO clienteDTO, Empresa empresa) throws EntidadNoValidaException {
 
         HashMap<String, String> errors = new HashMap<>();
 
@@ -75,7 +75,7 @@ public class ClientValidator {
         }
 
         if (!errors.isEmpty()) {
-            throw new ClienteNoValidoUpdateException(errors);
+            throw new EntidadNoValidaException(errors);
         }
     }
 

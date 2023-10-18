@@ -28,7 +28,7 @@ public class Precio {
 
   private BigDecimal precio;
 
-  @DateTimeFormat(pattern = "dd-MM-YYYY")
+  @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
   private LocalDateTime fechaFinVigencia;
 
   @ManyToOne()

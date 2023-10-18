@@ -2,9 +2,11 @@ package com.example.aquatrack_backend.controller;
 
 import com.example.aquatrack_backend.dto.AsignarRepartidorDTO;
 import com.example.aquatrack_backend.dto.FinalizarRepartoIncompletoDTO;
+import com.example.aquatrack_backend.exception.EntidadNoValidaException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.ValidacionException;
 import com.example.aquatrack_backend.helpers.ValidationHelper;
+import com.example.aquatrack_backend.service.EntregaServicio;
 import com.example.aquatrack_backend.service.RepartoServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,9 @@ public class RepartoControlador{
     @Autowired
     private RepartoServicio servicio;
 
+    @Autowired
+    private EntregaServicio entregaServicio;
+
     private ValidationHelper validationHelper = new ValidationHelper();
 
 
@@ -26,6 +31,17 @@ public class RepartoControlador{
 //    public ResponseEntity<?> crearReparto(@PathVariable("id") Long id) throws RecordNotFoundException, ValidacionException {
 //            return ResponseEntity.ok().body(servicio.crearReparto(id));
 //    }
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('LISTAR_REPARTOS')")
+    public ResponseEntity<?> detallarReparto(@PathVariable("id") Long id) throws RecordNotFoundException{
+      return ResponseEntity.ok().body(servicio.detalleReparto(id));
+    }
+
+    @GetMapping("/{id}/entregas")
+    @PreAuthorize("hasAuthority('LISTAR_ENTREGAS')")
+    public ResponseEntity<?> listarEntregasReparto(@PathVariable("id") Long id) throws RecordNotFoundException {
+      return ResponseEntity.ok().body(entregaServicio.findAllEntregasByReparto(id));
+    }
 
     @PostMapping("/{id}")
     @PreAuthorize("hasAuthority('CREAR_REPARTOS')")
@@ -50,10 +66,16 @@ public class RepartoControlador{
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/asignarRepartidor")
+    @GetMapping("/asignarRepartidor")
     @PreAuthorize("hasAuthority('EDITAR_REPARTOS')")
-    public ResponseEntity<?> asignarRepartidor(@RequestBody AsignarRepartidorDTO dto) throws RecordNotFoundException, ValidacionException {
-        return ResponseEntity.ok().body(servicio.asignarRepartidor(dto.getIdReparto(), dto.getIdRepartidor()));
+    public ResponseEntity<?> getAsignarRepartidores() {
+        return ResponseEntity.ok().body(servicio.getAsignarRepartidor());
+    }
+  
+    @PutMapping("/{id}/asignarRepartidor/{repartidor_id}")
+    @PreAuthorize("hasAuthority('EDITAR_REPARTOS')")
+    public ResponseEntity<?> asignarRepartidor(@PathVariable("id") Long id, @PathVariable("repartidor_id") Long repartidorId) throws RecordNotFoundException, ValidacionException {
+        return ResponseEntity.ok().body(servicio.asignarRepartidor(id, repartidorId));
     }
 
     @PutMapping("/iniciarReparto")
@@ -63,21 +85,23 @@ public class RepartoControlador{
         return ResponseEntity.ok().body("El reparto inició su ejecución");
     }
 
-    @PutMapping("/cancelarReparto")
+    @PutMapping("/{id}/cancelarReparto")
     @PreAuthorize("hasAuthority('EDITAR_REPARTOS')")
-    public ResponseEntity<?> cancelarReparto(@RequestParam Long idReparto) throws RecordNotFoundException, ValidacionException {
-        servicio.cancelarReparto(idReparto);
-        return ResponseEntity.ok().body("El reparto fue cancelado");
+    public ResponseEntity<?> cancelarReparto(@PathVariable("id") Long idReparto) throws RecordNotFoundException, ValidacionException {
+        return ResponseEntity.ok().body(servicio.cancelarReparto(idReparto));
     }
 
-    @PutMapping("/finalizarRepartoIncompleto")
+    @GetMapping("/{id}/entregasPendientes")
     @PreAuthorize("hasAuthority('EDITAR_REPARTOS')")
-    public ResponseEntity<?> finalizarRepartoIncompleto(@RequestBody FinalizarRepartoIncompletoDTO dto) throws RecordNotFoundException, ValidacionException {
-        if(validationHelper.hasValidationErrors(dto)){
-            return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(dto));
-        }
-        servicio.finalizarRepartoIncompleto(dto.getIdReparto(), dto.getObservaciones());
-        return ResponseEntity.ok().body("El reparto fue finalizado como incompleto correctamente");
+    public ResponseEntity<?> entregasPendientes(@PathVariable("id") Long idReparto) throws RecordNotFoundException, ValidacionException {
+        return ResponseEntity.ok().body(servicio.checkEntregasIncompletas(idReparto));
+    }
+
+
+    @PutMapping("/{id}/finalizarReparto")
+    @PreAuthorize("hasAuthority('EDITAR_REPARTOS')")
+    public ResponseEntity<?> finalizarRepartoIncompleto(@PathVariable("id") Long idReparto, @RequestBody FinalizarRepartoIncompletoDTO dto) throws RecordNotFoundException, EntidadNoValidaException {
+        return ResponseEntity.ok().body(servicio.finalizarReparto(idReparto, dto.getObservaciones()));
     }
 
     @GetMapping("/parametros")

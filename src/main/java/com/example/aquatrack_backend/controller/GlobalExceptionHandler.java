@@ -55,6 +55,14 @@ public class GlobalExceptionHandler {
             .build());
   }
 
+  @ExceptionHandler({ EntidadNoVigenteException.class })
+  public ResponseEntity<?> handleEntidadNoVigente(Exception ex) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(ErrorResponseDTO.builder()
+            .message(ex.getMessage())
+            .build());
+  }
+
   @ExceptionHandler({ RecordNotFoundException.class })
   public ResponseEntity<?> handleRecordNotFound(Exception ex) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -99,6 +107,27 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());
   }
 
+  @ExceptionHandler({ClienteNoCubiertoApp.class})
+  public ResponseEntity<?> handleClienteNoCubierto(ClienteNoCubiertoApp ex){
+    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getMessage());
+  }
+
+  @ExceptionHandler({EntidadNoValidaException.class})
+  public ResponseEntity<?> handleClienteWebUpdate(EntidadNoValidaException ex){
+    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());
+  }
+
+  @ExceptionHandler({ValidacionException.class})
+  public ResponseEntity<?> handleValidacionException(ValidacionException ex){
+    if(ex.getErrors() != null){
+      return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());
+    }else{
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponseDTO.builder()
+            .message(ex.getMessage())
+            .build());
+    }
+  }
+
   @ExceptionHandler({ Exception.class })
   public ResponseEntity<?> handleUnexpectedException(Exception ex) {
     ex.printStackTrace();
@@ -106,20 +135,5 @@ public class GlobalExceptionHandler {
         .body(ErrorResponseDTO.builder()
             .message("Error inesperado del servidor, intente mas tarde.")
             .build());
-  }
-
-  @ExceptionHandler({ClienteNoCubiertoApp.class})
-  public ResponseEntity<?> handleClienteNoCubierto(ClienteNoCubiertoApp ex){
-    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getMessage());
-  }
-
-  @ExceptionHandler({ClienteNoValidoUpdateException.class})
-  public ResponseEntity<?> handleClienteWebUpdate(ClienteNoValidoUpdateException ex){
-    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());
-  }
-
-  @ExceptionHandler({ValidacionException.class})
-  public ResponseEntity<?> handleValidacionException(ValidacionException ex){
-    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());
   }
 }

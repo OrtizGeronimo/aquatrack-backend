@@ -1,15 +1,11 @@
 package com.example.aquatrack_backend.service;
 
-import com.example.aquatrack_backend.config.JwtUtils;
-import com.example.aquatrack_backend.config.SecurityUser;
-import com.example.aquatrack_backend.dto.*;
-import com.example.aquatrack_backend.exception.*;
-import com.example.aquatrack_backend.model.*;
-import com.example.aquatrack_backend.repo.EmpleadoRepo;
-import com.example.aquatrack_backend.repo.EstadoUsuarioRepo;
-import com.example.aquatrack_backend.repo.RolRepo;
-import com.example.aquatrack_backend.repo.UsuarioRepo;
-import com.example.aquatrack_backend.validators.UserValidator;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,11 +18,33 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import com.example.aquatrack_backend.config.JwtUtils;
+import com.example.aquatrack_backend.config.SecurityUser;
+import com.example.aquatrack_backend.dto.ChangePasswordDTO;
+import com.example.aquatrack_backend.dto.ChangePasswordLoginDTO;
+import com.example.aquatrack_backend.dto.CurrentUserDTO;
+import com.example.aquatrack_backend.dto.CurrentUserMobileDTO;
+import com.example.aquatrack_backend.dto.LoginMobileResponseDTO;
+import com.example.aquatrack_backend.dto.LoginResponseDTO;
+import com.example.aquatrack_backend.dto.RegisterRequestDTO;
+import com.example.aquatrack_backend.dto.RegisterResponseDTO;
+import com.example.aquatrack_backend.dto.UpdateUserDTO;
+import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
+import com.example.aquatrack_backend.exception.PasswordDistintasException;
+import com.example.aquatrack_backend.exception.RecordNotFoundException;
+import com.example.aquatrack_backend.exception.UserNoValidoException;
+import com.example.aquatrack_backend.exception.UserUnauthorizedException;
+import com.example.aquatrack_backend.model.Cliente;
+import com.example.aquatrack_backend.model.Empleado;
+import com.example.aquatrack_backend.model.Persona;
+import com.example.aquatrack_backend.model.Rol;
+import com.example.aquatrack_backend.model.RolUsuario;
+import com.example.aquatrack_backend.model.Usuario;
+import com.example.aquatrack_backend.repo.EmpleadoRepo;
+import com.example.aquatrack_backend.repo.EstadoUsuarioRepo;
+import com.example.aquatrack_backend.repo.RolRepo;
+import com.example.aquatrack_backend.repo.UsuarioRepo;
+import com.example.aquatrack_backend.validators.UserValidator;
 
 @Service
 public class UsuarioServicio {
@@ -92,7 +110,6 @@ public class UsuarioServicio {
     usuario.setContraseña(bCryptPasswordEncoder.encode(password));
     usuario.setConfirmacionContraseña(bCryptPasswordEncoder.encode(confirmacionPassword));
     usuario.setValidado(true);
-    usuario.setFechaCreacion(LocalDate.now());
     return usuario;
   }
 
@@ -142,6 +159,21 @@ public class UsuarioServicio {
     } else {
       throw new FailedToAuthenticateUserException("Error de autenticación. Intente mas tarde.");
     }
+  
+  }
+  
+  @Transactional
+  public Usuario createUserClient(String email, String password, Long empresaId){
+    Usuario usuario = new Usuario();
+    usuario.setDireccionEmail(email);
+    usuario.setContraseña(bCryptPasswordEncoder.encode(password));
+    usuario.setValidado(true);
+    Rol rol = rolRepo.findClientRole();
+    List<RolUsuario> rolUsuarios = new ArrayList<>();
+    rolUsuarios.add(new RolUsuario(rol, usuario));
+    usuario.setRolesUsuario(rolUsuarios);
+    usuarioRepo.save(usuario);
+    return usuario;
   }
 
   @Transactional

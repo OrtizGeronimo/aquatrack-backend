@@ -15,15 +15,6 @@ public class EntregaControlador{
     @Autowired
     private EntregaServicio entregaServicio;
 
-    @GetMapping(value = "")
-    @PreAuthorize("hasAuthority('LISTAR_ENTREGAS')")
-    public ResponseEntity<?> findAll(@RequestParam(defaultValue = "0") int page,
-                                     @RequestParam(defaultValue = "10") int size,
-                                     @RequestParam() Long idReparto)
-    {
-        return ResponseEntity.ok().body(entregaServicio.findAllEntregasByReparto(idReparto, page, size));
-    }
-
     @GetMapping(value = "/{id}")
     @PreAuthorize("hasAuthority('LISTAR_CLIENTES')")
     public ResponseEntity<?> detallarEntrega(@PathVariable Long id) throws RecordNotFoundException{

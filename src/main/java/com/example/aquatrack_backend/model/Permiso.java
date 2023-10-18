@@ -29,7 +29,7 @@ public class Permiso {
 
   private String descripcion;
 
-  @DateTimeFormat(pattern = "dd-MM-YYYY")
+  @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
   private LocalDateTime fechaFinVigencia;
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "permiso")

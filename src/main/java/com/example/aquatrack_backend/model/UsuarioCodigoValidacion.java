@@ -24,7 +24,7 @@ public class UsuarioCodigoValidacion {
     private LocalDateTime fechaFinVigencia;
 
     @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
-    private LocalDateTime fechaCreacion;
+    private LocalDateTime fechaCreacion = LocalDateTime.now();
 
     @ManyToOne()
     private Usuario usuario;

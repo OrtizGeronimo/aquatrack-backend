@@ -1,12 +1,10 @@
 package com.example.aquatrack_backend.model;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -29,8 +27,8 @@ public class Reparto {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @DateTimeFormat(pattern = "dd-MM-YYYY")
-  private LocalDate fechaEjecucion;
+  @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
+  private LocalDateTime fechaEjecucion;
 
   @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
   private LocalDateTime fechaHoraInicio;

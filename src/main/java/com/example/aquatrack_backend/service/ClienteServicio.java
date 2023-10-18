@@ -1,26 +1,38 @@
 package com.example.aquatrack_backend.service;
 
-import com.example.aquatrack_backend.dto.*;
-import com.example.aquatrack_backend.exception.ClienteNoValidoException;
-import com.example.aquatrack_backend.exception.ClienteNoValidoUpdateException;
-import com.example.aquatrack_backend.exception.RecordNotFoundException;
-import com.example.aquatrack_backend.helpers.UbicacionHelper;
-import com.example.aquatrack_backend.model.*;
-import com.example.aquatrack_backend.repo.*;
-import com.example.aquatrack_backend.validators.ClientValidator;
+import java.time.LocalDateTime;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-
-import java.util.HashMap;
-import java.util.List;
+import com.example.aquatrack_backend.dto.ClienteDTO;
+import com.example.aquatrack_backend.dto.ClienteListDTO;
+import com.example.aquatrack_backend.dto.CodigoDTO;
+import com.example.aquatrack_backend.dto.EmpresaDTO;
+import com.example.aquatrack_backend.dto.GuardarClienteDTO;
+import com.example.aquatrack_backend.dto.GuardarClienteWebDTO;
+import com.example.aquatrack_backend.dto.UbicacionDTO;
+import com.example.aquatrack_backend.dto.ValidarDniDTO;
+import com.example.aquatrack_backend.exception.ClienteNoValidoException;
+import com.example.aquatrack_backend.exception.EntidadNoValidaException;
+import com.example.aquatrack_backend.exception.RecordNotFoundException;
+import com.example.aquatrack_backend.model.Cliente;
+import com.example.aquatrack_backend.model.Domicilio;
+import com.example.aquatrack_backend.model.Empleado;
+import com.example.aquatrack_backend.model.Empresa;
+import com.example.aquatrack_backend.model.Ubicacion;
+import com.example.aquatrack_backend.model.Usuario;
+import com.example.aquatrack_backend.repo.ClienteRepo;
+import com.example.aquatrack_backend.repo.EmpresaRepo;
+import com.example.aquatrack_backend.repo.EstadoUsuarioRepo;
+import com.example.aquatrack_backend.repo.RepoBase;
+import com.example.aquatrack_backend.repo.UsuarioRepo;
+import com.example.aquatrack_backend.validators.ClientValidator;
 
 @Service
 public class ClienteServicio extends ServicioBaseImpl<Cliente> {
@@ -73,7 +85,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
   public void disableCliente(Long id) throws Exception {
     Cliente clienteDeshabilitado = clienteRepo.findById(id)
         .orElseThrow(() -> new RecordNotFoundException("El cliente solicitado no fue encontrado"));
-    clienteDeshabilitado.setFechaFinVigencia(LocalDate.now());
+    clienteDeshabilitado.setFechaFinVigencia(LocalDateTime.now());
     clienteRepo.save(clienteDeshabilitado);
   }
 
@@ -104,7 +116,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
 
     EmpresaDTO empresaDTO = new EmpresaDTO();
     empresaDTO.setId(empresa_id);
-    empresaDTO.setNombre(empresa.getNombre());
+    empresaDTO.setNombreEmpresa(empresa.getNombre());
     return empresaDTO;
   }
 
@@ -136,7 +148,6 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     usuario.setEstadoUsuario(estadoUsuarioRepo.findByNombreEstadoUsuario("Habilitado")
             .orElseThrow(()-> new RecordNotFoundException("El estado no fue encontrado")));
     Cliente clienteNuevo = new ModelMapper().map(cliente, Cliente.class);
-    clienteNuevo.setFechaCreacion(LocalDate.now());
     clienteNuevo.setEmpresa(empresa);
     clienteNuevo.setUsuario(usuario);
     Domicilio domicilio = new Domicilio();
@@ -169,7 +180,6 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     clienteNuevo.setApellido(cliente.getApellido());
     clienteNuevo.setDni(cliente.getDni());
     clienteNuevo.setNumTelefono(cliente.getNumTelefono());
-    clienteNuevo.setFechaCreacion(LocalDate.now());
     clienteNuevo.setEmpresa(empresa);
 
     Domicilio domicilio = new Domicilio();
@@ -203,7 +213,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
   }
 
   @Transactional
-  public ClienteListDTO updateFromWeb(Long id, GuardarClienteWebDTO cliente) throws RecordNotFoundException, ClienteNoValidoUpdateException {
+  public ClienteListDTO updateFromWeb(Long id, GuardarClienteWebDTO cliente) throws RecordNotFoundException, EntidadNoValidaException {
     Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
     Cliente clienteUpdate = clienteRepo.findById(id)
         .orElseThrow(() -> new RecordNotFoundException("El cliente solicitado no fue encontrado"));
@@ -212,7 +222,6 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     clienteUpdate.setApellido(cliente.getApellido());
     clienteUpdate.setDni(cliente.getDni());
     clienteUpdate.setNumTelefono(cliente.getNumTelefono());
-    clienteUpdate.setFechaCreacion(LocalDate.now());
     clienteUpdate.setEmpresa(empresa);
     
     clienteUpdate.getDomicilio().setCalle(cliente.getCalle());

@@ -1,13 +1,13 @@
 package com.example.aquatrack_backend.dto;
 
+import java.time.LocalDateTime;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -18,10 +18,10 @@ public class ClienteDTO {
     private String nombre;
     private String apellido;
     private Integer dni;
-    @DateTimeFormat(pattern = "dd-MM-YYYY")
-    private LocalDate fechaCreacion;
-    @DateTimeFormat(pattern = "dd-MM-YYYY")
-    private LocalDate fechaFinVigencia;
+    @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
+    private LocalDateTime fechaCreacion;
+    @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
+    private LocalDateTime fechaFinVigencia;
     private String numTelefono;
     private String calle;
     private Integer numero;

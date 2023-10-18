@@ -35,7 +35,7 @@ public class Pedido {
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "pedido")
   private List<PedidoProducto> pedidoProductos;
 
-  @DateTimeFormat(pattern = "dd-MM-YYYY")
+  @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
   private LocalDateTime fechaCoordinadaEntrega;
 
   @ManyToOne()

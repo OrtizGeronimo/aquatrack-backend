@@ -15,4 +15,9 @@ public class EntregaListDTO {
     private Long id;
     private LocalDateTime fechaHoraVisita;
     private Long estadoEntregaId;
+    private String estadoEntrega;
+    private Integer ordenVisita;
+    private Double latitudDomicilio;
+    private Double longitudDomicilio;
+    private String cliente;
 }

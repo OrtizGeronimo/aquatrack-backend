@@ -33,4 +33,6 @@ public interface UsuarioRepo extends JpaRepository<Usuario, Long> {
             "WHERE usuario_id = :usuarioId", nativeQuery = true)
     @Modifying
     void deleteUserRoles(@Param("usuarioId")Long usuarioId);
+
+    Optional<Usuario> findByTokenEmail(String token);
 }

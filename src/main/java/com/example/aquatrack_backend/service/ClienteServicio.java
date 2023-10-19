@@ -30,6 +30,7 @@ import com.example.aquatrack_backend.model.Ubicacion;
 import com.example.aquatrack_backend.model.Usuario;
 import com.example.aquatrack_backend.repo.ClienteRepo;
 import com.example.aquatrack_backend.repo.EmpresaRepo;
+import com.example.aquatrack_backend.repo.EstadoClienteRepo;
 import com.example.aquatrack_backend.repo.EstadoUsuarioRepo;
 import com.example.aquatrack_backend.repo.RepoBase;
 import com.example.aquatrack_backend.repo.UsuarioRepo;

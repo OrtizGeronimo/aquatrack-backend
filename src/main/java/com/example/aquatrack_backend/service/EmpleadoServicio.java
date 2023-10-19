@@ -101,6 +101,7 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
              roles.add(nuevoRolUsuario);
          }
          usuarioNuevo.setRolesUsuario(roles);
+         usuarioNuevo.setValidado(false);
         // rolUsuario.setRol(rolEmpleado);
 
 //        rolUsuario.setUsuario(usuarioNuevo);

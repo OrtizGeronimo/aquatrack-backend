@@ -15,5 +15,8 @@ public class CurrentUserDTO {
     private String nombre;
     private String empresa;
     private String password;
+    private boolean validado;
+    private String rolPrincipal;
     private List<String> permisos;
+    private String direccionEmail;
 }

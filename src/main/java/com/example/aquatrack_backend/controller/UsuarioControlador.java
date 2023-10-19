@@ -70,4 +70,10 @@ public class UsuarioControlador {
    return ResponseEntity.ok().body(usuarioServicio.updatePassword(dto));
  }
 
+ @PutMapping(value = "/confirmEmail")
+  public ResponseEntity<?> confirmarEmail(@RequestParam String token) throws RecordNotFoundException {
+    usuarioServicio.confirmAccount(token);
+    return ResponseEntity.ok().build();
+ }
+
 }

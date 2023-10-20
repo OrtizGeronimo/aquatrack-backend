@@ -25,7 +25,7 @@ public class UsuarioControlador {
   }
 
   @PostMapping(value = "/login/mobile")
-  public ResponseEntity<?> loginMobile(@RequestBody LoginRequestDTO usuario) throws UserUnauthorizedException{
+  public ResponseEntity<?> loginMobile(@RequestBody LoginRequestDTO usuario) throws UserUnauthorizedException, EntidadNoVigenteException{
     if(validationHelper.hasValidationErrors(usuario)){
       return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(usuario));
     }

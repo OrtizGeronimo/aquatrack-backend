@@ -11,5 +11,4 @@ import lombok.NoArgsConstructor;
 @Builder
 public class LoginMobileResponseDTO {
     private String token;
-    private String tipoPersona;
 }

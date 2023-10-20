@@ -78,6 +78,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         "/clientes/app",
         "/clientes/codigo",
         "/clientes/dni",
+        "/users/login/mobile",
         "/users/confirmEmail",
         "/domicilios/ubicacion", "/forgot-password", "/email/sendPasswordEmail", "/users/changePassword",
         "/users/changePassword/**", "/change-password/**")

@@ -30,6 +30,7 @@ import com.example.aquatrack_backend.dto.LoginResponseDTO;
 import com.example.aquatrack_backend.dto.RegisterRequestDTO;
 import com.example.aquatrack_backend.dto.RegisterResponseDTO;
 import com.example.aquatrack_backend.dto.UpdateUserDTO;
+import com.example.aquatrack_backend.exception.EntidadNoVigenteException;
 import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
 import com.example.aquatrack_backend.exception.PasswordDistintasException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
@@ -84,24 +85,22 @@ public class UsuarioServicio {
     return LoginResponseDTO.builder().token(jwt).build();
   }
 
-  public LoginMobileResponseDTO loginMobile(String direccionEmail, String contraseña) throws UserUnauthorizedException{
+  public LoginMobileResponseDTO loginMobile(String direccionEmail, String contraseña) throws UserUnauthorizedException, EntidadNoVigenteException{
     Authentication authentication = authenticationManager
             .authenticate(new UsernamePasswordAuthenticationToken(direccionEmail, contraseña));
     Persona persona = ((SecurityUser) authentication.getPrincipal()).getUsuario().getPersona();
-    String tipoPersona;
+    if(persona.getFechaFinVigencia() != null){
+      throw new EntidadNoVigenteException("El usuario fue dado de baja.");
+    }
+
     if (persona instanceof Empleado) {
-      if(((Empleado) persona).getTipo().getNombre().equalsIgnoreCase("repartidor")){
-        tipoPersona = "repartidor";
-      } else {
+      if(!((Empleado) persona).getTipo().getNombre().equalsIgnoreCase("repartidor")){
         throw new UserUnauthorizedException("El usuario ingresado no puede acceder a la aplicación mobile.");
       }
-    } else {
-      tipoPersona = "cliente";
     }
     String jwt = jwtUtils.generateJwtToken(authentication);
     return LoginMobileResponseDTO.builder()
             .token(jwt)
-            .tipoPersona(tipoPersona)
             .build();
   }
 
@@ -164,7 +163,6 @@ public class UsuarioServicio {
     } else {
       throw new FailedToAuthenticateUserException("Error de autenticación. Intente mas tarde.");
     }
-  
   }
   
   @Transactional

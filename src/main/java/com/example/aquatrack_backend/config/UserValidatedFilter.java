@@ -48,6 +48,7 @@ public class UserValidatedFilter extends OncePerRequestFilter {
         "/clientes/dni",
         "/email/sendEmailConfirm",
         "/users/confirmEmail",
+        "/users/login/mobile",
         "/domicilios/ubicacion", "/forgot-password", "/email/sendPasswordEmail", "/users/changePassword",
         "/users/changePassword/**", "/change-password/**", "/users/current")
         .stream().anyMatch(p -> p.equals(path));

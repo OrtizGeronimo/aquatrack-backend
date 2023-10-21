@@ -88,10 +88,8 @@ public class ClientValidator {
 
     private boolean validateIsContained(UbicacionDTO ubiCliente, Cobertura cobertura) {
         boolean isContained = ubicacionHelper.estaContenida(ubiCliente, cobertura);
-        if (!isContained) {
-            return false;
-        }
-        return true;
+  
+        return isContained;
     }
 
     private boolean validateUniqueDniUpdate(Integer dni, Long idE, Long idC) {

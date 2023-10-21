@@ -1,6 +1,7 @@
 package com.example.aquatrack_backend.controller;
 
 import com.example.aquatrack_backend.dto.*;
+import com.example.aquatrack_backend.exception.ClienteNoCubiertoApp;
 import com.example.aquatrack_backend.exception.EntidadNoValidaException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.UserUnauthorizedException;
@@ -101,5 +102,10 @@ public class ClienteControlador {
       return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(cliente));
     }
     return ResponseEntity.ok().body(clienteServicio.editarClienteMobile(cliente));
+  }
+
+  @PutMapping(value = "/mobile-address")
+  public ResponseEntity<?> updateCurrentClientAddressMobile(@RequestBody EditarDomicilioMobileDTO domicilio) throws UserUnauthorizedException, EntidadNoValidaException {
+    return ResponseEntity.ok().body(clienteServicio.editarDomicilioMobile(domicilio));
   }
 }

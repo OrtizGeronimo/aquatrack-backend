@@ -19,4 +19,7 @@ public class DetalleClienteMobileDTO {
   private String numero;
   private String pisoDepto;
   private String observaciones;
+  private String localidad;
+  private Double latitud;
+  private Double longitud;
 }

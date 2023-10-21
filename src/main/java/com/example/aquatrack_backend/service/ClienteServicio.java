@@ -25,15 +25,18 @@ import com.example.aquatrack_backend.dto.ClienteListDTO;
 import com.example.aquatrack_backend.dto.CodigoDTO;
 import com.example.aquatrack_backend.dto.DetalleClienteMobileDTO;
 import com.example.aquatrack_backend.dto.EditarClienteMobileDTO;
+import com.example.aquatrack_backend.dto.EditarDomicilioMobileDTO;
 import com.example.aquatrack_backend.dto.EmpresaDTO;
 import com.example.aquatrack_backend.dto.GuardarClienteDTO;
 import com.example.aquatrack_backend.dto.GuardarClienteWebDTO;
 import com.example.aquatrack_backend.dto.UbicacionDTO;
 import com.example.aquatrack_backend.dto.ValidarDniDTO;
+import com.example.aquatrack_backend.exception.ClienteNoCubiertoApp;
 import com.example.aquatrack_backend.exception.ClienteNoValidoException;
 import com.example.aquatrack_backend.exception.EntidadNoValidaException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.UserUnauthorizedException;
+import com.example.aquatrack_backend.helpers.UbicacionHelper;
 import com.example.aquatrack_backend.model.Cliente;
 import com.example.aquatrack_backend.model.Domicilio;
 import com.example.aquatrack_backend.model.Empleado;
@@ -307,6 +310,9 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
                                   .observaciones(nullableToEmptyString(cliente.getDomicilio().getObservaciones()))
                                   .empresa(cliente.getEmpresa().getNombre())
                                   .direccionEmail(cliente.getUsuario().getDireccionEmail())
+                                  .localidad(cliente.getDomicilio().getLocalidad())
+                                  .latitud(cliente.getDomicilio().getUbicacion().getLatitud())
+                                  .longitud(cliente.getDomicilio().getUbicacion().getLongitud())
                                   .build();
 
   }
@@ -328,6 +334,45 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     respuesta.setNombre(cliente.getNombre());
     respuesta.setApellido(cliente.getApellido());
     respuesta.setNumTelefono(cliente.getNumTelefono());
+    return respuesta;
+  }
+
+
+  @Transactional
+  public EditarDomicilioMobileDTO editarDomicilioMobile(EditarDomicilioMobileDTO domicilio) throws UserUnauthorizedException, EntidadNoValidaException {
+    Persona persona = getUsuarioFromContext().getPersona();
+    Cliente cliente = (Cliente)persona;
+    if(persona instanceof Empleado || cliente.getUsuario() == null){
+      throw new UserUnauthorizedException("Esta funcionalidad es exclusiva para clientes de Aquatrack.");
+    }
+
+    UbicacionDTO ubicacion = UbicacionDTO.builder().latitud(domicilio.getLatitud()).longitud(domicilio.getLongitud()).build();
+    if(!new UbicacionHelper().estaContenida(ubicacion, cliente.getEmpresa().getCobertura())){
+      HashMap<String, String> errors = new HashMap<>();
+      errors.put("root", "La ubicación ingresada no se encuentra dentro de la cobertura de la empresa.");
+      throw new EntidadNoValidaException(errors);
+    }
+  
+    cliente.getDomicilio().setCalle(domicilio.getCalle());
+    cliente.getDomicilio().setNumero(domicilio.getNumero());
+    cliente.getDomicilio().setPisoDepartamento(domicilio.getPisoDepto());
+    cliente.getDomicilio().setObservaciones(domicilio.getObservaciones());
+    cliente.getDomicilio().setLocalidad(domicilio.getLocalidad());
+  
+    cliente.getDomicilio().getUbicacion().setLatitud(domicilio.getLatitud());
+    cliente.getDomicilio().getUbicacion().setLongitud(domicilio.getLongitud());
+
+    clienteRepo.save(cliente);
+  
+    EditarDomicilioMobileDTO respuesta = new EditarDomicilioMobileDTO();
+    respuesta.setCalle(cliente.getDomicilio().getCalle());
+    respuesta.setNumero(cliente.getDomicilio().getNumero());
+    respuesta.setObservaciones(cliente.getDomicilio().getObservaciones());
+    respuesta.setPisoDepto(cliente.getDomicilio().getPisoDepartamento());
+    respuesta.setLocalidad(cliente.getDomicilio().getLocalidad());
+    respuesta.setLatitud(cliente.getDomicilio().getUbicacion().getLatitud());
+    respuesta.setLongitud(cliente.getDomicilio().getUbicacion().getLongitud());
+
     return respuesta;
   }
 

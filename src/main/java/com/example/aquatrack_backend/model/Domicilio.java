@@ -40,7 +40,7 @@ public class Domicilio {
   @OneToOne
   private Cliente cliente;
 
-  @OneToOne()
+  @OneToOne(cascade = CascadeType.ALL)
   private Deuda deuda;
 
   @OneToOne(cascade = CascadeType.ALL)

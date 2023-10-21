@@ -210,6 +210,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
                 entregasARepartir.add(entrega);
               }
             }
+            break;
           }
         }
         

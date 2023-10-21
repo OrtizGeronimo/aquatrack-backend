@@ -1,7 +1,9 @@
 package com.example.aquatrack_backend.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.example.aquatrack_backend.model.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,12 +23,6 @@ import com.example.aquatrack_backend.dto.ValidarDniDTO;
 import com.example.aquatrack_backend.exception.ClienteNoValidoException;
 import com.example.aquatrack_backend.exception.EntidadNoValidaException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
-import com.example.aquatrack_backend.model.Cliente;
-import com.example.aquatrack_backend.model.Domicilio;
-import com.example.aquatrack_backend.model.Empleado;
-import com.example.aquatrack_backend.model.Empresa;
-import com.example.aquatrack_backend.model.Ubicacion;
-import com.example.aquatrack_backend.model.Usuario;
 import com.example.aquatrack_backend.repo.ClienteRepo;
 import com.example.aquatrack_backend.repo.EmpresaRepo;
 import com.example.aquatrack_backend.repo.EstadoUsuarioRepo;
@@ -158,6 +154,10 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
       domicilio = clienteExist.getDomicilio();
       Ubicacion ubicacion = domicilio.getUbicacion();
       ubicacionDTO = modelMapper.map(ubicacion, UbicacionDTO.class);
+    } else {
+      Deuda deuda = new Deuda();
+      deuda.setMonto(BigDecimal.ZERO);
+      domicilio.setDeuda(deuda);
     }
     domicilio.setCalle(cliente.getCalle());
     domicilio.setNumero(cliente.getNumero());
@@ -188,6 +188,10 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     domicilio.setPisoDepartamento(cliente.getPisoDepartamento());
     domicilio.setObservaciones(cliente.getObservaciones());
     domicilio.setLocalidad(cliente.getLocalidad());
+
+    Deuda deuda = new Deuda();
+    deuda.setMonto(BigDecimal.ZERO);
+    domicilio.setDeuda(deuda);
   
     Ubicacion ubicacion = new Ubicacion();
     ubicacion.setLatitud(cliente.getLatitud());

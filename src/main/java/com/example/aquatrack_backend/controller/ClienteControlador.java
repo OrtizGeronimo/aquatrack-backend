@@ -3,6 +3,7 @@ package com.example.aquatrack_backend.controller;
 import com.example.aquatrack_backend.dto.*;
 import com.example.aquatrack_backend.exception.EntidadNoValidaException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
+import com.example.aquatrack_backend.exception.UserUnauthorizedException;
 import com.example.aquatrack_backend.helpers.ValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -82,5 +83,23 @@ public class ClienteControlador {
       return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(cliente));
     }
     return ResponseEntity.ok().body(clienteServicio.updateFromWeb(id, cliente));
+  }
+
+  @GetMapping(value = "/proxima-entrega")
+  public ResponseEntity<?> getProximaEntregaCliente() throws UserUnauthorizedException {
+    return ResponseEntity.ok().body(clienteServicio.getProximaEntregaCliente());
+  }
+
+  @GetMapping(value = "/mobile-info")
+  public ResponseEntity<?> infoCliente() throws UserUnauthorizedException {
+    return ResponseEntity.ok().body(clienteServicio.getPersonalInfo());
+  }
+
+  @PutMapping(value = "/mobile")
+  public ResponseEntity<?> updateCurrentClientMobile(@RequestBody EditarClienteMobileDTO cliente) throws UserUnauthorizedException {
+    if (validationHelper.hasValidationErrors(cliente)) {
+      return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(cliente));
+    }
+    return ResponseEntity.ok().body(clienteServicio.editarClienteMobile(cliente));
   }
 }

@@ -1,20 +1,22 @@
 package com.example.aquatrack_backend.dto;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CurrentUserMobileDTO {
+public class DetalleClienteMobileDTO {
   private String nombre;
+  private String apellido;
+  private String numTelefono;
+  private int dni;
   private String empresa;
-  private String tipoPersona;
   private String direccionEmail;
-  private boolean validado;
+  private String calle;
+  private String numero;
+  private String pisoDepto;
+  private String observaciones;
 }

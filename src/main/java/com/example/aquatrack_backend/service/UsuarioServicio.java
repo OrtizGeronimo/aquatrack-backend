@@ -2,6 +2,7 @@ package com.example.aquatrack_backend.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,7 +30,9 @@ import com.example.aquatrack_backend.dto.LoginMobileResponseDTO;
 import com.example.aquatrack_backend.dto.LoginResponseDTO;
 import com.example.aquatrack_backend.dto.RegisterRequestDTO;
 import com.example.aquatrack_backend.dto.RegisterResponseDTO;
+import com.example.aquatrack_backend.dto.UpdateMailMobileDTO;
 import com.example.aquatrack_backend.dto.UpdateUserDTO;
+import com.example.aquatrack_backend.exception.EntidadNoValidaException;
 import com.example.aquatrack_backend.exception.EntidadNoVigenteException;
 import com.example.aquatrack_backend.exception.FailedToAuthenticateUserException;
 import com.example.aquatrack_backend.exception.PasswordDistintasException;
@@ -159,6 +162,8 @@ public class UsuarioServicio {
               .nombre(persona.getNombre() + " " + persona.getApellido())
               .empresa(persona.getEmpresa().getNombre())
               .tipoPersona(persona instanceof Empleado ? "repartidor" : "cliente")
+              .validado(getUsuarioFromContext().getValidado())
+              .direccionEmail(getUsuarioFromContext().getDireccionEmail())
               .build();
     } else {
       throw new FailedToAuthenticateUserException("Error de autenticación. Intente mas tarde.");
@@ -204,18 +209,17 @@ public class UsuarioServicio {
   }
 
   @Transactional
-  public String changePasswordProfile(ChangePasswordDTO dto) throws PasswordDistintasException{
-    String mensaje = "";
+  public void changePasswordProfile(ChangePasswordDTO dto) throws EntidadNoValidaException {
     Usuario usuario = getUsuarioFromContext();
     boolean isPasswordCorrect = verifyPassword(usuario.getContraseña(), dto.getFormerPassword());
     if (isPasswordCorrect) {
       usuario.setContraseña(bCryptPasswordEncoder.encode(dto.getPassword()));
       usuarioRepo.save(usuario);
-      mensaje = "Contraseña cambiada con éxito";
     } else {
-      throw new PasswordDistintasException("La contraseña actual es incorrecta");
+      HashMap<String, String> errors = new HashMap<>();
+      errors.put("formerPassword", "La contraseña actual es incorrecta.");
+      throw new EntidadNoValidaException(errors);
     }
-    return mensaje;
   }
 
   private Usuario getUsuarioFromContext() {
@@ -248,6 +252,14 @@ public class UsuarioServicio {
 
     usuario.setValidado(true);
 
+    usuarioRepo.save(usuario);
+  }
+
+  public void updateMailMobile(UpdateMailMobileDTO mail) throws UserNoValidoException {
+    Usuario usuario = getUsuarioFromContext();
+    userValidator.validateClientUser(mail.getDireccionEmail());
+    usuario.setDireccionEmail(mail.getDireccionEmail());
+    usuario.setValidado(false);
     usuarioRepo.save(usuario);
   }
 }

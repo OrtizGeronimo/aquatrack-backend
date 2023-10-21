@@ -1,6 +1,15 @@
 package com.example.aquatrack_backend.service;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.aquatrack_backend.dto.ClienteDTO;
 import com.example.aquatrack_backend.dto.ClienteListDTO;
 import com.example.aquatrack_backend.dto.CodigoDTO;
+import com.example.aquatrack_backend.dto.DetalleClienteMobileDTO;
+import com.example.aquatrack_backend.dto.EditarClienteMobileDTO;
 import com.example.aquatrack_backend.dto.EmpresaDTO;
 import com.example.aquatrack_backend.dto.GuardarClienteDTO;
 import com.example.aquatrack_backend.dto.GuardarClienteWebDTO;
@@ -22,10 +33,12 @@ import com.example.aquatrack_backend.dto.ValidarDniDTO;
 import com.example.aquatrack_backend.exception.ClienteNoValidoException;
 import com.example.aquatrack_backend.exception.EntidadNoValidaException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
+import com.example.aquatrack_backend.exception.UserUnauthorizedException;
 import com.example.aquatrack_backend.model.Cliente;
 import com.example.aquatrack_backend.model.Domicilio;
 import com.example.aquatrack_backend.model.Empleado;
 import com.example.aquatrack_backend.model.Empresa;
+import com.example.aquatrack_backend.model.Persona;
 import com.example.aquatrack_backend.model.Ubicacion;
 import com.example.aquatrack_backend.model.Usuario;
 import com.example.aquatrack_backend.repo.ClienteRepo;
@@ -275,6 +288,108 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     .build();
   }
 
+  @Transactional
+  public DetalleClienteMobileDTO getPersonalInfo() throws UserUnauthorizedException {
+    Persona persona = getUsuarioFromContext().getPersona();
+    Cliente cliente = (Cliente)persona;
+    if(persona instanceof Empleado || cliente.getUsuario() == null){
+      throw new UserUnauthorizedException("Esta funcionalidad es exclusiva para clientes de Aquatrack.");
+    }
+
+    return DetalleClienteMobileDTO.builder()
+                                  .nombre(cliente.getNombre())
+                                  .apellido(cliente.getApellido())
+                                  .dni(cliente.getDni())
+                                  .numTelefono(cliente.getNumTelefono())
+                                  .calle(cliente.getDomicilio().getCalle())
+                                  .numero(nullableToEmptyString(cliente.getDomicilio().getNumero()))
+                                  .pisoDepto(nullableToEmptyString(cliente.getDomicilio().getPisoDepartamento()))
+                                  .observaciones(nullableToEmptyString(cliente.getDomicilio().getObservaciones()))
+                                  .empresa(cliente.getEmpresa().getNombre())
+                                  .direccionEmail(cliente.getUsuario().getDireccionEmail())
+                                  .build();
+
+  }
+
+  @Transactional
+  public EditarClienteMobileDTO editarClienteMobile(EditarClienteMobileDTO atributos) throws UserUnauthorizedException {
+    Persona persona = getUsuarioFromContext().getPersona();
+    Cliente cliente = (Cliente)persona;
+    if(persona instanceof Empleado || cliente.getUsuario() == null){
+      throw new UserUnauthorizedException("Esta funcionalidad es exclusiva para clientes de Aquatrack.");
+    }
+
+    cliente.setNombre(atributos.getNombre());
+    cliente.setApellido(atributos.getApellido());
+    cliente.setNumTelefono(atributos.getNumTelefono());
+    clienteRepo.save(cliente);
+
+    EditarClienteMobileDTO respuesta = new EditarClienteMobileDTO();
+    respuesta.setNombre(cliente.getNombre());
+    respuesta.setApellido(cliente.getApellido());
+    respuesta.setNumTelefono(cliente.getNumTelefono());
+    return respuesta;
+  }
+
+
+  @Transactional
+  public Map<String, String> getProximaEntregaCliente() throws UserUnauthorizedException {
+    Persona persona = getUsuarioFromContext().getPersona();
+    if(persona instanceof Empleado){
+      throw new UserUnauthorizedException("Esta funcionalidad es exclusiva para clientes de Aquatrack.");
+    }
+    String message = null;
+    Map<String, String> response = new HashMap<>();
+
+    if(((Cliente) persona).getDomicilio().getDiaDomicilios().isEmpty()){
+      message = "Su domicilio no está asignado a ninguna ruta. Contáctese con el gerente de " + persona.getEmpresa().getNombre();
+      response.put("message", message);
+      return response;
+    }
+    LocalDateTime now = LocalDateTime.now();
+    DayOfWeek dayOfWeek = now.getDayOfWeek();
+    int idDia = dayOfWeek.ordinal() + 1;
+    
+    // filtro primero los dias de la semana que viene
+    List<Long> diasSemanaProxima = ((Cliente) persona).getDomicilio()
+                                                     .getDiaDomicilios()
+                                                     .stream()
+                                                     .map(dia -> dia.getDiaRuta().getDiaSemana().getId())
+                                                     .filter(d -> (d - idDia) < 0)
+                                                     .sorted(Comparator.naturalOrder())
+                                                     .collect(Collectors.toList());
+
+    // filtro despues los dias de esta semana pasado el día de hoy
+    List<Long> diasSemanaActual = ((Cliente) persona).getDomicilio()
+                                                     .getDiaDomicilios()
+                                                     .stream()
+                                                     .map(dia -> dia.getDiaRuta().getDiaSemana().getId())
+                                                     .filter(d -> (d - idDia) >= 0)
+                                                     .sorted(Comparator.naturalOrder())
+                                                     .collect(Collectors.toList());
+
+    if(!diasSemanaActual.isEmpty()){
+      Long proximoDia = diasSemanaActual.get(0);
+      if(proximoDia == idDia){
+        message = "El repartidor pasará hoy por tu casa.";
+      }else{
+        message = "El repartidor pasará por tu casa el " + nextDateMessage(proximoDia, (long)idDia) + ".";
+      }
+      response.put("message", message);
+      return response;
+    }
+
+    message = "El repartidor pasará por tu casa el " + nextDateMessage(diasSemanaProxima.get(0), (long)idDia) + ".";
+    response.put("message", message);
+    return response;
+  }
+
+  private String nextDateMessage(Long proximo, Long hoy){
+    Long daysToAdd = (proximo - hoy + 7) % 7;
+    LocalDate proximaFecha = LocalDate.now().plusDays(daysToAdd);
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE d 'de' MMMM", new Locale("es", "ES"));
+    return proximaFecha.format(formatter);
+  }
   private String nullableToEmptyString(Object value) {
     if (value == null) {
       return "";

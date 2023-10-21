@@ -18,36 +18,38 @@ public class UsuarioControlador {
 
   @PostMapping(value = "/login")
   public ResponseEntity<?> login(@RequestBody LoginRequestDTO usuario) throws UserUnauthorizedException {
-    if(validationHelper.hasValidationErrors(usuario)){
+    if (validationHelper.hasValidationErrors(usuario)) {
       return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(usuario));
     }
     return ResponseEntity.ok().body(usuarioServicio.login(usuario.getDireccionEmail(), usuario.getContraseña()));
   }
 
   @PostMapping(value = "/login/mobile")
-  public ResponseEntity<?> loginMobile(@RequestBody LoginRequestDTO usuario) throws UserUnauthorizedException, EntidadNoVigenteException{
-    if(validationHelper.hasValidationErrors(usuario)){
+  public ResponseEntity<?> loginMobile(@RequestBody LoginRequestDTO usuario)
+      throws UserUnauthorizedException, EntidadNoVigenteException {
+    if (validationHelper.hasValidationErrors(usuario)) {
       return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(usuario));
     }
     return ResponseEntity.ok().body(usuarioServicio.loginMobile(usuario.getDireccionEmail(), usuario.getContraseña()));
   }
 
-  @PostMapping(value="/register")
-  public ResponseEntity<?> register(@RequestBody RegisterRequestDTO usuario) throws UserNoValidoException, RecordNotFoundException {
-    if(validationHelper.hasValidationErrors(usuario)){
+  @PostMapping(value = "/register")
+  public ResponseEntity<?> register(@RequestBody RegisterRequestDTO usuario)
+      throws UserNoValidoException, RecordNotFoundException {
+    if (validationHelper.hasValidationErrors(usuario)) {
       return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(usuario));
     }
     return ResponseEntity.ok().body(usuarioServicio.clientRegister(usuario));
   }
 
   @GetMapping(value = "")
-  public ResponseEntity<?> getUserProfile(){
+  public ResponseEntity<?> getUserProfile() {
     return ResponseEntity.ok().body(usuarioServicio.getUserProfile());
   }
 
   @PutMapping(value = "")
-  public ResponseEntity<?> updateUserProfile(@RequestBody UpdateUserDTO usuario){
-    return ResponseEntity.ok().body(usuarioServicio.updateUserProfile( usuario));
+  public ResponseEntity<?> updateUserProfile(@RequestBody UpdateUserDTO usuario) {
+    return ResponseEntity.ok().body(usuarioServicio.updateUserProfile(usuario));
   }
 
   @GetMapping(value = "/current")
@@ -61,19 +63,28 @@ public class UsuarioControlador {
   }
 
   @PutMapping(value = "/changePasswordProfile")
-  public ResponseEntity<?> changePasswordProfile(@RequestBody ChangePasswordDTO dto) throws PasswordDistintasException {
-    return ResponseEntity.ok().body(usuarioServicio.changePasswordProfile(dto));
+  public ResponseEntity<?> changePasswordProfile(@RequestBody ChangePasswordDTO dto) throws EntidadNoValidaException {
+    if (validationHelper.hasValidationErrors(dto)) {
+      return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(dto));
+    }
+    usuarioServicio.changePasswordProfile(dto);
+    return ResponseEntity.ok().build();
   }
 
   @PutMapping(value = "/changePassword")
   public ResponseEntity<?> changePassword(@RequestBody ChangePasswordLoginDTO dto) {
-   return ResponseEntity.ok().body(usuarioServicio.updatePassword(dto));
- }
+    return ResponseEntity.ok().body(usuarioServicio.updatePassword(dto));
+  }
 
- @PutMapping(value = "/confirmEmail")
+  @PutMapping(value = "/confirmEmail")
   public ResponseEntity<?> confirmarEmail(@RequestParam String token) throws RecordNotFoundException {
     usuarioServicio.confirmAccount(token);
     return ResponseEntity.ok().build();
- }
+  }
 
+  @PutMapping(value = "/mobile/change-mail")
+  public ResponseEntity<?> confirmarEmail(@RequestBody UpdateMailMobileDTO mail) throws UserNoValidoException {
+    usuarioServicio.updateMailMobile(mail);
+    return ResponseEntity.ok().build();
+  }
 }

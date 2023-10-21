@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -35,4 +36,14 @@ public interface ClienteRepo extends RepoBase<Cliente> {
     @Query(value = "SELECT c.id FROM cliente c " +
             "WHERE c.dni = :dni AND c.empresa_id = :empresaId", nativeQuery = true)
     List<Long> validateDniUpdate(@Param("dni") Integer dni, @Param("empresaId")Long empresaId);
+
+    @Query(value = "SELECT id FROM cliente " +
+            "WHERE estado_cliente_id = 1" +
+            " AND fecha_creacion < DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY)", nativeQuery = true)
+    List<Long> findAllUnusedClients();
+
+    @Query(value = "DELETE FROM domicilio " +
+            "WHERE cliente_id = :clienteId", nativeQuery = true)
+    @Modifying
+    void deleteClientDomicily(@Param("clienteId")Long clienteId);
 }

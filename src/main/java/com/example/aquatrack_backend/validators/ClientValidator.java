@@ -14,7 +14,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,9 +28,10 @@ import java.util.List;
 public class ClientValidator {
     @Autowired
     private ClienteRepo clienteRepo;
-
     @Autowired
     private UsuarioRepo usuarioRepo;
+    @Autowired
+    private UserValidator userValidator;
 
     private UbicacionHelper ubicacionHelper = new UbicacionHelper();
 
@@ -85,19 +88,28 @@ public class ClientValidator {
 
     private boolean validateIsContained(UbicacionDTO ubiCliente, Cobertura cobertura) {
         boolean isContained = ubicacionHelper.estaContenida(ubiCliente, cobertura);
-        if (!isContained) {
-            return false;
-        }
-        return true;
+  
+        return isContained;
     }
 
     private boolean validateUniqueDniUpdate(Integer dni, Long idE, Long idC) {
         List<Long> result = clienteRepo.validateDniUpdate(dni, idE);
 
-        if (!result.isEmpty() && !result.contains(idC)) {
+        if(!result.isEmpty() && !result.contains(idC)) {
             return false;
         }
 
         return true;
+    }
+
+    @Transactional
+    @Scheduled(cron = "0 * * * * *")
+    public void cleanUnusedClient(){
+        List<Long> idsClients = clienteRepo.findAllUnusedClients();
+        for (Long client: idsClients) {
+            clienteRepo.deleteClientDomicily(client);
+            clienteRepo.deleteById(client);
+        }
+        userValidator.cleanUnusedClientUsers();
     }
 }

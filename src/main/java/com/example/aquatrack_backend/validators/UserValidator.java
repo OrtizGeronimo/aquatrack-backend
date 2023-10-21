@@ -6,7 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +31,15 @@ public class UserValidator {
 
         if(!errors.isEmpty()){
             throw new UserNoValidoException(errors);
+        }
+    }
+
+    @Transactional
+    public void cleanUnusedClientUsers(){
+        List<Long> idsUsers = usuarioRepo.findAllUnusedUsers();
+        for (Long user: idsUsers) {
+            usuarioRepo.deleteUserRoles(user);
+            usuarioRepo.deleteById(user);
         }
     }
 }

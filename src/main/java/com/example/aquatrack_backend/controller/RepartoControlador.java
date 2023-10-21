@@ -105,8 +105,8 @@ public class RepartoControlador{
     }
 
     @GetMapping("/parametros")
+    @PreAuthorize("hasAuthority('LISTAR_REPARTOS')")
     public ResponseEntity<?> getParametrosRepartos(){
         return ResponseEntity.ok().body(servicio.getParametrosReparto());
     }
-
 }

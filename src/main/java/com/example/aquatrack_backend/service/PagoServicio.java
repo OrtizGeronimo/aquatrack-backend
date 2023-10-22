@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PagoServicio extends ServicioBaseImpl<Pago> {
@@ -50,9 +52,32 @@ public class PagoServicio extends ServicioBaseImpl<Pago> {
   public PagoDTO cobrar(Long idEntrega, BigDecimal monto, Long idMedioPago) throws RecordNotFoundException {
     Entrega entrega = entregaRepo.findById(idEntrega).orElseThrow(() -> new RecordNotFoundException("No se encontró una entrega con el id " + idEntrega));
 
+    Pago pago = new Pago();
+    pago.setTotal(monto);
+    pago.setMedioPago(medioPagoRepo.findById(idMedioPago).orElseThrow(() -> new RecordNotFoundException("No se encontró un medio de pago con el id " + idMedioPago)));
+    pago.setFechaPago(LocalDateTime.now());
+    pago.setEstadoPago(estadoPagoRepo.findByNombre("Aceptado"));
+    pagoRepo.save(pago);
+
+    DeudaPago deudaPago = new DeudaPago();
+    deudaPago.setPago(pago);
+    //se crea el deuda pago con la dif entre el precio de la entrega y lo que se pagó
+    deudaPago.setMontoAdeudadoPago(entrega.getMonto().subtract(pago.getTotal()));
+
     Deuda deuda = entrega.getDomicilio().getDeuda();
 
-    return crearPago(deuda, monto, idMedioPago);
+    deuda.setFechaUltimaActualizacion(LocalDateTime.now());
+    deuda.getDeudaPagos().add(deudaPago);
+
+    deudaRepo.save(deuda);
+    deudaServicio.recalcularDeuda(deuda.getId());
+
+    PagoDTO response = new PagoDTO();
+    response.setId(pago.getId());
+    response.setFechaPago(pago.getFechaPago());
+    response.setTotal(pago.getTotal());
+    response.setMedioPago(pago.getMedioPago().getNombre());
+    return response;
 
   }
 
@@ -83,5 +108,21 @@ public class PagoServicio extends ServicioBaseImpl<Pago> {
     return response;
   }
 
-  //verPagosDeCliente
+  public List<PagoDTO> listarPagosPorCliente(Long idCliente) throws RecordNotFoundException {
+    Cliente cliente = clienteRepo.findById(idCliente).orElseThrow(() -> new RecordNotFoundException("No se encontró un cliente con el id " + idCliente));
+
+
+    List<Pago> pagos = cliente.getDomicilio().getDeuda().getDeudaPagos().stream().map(DeudaPago::getPago).collect(Collectors.toList());
+
+    return pagos.stream().map( pago -> {
+      PagoDTO response = new PagoDTO();
+      response.setId(pago.getId());
+      response.setFechaPago(pago.getFechaPago());
+      response.setTotal(pago.getTotal());
+      response.setMedioPago(pago.getMedioPago().getNombre());
+      response.setIdEntrega(pago.getEntrega().getId());
+      return response;
+    }).collect(Collectors.toList());
+  }
+
 }

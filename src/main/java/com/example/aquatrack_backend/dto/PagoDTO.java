@@ -16,5 +16,6 @@ public class PagoDTO {
     private BigDecimal total;
     private String medioPago;
     private LocalDateTime fechaPago;
+    private Long idEntrega;
 
 }

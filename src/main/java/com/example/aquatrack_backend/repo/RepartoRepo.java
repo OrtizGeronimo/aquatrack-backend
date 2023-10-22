@@ -3,10 +3,11 @@ package com.example.aquatrack_backend.repo;
 import com.example.aquatrack_backend.model.Reparto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface RepartoRepo extends RepoBase<Reparto> {
@@ -18,6 +19,11 @@ public interface RepartoRepo extends RepoBase<Reparto> {
             "AND (:idRepartidor IS NULL OR e.id = :idRepartidor) " +
             "AND ru.empresa_id = :empresaId " +
             "ORDER BY er.id, ru.nombre "
-            ,nativeQuery = true)
+            , nativeQuery = true)
     Page<Reparto> search(Long empresaId, Long idRuta, Long idRepartidor, Long idEstado, Pageable pageable);
+
+    @Query(value = "SELECT * FROM reparto r WHERE repartidor_id = :id_repartidor AND DATE(fecha_ejecucion) = CURRENT_DATE AND estado_reparto_id = :id_estado", nativeQuery = true)
+    List<Reparto> findRepartosAsignadosHoy(@Param("id_repartidor") Long idRepartidor, @Param("id_estado") Long idEstado);
+
+    List<Reparto> findRepartosByRepartidorIdAndEstadoRepartoId(Long idRepartidor, Long idEstadoReparto);
 }

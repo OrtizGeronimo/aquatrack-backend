@@ -1,6 +1,7 @@
 package com.example.aquatrack_backend.controller;
 
 import com.example.aquatrack_backend.dto.FinalizarRepartoIncompletoDTO;
+import com.example.aquatrack_backend.dto.UbicacionDTO;
 import com.example.aquatrack_backend.exception.EntidadNoValidaException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.UserUnauthorizedException;
@@ -112,5 +113,31 @@ public class RepartoControlador {
     @GetMapping("/asignados")
     public ResponseEntity<?> getRepartosAsignados(@RequestParam Long estado) throws UserUnauthorizedException {
         return ResponseEntity.ok().body(servicio.getRepartosAsignados(estado));
+    }
+
+    @GetMapping("/{id}/proxima-entrega")
+    public ResponseEntity<?> getProximaEntrega(@PathVariable("id") Long idReparto) throws RecordNotFoundException, ValidacionException {
+        return ResponseEntity.ok().body(servicio.getProximaEntrega(idReparto));
+    }
+
+    @GetMapping("/{id}/ubicaciones")
+    public ResponseEntity<?> getUbicaciones(@PathVariable("id") Long idReparto) throws RecordNotFoundException, ValidacionException {
+        return ResponseEntity.ok().body(servicio.getUbicaciones(idReparto));
+    }
+
+    @GetMapping("/{id}/en-ejecucion/entregas")
+    public ResponseEntity<?> getEntregasEjecucion(@PathVariable("id") Long idReparto) throws RecordNotFoundException, ValidacionException {
+        return ResponseEntity.ok().body(servicio.getEntregasEjecucion(idReparto));
+    }
+
+    @GetMapping("/{id}/ubicacion-repartidor")
+    public ResponseEntity<?> getUbicacionRepartidor(@PathVariable("id") Long idReparto) throws RecordNotFoundException, ValidacionException {
+        return ResponseEntity.ok().body(servicio.getUbicacionRepartidor(idReparto));
+    }
+
+    @PutMapping("/{id}/actualizar-ubicacion")
+    public ResponseEntity<?> actualizarUbicacion(@PathVariable("id") Long idReparto, @RequestBody UbicacionDTO ubicacion) throws RecordNotFoundException, ValidacionException {
+        servicio.actualizarUbicacion(idReparto, ubicacion);
+        return ResponseEntity.ok().build();
     }
 }

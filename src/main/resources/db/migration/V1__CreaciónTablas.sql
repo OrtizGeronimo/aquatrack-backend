@@ -14,6 +14,7 @@ create table estado_cliente (id bigint not null auto_increment, fecha_fin_vigenc
 create table empresa (id bigint not null auto_increment, direccion varchar(255), email varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), hora_generacion_reparto time(0), nombre varchar(255), num_telefono varchar(255), url varchar(255), ubicacion_id bigint, primary key (id)) engine=InnoDB;
 create table entrega (id bigint not null auto_increment, fecha_hora_visita datetime(6), observaciones varchar(255), orden_visita  integer, domicilio_id bigint, estado_entrega_id bigint, pago_id bigint, reparto_id bigint, primary key (id)) engine=InnoDB;
 create table entrega_detalle (id bigint not null auto_increment, cantidad_entregada integer, cantidad_recibida integer, entrega_id bigint, producto_id bigint, primary key (id)) engine=InnoDB;
+create table entrega_pedido (id bigint not null auto_increment, entrega_id bigint, pedido_id bigint, primary key (id)) engine=InnoDB;
 create table estado_entrega (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre_estado_entrega varchar(255), primary key (id)) engine=InnoDB;
 create table estado_pago (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre varchar(255), primary key (id)) engine=InnoDB;
 create table estado_pedido (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre_estado_pedido varchar(255), primary key (id)) engine=InnoDB;
@@ -25,7 +26,7 @@ create table hibernate_sequences (sequence_name varchar(255) not null, next_val 
 insert into hibernate_sequences(sequence_name, next_val) values ('default',0);
 create table medio_pago (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre varchar(255), primary key (id)) engine=InnoDB;
 create table pago (id bigint not null auto_increment, fecha_pago datetime(6), total decimal not null, entrega_id bigint, estado_pago_id bigint, medio_pago_id bigint, primary key (id)) engine=InnoDB;
-create table pedido (id bigint not null auto_increment, fecha_coordinada_entrega datetime(6), domicilio_id bigint, estado_pedido_id bigint, tipo_pedido_id bigint, primary key (id)) engine=InnoDB;
+create table pedido (id bigint not null auto_increment, fecha_coordinada_entrega datetime(6), fecha_fin_vigencia datetime(6), observaciones varchar(255), domicilio_id bigint, estado_pedido_id bigint, tipo_pedido_id bigint, primary key (id)) engine=InnoDB;
 create table pedido_producto (id bigint not null auto_increment, cantidad integer, pedido_id bigint, producto_id bigint, primary key (id)) engine=InnoDB;
 create table permiso (id bigint not null auto_increment, descripcion varchar(255), fecha_fin_vigencia datetime(6), primary key (id)) engine=InnoDB;
 create table permiso_rol (id bigint not null auto_increment, permiso_id bigint, rol_id bigint, primary key (id)) engine=InnoDB;
@@ -69,6 +70,8 @@ alter table entrega add constraint FK50y7nb267nyd6p383v6x0rhqa foreign key (pago
 alter table entrega add constraint FKca2s3evm3vyrpkuhyw74t2un3 foreign key (reparto_id) references reparto (id);
 alter table entrega_detalle add constraint FK9x2bnw67d6dcskc148g9w643o foreign key (entrega_id) references entrega (id);
 alter table entrega_detalle add constraint FKnodtqpti8qpdi3fphdxkpvade foreign key (producto_id) references producto (id);
+alter table entrega_pedido add constraint FK9x2bnw67d6dcskc148g9w21sa foreign key (entrega_id) references entrega (id);
+alter table entrega_pedido add constraint FKnodtqpti8qpdi3fphdxkpmq83 foreign key (pedido_id) references pedido (id);
 alter table pago add constraint FK8usrvfpf7ijnrjptp48ymmti1 foreign key (entrega_id) references entrega (id);
 alter table pago add constraint FKk1k8eu00dteugk3f0o7g7wlkn foreign key (estado_pago_id) references estado_pago (id);
 alter table pago add constraint FK6ut8vtk46wlu3k0vwsv760jlh foreign key (medio_pago_id) references medio_pago (id);

@@ -15,6 +15,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.example.aquatrack_backend.repo.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
@@ -48,13 +49,6 @@ import com.example.aquatrack_backend.model.EstadoReparto;
 import com.example.aquatrack_backend.model.Reparto;
 import com.example.aquatrack_backend.model.Ruta;
 import com.example.aquatrack_backend.model.Ubicacion;
-import com.example.aquatrack_backend.repo.EmpleadoRepo;
-import com.example.aquatrack_backend.repo.EmpresaRepo;
-import com.example.aquatrack_backend.repo.EstadoEntregaRepo;
-import com.example.aquatrack_backend.repo.EstadoRepartoRepo;
-import com.example.aquatrack_backend.repo.RepartoRepo;
-import com.example.aquatrack_backend.repo.RepoBase;
-import com.example.aquatrack_backend.repo.RutaRepo;
 import com.google.ortools.Loader;
 
 @Service
@@ -65,6 +59,10 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
     @Autowired
     private RutaRepo rutaRepo;
+
+    @Autowired
+    private DomicilioRepo domicilioRepo;
+
 
     @Autowired
     private EstadoRepartoRepo estadoRepartoRepo;
@@ -254,6 +252,36 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
         return mapper.map(reparto, RepartoDTO.class);
 
+    }
+
+    public boolean crearRepartoAnticipado(Long idRuta, LocalDateTime fechaPedido, Domicilio domicilio) throws RecordNotFoundException{
+        Reparto reparto = new Reparto();
+        Entrega entrega = new Entrega();
+
+        Ruta ruta = rutaRepo.findById(idRuta).orElseThrow(() -> new RecordNotFoundException("La ruta no fue encontrada"));
+        List<Reparto> repartosAnticipados = ruta.getRepartos().stream()
+                .filter(rep -> rep.getEstadoReparto().getNombre().equalsIgnoreCase("Anticipado"))
+                .collect(Collectors.toList());
+
+        List<Entrega> entregas = new ArrayList<>();
+        for (Reparto r: repartosAnticipados) {
+            if (r.getFechaEjecucion().equals(fechaPedido)) {
+                reparto = r;
+                entregas = r.getEntregas();
+                break;
+            }
+        }
+
+        entrega.setDomicilio(domicilio);
+        entregas.add(entrega);
+        reparto.setEntregas(entregas);
+
+        reparto.setFechaEjecucion(fechaPedido);
+
+        if(reparto.getRuta() == null){
+            reparto.setRuta(ruta);
+        }
+        return true;
     }
 
     private List<Entrega> calcularRutaOptima(List<Entrega> domicilioRutas, Ruta ruta) throws ValidacionException {

@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.controller;
 
+import com.example.aquatrack_backend.dto.AprobarPedidoDTO;
 import com.example.aquatrack_backend.dto.GuardarPedidoDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,15 @@ public class PedidoControlador{
     @GetMapping(value = "")
     @PreAuthorize("hasAuthority('LISTAR_PEDIDOS')")
     public ResponseEntity<?> findAll(@RequestParam(defaultValue = "0") int page,
-                                     @RequestParam(defaultValue = "10") int size)
+                                     @RequestParam(defaultValue = "10") int size,
+                                     @RequestParam(defaultValue = "false") boolean mostrar_inactivos,
+                                     @RequestParam(required = false) String nombreCliente,
+                                     @RequestParam(defaultValue = "1") Long estadoPedido,
+                                     @RequestParam(defaultValue = "2") Long tipoPedido,
+                                     @RequestParam(required = false) String fechaCoordinadaEntregaDesde,
+                                     @RequestParam(required = false) String fechaCoordinadaEntregaHasta)
     {
-        return ResponseEntity.ok().body(pedidoServicio.getAllPedidosExtraordinarios(page, size));
+        return ResponseEntity.ok().body(pedidoServicio.getAllPedidos(page, size, mostrar_inactivos, nombreCliente, estadoPedido, tipoPedido, fechaCoordinadaEntregaDesde, fechaCoordinadaEntregaHasta));
     }
 
     @PostMapping(value = "")
@@ -36,5 +43,19 @@ public class PedidoControlador{
     public ResponseEntity<?> detallar(@PathVariable("id") Long idPedido) throws RecordNotFoundException
     {
         return ResponseEntity.ok().body(pedidoServicio.detallarPedido(idPedido));
+    }
+
+    @PutMapping(value = "/{id}/aprobar")
+    @PreAuthorize("hasAuthority('EDITAR_PEDIDOS')")
+    public ResponseEntity<?> aprobarPedido(@RequestBody AprobarPedidoDTO pedido, @PathVariable("id") Long idPedido) throws RecordNotFoundException
+    {
+        return ResponseEntity.ok().body(pedidoServicio.aprobarPedido(pedido, idPedido));
+    }
+
+    @PutMapping(value = "/{id}/rechazar")
+    @PreAuthorize("hasAuthority('EDITAR_PEDIDOS')")
+    public ResponseEntity<?> rechazarPedido(@PathVariable Long idPedido) throws RecordNotFoundException
+    {
+        return ResponseEntity.ok().body(pedidoServicio.rechazarPedido(idPedido));
     }
 }

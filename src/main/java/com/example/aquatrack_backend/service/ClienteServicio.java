@@ -1,9 +1,5 @@
 package com.example.aquatrack_backend.service;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
-import com.example.aquatrack_backend.model.*;
 import com.example.aquatrack_backend.dto.*;
 import com.example.aquatrack_backend.exception.ClienteNoValidoException;
 import com.example.aquatrack_backend.exception.EntidadNoValidaException;
@@ -21,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

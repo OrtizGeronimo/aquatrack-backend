@@ -39,9 +39,6 @@ public class Empleado extends Persona {
   private LocalDateTime fechaFinVacaciones;
 
   @ManyToOne()
-  private Empresa empresa;
-
-  @ManyToOne()
   private TipoEmpleado tipo;
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "repartidor")

@@ -17,6 +17,11 @@ public interface CodigoTemporalRepo extends RepoBase<CodigoTemporal> {
     Long findEmpresaByCode(@Param("codigo") String codigo);
 
     @Query(value = "DELETE FROM codigo_temporal" +
+            " WHERE codigo = :codigo", nativeQuery = true)
+    @Modifying
+    void deleteUsedCode(@Param("codigo")String codigo);
+
+    @Query(value = "DELETE FROM codigo_temporal" +
             " WHERE fecha_expiracion <= CURRENT_DATE", nativeQuery = true)
     @Modifying
     void deleteExpiratedCodes();

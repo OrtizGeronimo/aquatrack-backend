@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
             .build());
   }
 
-  @ExceptionHandler({ ClienteWebUnauthorizedException.class })
+  @ExceptionHandler({ UserUnauthorizedException.class })
   public ResponseEntity<?> handleClienteWebException(Exception ex) {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
         .body(ErrorResponseDTO.builder()

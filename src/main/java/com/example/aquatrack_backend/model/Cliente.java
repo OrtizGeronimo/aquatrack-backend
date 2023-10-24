@@ -1,13 +1,10 @@
 package com.example.aquatrack_backend.model;
 
-import java.util.List;
-
-import javax.persistence.*;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Cascade;
+
+import javax.persistence.*;
 
 @Getter
 @Setter

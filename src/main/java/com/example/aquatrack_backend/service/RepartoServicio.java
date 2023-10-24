@@ -150,7 +150,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         return response;
     }
 
-    @Scheduled(cron = "0 * * * * 1-6")
+    @Scheduled(cron = "0 * * * * *")
     @Transactional
     public void generacionAutomaticaRepartos() throws RecordNotFoundException, ValidacionException {
 
@@ -197,7 +197,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
         DayOfWeek dayOfWeek = now.getDayOfWeek();
 
-        int idDia = dayOfWeek.getValue() + 1;
+        int idDia = dayOfWeek.getValue();
 
         List<Entrega> entregasARepartir = new ArrayList<>();
         for(DiaRuta dia : ruta.getDiaRutas()){
@@ -210,6 +210,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
                 entregasARepartir.add(entrega);
               }
             }
+            break;
           }
         }
         

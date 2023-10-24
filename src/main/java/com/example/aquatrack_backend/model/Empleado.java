@@ -43,4 +43,7 @@ public class Empleado extends Persona {
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "repartidor")
   private List<Reparto> reparto;
+
+  @OneToMany(mappedBy = "empleado")
+  private List<Pago> pagosRegistrados;
 }

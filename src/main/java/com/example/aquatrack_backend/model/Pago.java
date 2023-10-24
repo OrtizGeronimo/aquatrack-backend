@@ -44,6 +44,9 @@ public class Pago {
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "pago")
   private List<DeudaPago> deudaPagos;
 
-  @OneToOne(cascade = CascadeType.ALL)
+  @OneToOne(cascade = CascadeType.ALL, mappedBy = "pago")
   private Entrega entrega;
+
+  @ManyToOne
+  private Empleado empleado;
 }

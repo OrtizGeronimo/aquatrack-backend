@@ -6,12 +6,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CurrentUserMobileDTO {
-        private String nombre;
-        private String empresa;
-        private String tipoPersona;
+  private String nombre;
+  private String empresa;
+  private String tipoPersona;
+  private String direccionEmail;
+  private boolean validado;
 }

@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -28,7 +29,7 @@ public class Domicilio {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @DateTimeFormat(pattern = "dd-MM-YYYY")
+  @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
   private LocalDateTime fechaFinVigencia;
 
   private String calle;
@@ -55,7 +56,7 @@ public class Domicilio {
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio")
   private List<Entrega> entregas;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true,mappedBy = "domicilio")
+  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER ,orphanRemoval = true,mappedBy = "domicilio")
   private List<DiaDomicilio> diaDomicilios;
 
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "domicilio")

@@ -32,4 +32,8 @@ public interface RolRepo extends RepoBase<Rol> {
     @Query(value = "SELECT * FROM rol WHERE nombre LIKE 'ROLE_CLIENTE' " +
             "AND empresa_id is null", nativeQuery = true)
     Rol findClientRole();
+
+    @Query(value = "SELECT r.* FROM usuario u JOIN rol_usuario ru ON u.id = ru.usuario_id JOIN rol r ON ru.rol_id = r.id JOIN permiso_rol pr ON pr.rol_id = r.id " +
+                   "WHERE u.id = :usuario_id GROUP BY (pr.rol_id) ORDER BY count(pr.permiso_id) DESC LIMIT 1", nativeQuery = true)
+    Rol findRolWithHighestPermissions(@Param("usuario_id") Long usuarioId);
 }

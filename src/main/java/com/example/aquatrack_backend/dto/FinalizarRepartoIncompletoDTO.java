@@ -12,8 +12,5 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class FinalizarRepartoIncompletoDTO {
 
-    private Long idReparto;
-    @NotNull
-    @NotEmpty
     private String observaciones;
 }

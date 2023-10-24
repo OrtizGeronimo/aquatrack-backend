@@ -34,9 +34,9 @@ public class Ruta {
   @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "ruta")
   private List<DomicilioRuta> domicilioRutas;
 
-  @DateTimeFormat(pattern = "dd-MM-YYYY")
+  @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
   private LocalDateTime fechaCreacion = LocalDateTime.now();
 
-  @DateTimeFormat(pattern = "dd-MM-YYYY")
+  @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
   private LocalDateTime fechaFinVigencia;
 }

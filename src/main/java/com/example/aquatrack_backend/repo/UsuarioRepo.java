@@ -24,7 +24,8 @@ public interface UsuarioRepo extends JpaRepository<Usuario, Long> {
     Usuario findByEmail(String email);
 
     @Query(value = "SELECT id FROM usuario " +
-            "WHERE usuario.estado_usuario_id = 1", nativeQuery = true)
+            "WHERE estado_usuario_id = 1" +
+            " AND fecha_creacion < DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY)", nativeQuery = true)
     @Modifying
     List<Long> findAllUnusedUsers();
 
@@ -32,4 +33,6 @@ public interface UsuarioRepo extends JpaRepository<Usuario, Long> {
             "WHERE usuario_id = :usuarioId", nativeQuery = true)
     @Modifying
     void deleteUserRoles(@Param("usuarioId")Long usuarioId);
+
+    Optional<Usuario> findByTokenEmail(String token);
 }

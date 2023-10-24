@@ -6,9 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class LoginMobileResponseDTO {
-    private String token;
+public class RepartidorAsignableDTO {
+  private Long id;
+  private String nombreRepartidor;
 }

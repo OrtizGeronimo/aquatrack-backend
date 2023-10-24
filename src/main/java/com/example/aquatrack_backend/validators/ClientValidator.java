@@ -4,7 +4,7 @@ import com.example.aquatrack_backend.dto.GuardarClienteWebDTO;
 import com.example.aquatrack_backend.dto.UbicacionDTO;
 import com.example.aquatrack_backend.exception.ClienteNoCubiertoApp;
 import com.example.aquatrack_backend.exception.ClienteNoValidoException;
-import com.example.aquatrack_backend.exception.ClienteNoValidoUpdateException;
+import com.example.aquatrack_backend.exception.EntidadNoValidaException;
 import com.example.aquatrack_backend.helpers.UbicacionHelper;
 import com.example.aquatrack_backend.model.Cobertura;
 import com.example.aquatrack_backend.model.Empresa;
@@ -28,9 +28,10 @@ import java.util.List;
 public class ClientValidator {
     @Autowired
     private ClienteRepo clienteRepo;
-
     @Autowired
     private UsuarioRepo usuarioRepo;
+    @Autowired
+    private UserValidator userValidator;
 
     private UbicacionHelper ubicacionHelper = new UbicacionHelper();
 
@@ -65,7 +66,7 @@ public class ClientValidator {
         }
     }
 
-    public void validateWebClientUpdate(GuardarClienteWebDTO clienteDTO, Empresa empresa) throws ClienteNoValidoUpdateException {
+    public void validateWebClientUpdate(GuardarClienteWebDTO clienteDTO, Empresa empresa) throws EntidadNoValidaException {
 
         HashMap<String, String> errors = new HashMap<>();
 
@@ -74,7 +75,7 @@ public class ClientValidator {
         }
 
         if (!errors.isEmpty()) {
-            throw new ClienteNoValidoUpdateException(errors);
+            throw new EntidadNoValidaException(errors);
         }
     }
 
@@ -87,10 +88,8 @@ public class ClientValidator {
 
     private boolean validateIsContained(UbicacionDTO ubiCliente, Cobertura cobertura) {
         boolean isContained = ubicacionHelper.estaContenida(ubiCliente, cobertura);
-        if (!isContained) {
-            return false;
-        }
-        return true;
+  
+        return isContained;
     }
 
     private boolean validateUniqueDniUpdate(Integer dni, Long idE, Long idC) {
@@ -111,5 +110,6 @@ public class ClientValidator {
             clienteRepo.deleteClientDomicily(client);
             clienteRepo.deleteById(client);
         }
+        userValidator.cleanUnusedClientUsers();
     }
 }

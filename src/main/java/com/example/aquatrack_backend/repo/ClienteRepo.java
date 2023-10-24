@@ -38,7 +38,8 @@ public interface ClienteRepo extends RepoBase<Cliente> {
     List<Long> validateDniUpdate(@Param("dni") Integer dni, @Param("empresaId")Long empresaId);
 
     @Query(value = "SELECT id FROM cliente " +
-            "WHERE cliente.estado_cliente_id = 1", nativeQuery = true)
+            "WHERE estado_cliente_id = 1" +
+            " AND fecha_creacion < DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY)", nativeQuery = true)
     List<Long> findAllUnusedClients();
 
     @Query(value = "DELETE FROM domicilio " +

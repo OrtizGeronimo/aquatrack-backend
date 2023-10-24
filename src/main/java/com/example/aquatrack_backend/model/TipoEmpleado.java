@@ -21,7 +21,7 @@ public class TipoEmpleado {
 
     private String nombre;
 
-    @DateTimeFormat(pattern = "dd-MM-YYYY")
+    @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
     private LocalDateTime fechaFinVigencia;
 
     @OneToMany(mappedBy = "tipo")

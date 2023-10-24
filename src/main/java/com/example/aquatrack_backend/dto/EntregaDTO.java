@@ -1,5 +1,7 @@
 package com.example.aquatrack_backend.dto;
 
+import java.time.LocalDateTime;
+
 import lombok.*;
 
 @Getter
@@ -13,5 +15,6 @@ public class EntregaDTO {
     private DomicilioDTO domicilio;
     private EstadoEntregaDTO estadoEntrega;
     private Integer ordenVisita;
-
+    private String observaciones;
+    private LocalDateTime fechaHoraVisita;
 }

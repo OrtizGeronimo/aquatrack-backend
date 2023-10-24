@@ -191,6 +191,8 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
 
     Deuda deuda = new Deuda();
     deuda.setMonto(BigDecimal.ZERO);
+    deuda.setMontoMaximo(BigDecimal.valueOf(2000));
+    deuda.setDomicilio(domicilio);
     domicilio.setDeuda(deuda);
   
     Ubicacion ubicacion = new Ubicacion();

@@ -5,7 +5,9 @@ import com.example.aquatrack_backend.dto.DeudaPagoDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.model.Cliente;
 import com.example.aquatrack_backend.model.DeudaPago;
+import com.example.aquatrack_backend.model.Domicilio;
 import com.example.aquatrack_backend.repo.ClienteRepo;
+import com.example.aquatrack_backend.repo.DomicilioRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,8 @@ public class DeudaServicio extends ServicioBaseImpl<Deuda> {
     private DeudaRepo deudaRepo;
     @Autowired
     private ClienteRepo clienteRepo;
+    @Autowired
+    private DomicilioRepo domicilioRepo;
 
     public DeudaServicio(RepoBase<Deuda> repoBase) {
         super(repoBase);
@@ -55,9 +59,11 @@ public class DeudaServicio extends ServicioBaseImpl<Deuda> {
 
     */
     @Transactional
-    public void recalcularDeuda(Long id) throws RecordNotFoundException {
+    public void recalcularDeuda(Long idDomicilio) throws RecordNotFoundException {
 
-        Deuda deuda = deudaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una deuda con id " + id));
+        Domicilio domicilio = domicilioRepo.findById(idDomicilio).orElseThrow(() -> new RecordNotFoundException("No se encontró un domicilio con el id " + idDomicilio));
+
+        Deuda deuda = domicilio.getDeuda();/*deudaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una deuda con id " + id));*/
 
         BigDecimal nuevoMonto = BigDecimal.ZERO;
 

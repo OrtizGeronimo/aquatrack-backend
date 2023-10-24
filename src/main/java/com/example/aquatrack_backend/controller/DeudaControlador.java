@@ -16,20 +16,20 @@ public class DeudaControlador{
     private DeudaServicio deudaServicio;
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('LISTAR_DEUDAS')")
+//    @PreAuthorize("hasAuthority('LISTAR_DEUDAS')")
     public ResponseEntity<?> detallarDeuda(@PathVariable Long id) throws RecordNotFoundException {
         return ResponseEntity.ok().body(deudaServicio.detalleDeuda(id));
     }
 
 
     @GetMapping("")
-    @PreAuthorize("hasAuthority('LISTAR_DEUDAS')")
+//    @PreAuthorize("hasAuthority('LISTAR_DEUDAS')")
     public ResponseEntity<?> detallarDeudaMobile() throws RecordNotFoundException {
         return ResponseEntity.ok().body(deudaServicio.detalleDeudaMobile());
     }
 
     @PostMapping("/{id}/recalculate")
-    @PreAuthorize("hasAuthority('EDITAR_DEUDAS')")
+//    @PreAuthorize("hasAuthority('EDITAR_DEUDAS')")
     public ResponseEntity<?> recalcular(@PathVariable Long id) throws RecordNotFoundException {
         deudaServicio.recalcularDeuda(id);
         return ResponseEntity.ok().build();

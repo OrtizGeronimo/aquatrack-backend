@@ -46,4 +46,7 @@ public class Pago {
 
   @OneToOne(cascade = CascadeType.ALL, mappedBy = "pago")
   private Entrega entrega;
+
+  @ManyToOne
+  private Empleado empleado;
 }

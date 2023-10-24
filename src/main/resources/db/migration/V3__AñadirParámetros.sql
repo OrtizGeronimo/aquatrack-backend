@@ -56,12 +56,13 @@ VALUES
 
 INSERT INTO estado_reparto(id, nombre)
 VALUES
-    (1, 'Pendiente de Asignación'),
-    (2, 'Pendiente de Ejecución'),
-    (3, 'En Ejecución'),
-    (4, 'Incompleto'),
-    (5, 'Cancelado'),
-    (6, 'Finalizado');
+    (1, 'Anticipado'),
+    (2, 'Pendiente de Asignación'),
+    (3, 'Pendiente de Ejecución'),
+    (4, 'En Ejecución'),
+    (5, 'Incompleto'),
+    (6, 'Cancelado'),
+    (7, 'Finalizado');
 
 INSERT INTO medio_pago(id, nombre)
 VALUES

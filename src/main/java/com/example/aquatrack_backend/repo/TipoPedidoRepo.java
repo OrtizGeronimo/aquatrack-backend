@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TipoPedidoRepo extends RepoBase<TipoPedido> {
+
+    TipoPedido findByNombreTipoPedido(String nombre);
 }

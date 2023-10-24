@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,7 +50,8 @@ public class PedidoServicio extends ServicioBaseImpl<Pedido> {
   }
 
   @Transactional
-  public PedidoListDTO createPedido(GuardarPedidoDTO pedido){
+  public PedidoListDTO createPedido(GuardarPedidoDTO pedido) throws RecordNotFoundException{
+
     Pedido pedidoNuevo = new Pedido();
     pedidoNuevo.setPedidoProductos(
             pedido.getPedidoProductos().stream().map(
@@ -59,17 +61,52 @@ public class PedidoServicio extends ServicioBaseImpl<Pedido> {
                                                          )
             ).collect(Collectors.toList())
     );
-    pedidoNuevo.setDomicilio(domicilioRepo.findById(pedido.getIdDomicilio()).get());
-    pedidoNuevo.setEstadoPedido(estadoPedidoRepo.findById(pedido.getIdEstado()).get());
-    pedidoNuevo.setTipoPedido(tipoPedidoRepo.findById(pedido.getIdTipo()).get());
+
+    Domicilio domicilio = domicilioRepo.findById(pedido.getIdDomicilio()).get();
+    pedidoNuevo.setDomicilio(domicilio);
+    pedidoNuevo.setTipoPedido(tipoPedidoRepo.findByNombreTipoPedido(pedido.getTipo()));
     pedidoNuevo.setFechaCoordinadaEntrega(pedido.getFechaCoordinadaEntrega());
+
+    if(pedido.getTipo().equalsIgnoreCase("Extraordinario")){
+      repartoServicio.crearRepartoAnticipado(pedido.getIdRuta(), pedido.getFechaCoordinadaEntrega(), domicilio);
+    }
+
+    pedidoNuevo.setEstadoPedido(estadoPedidoRepo.findByNombreEstadoPedido("Aprobado"));
+
+    Pedido p = pedidoRepo.save(pedidoNuevo);
+    return makePedidoListDTO(p);
+  }
+
+  @Transactional
+  public PedidoListDTO createPedidoAnticipado(GuardarPedidoAnticipadoDTO pedido) throws RecordNotFoundException{
+
+    Pedido pedidoNuevo = new Pedido();
+    Domicilio domicilio = domicilioRepo.findById(pedido.getIdDomicilio()).get();
+    List<PedidoProducto> pedidoProductos = domicilio.getPedidos().stream()
+            .filter(p -> p.getTipoPedido().getId().equals(1) && p.getFechaFinVigencia() == null)
+            .findFirst()
+            .get()
+            .getPedidoProductos();
+
+    pedidoNuevo.setPedidoProductos(pedidoProductos);
+
+    pedidoNuevo.setDomicilio(domicilio);
+    pedidoNuevo.setTipoPedido(tipoPedidoRepo.findByNombreTipoPedido("Anticipado"));
+    pedidoNuevo.setFechaCoordinadaEntrega(pedido.getFechaCoordinadaEntrega());
+
+    repartoServicio.crearRepartoAnticipado(pedido.getIdRuta(), pedido.getFechaCoordinadaEntrega(), domicilio);
+
+    pedidoNuevo.setEstadoPedido(estadoPedidoRepo.findByNombreEstadoPedido("Aprobado"));
+
     Pedido p = pedidoRepo.save(pedidoNuevo);
     return makePedidoListDTO(p);
   }
 
   @Transactional
   public PedidoListDTO detallarPedido(Long idPedido) throws RecordNotFoundException {
+
     Pedido pedido = pedidoRepo.findById(idPedido).orElseThrow(()-> new RecordNotFoundException("El pedido no fue encontrado"));
+
     return makePedidoListDTO(pedido);
   }
 
@@ -117,6 +154,8 @@ public class PedidoServicio extends ServicioBaseImpl<Pedido> {
                             pedido.getDomicilio().getPisoDepartamento())
                     .build())
             .fechaCoordinadaEntrega(pedido.getFechaCoordinadaEntrega())
+            .estadoPedido(pedido.getEstadoPedido().getNombreEstadoPedido())
+            .tipoPedido(pedido.getTipoPedido().getNombreTipoPedido())
             .build();
   }
 }

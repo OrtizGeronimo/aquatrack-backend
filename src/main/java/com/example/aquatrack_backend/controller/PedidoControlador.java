@@ -33,7 +33,7 @@ public class PedidoControlador{
 
     @PostMapping(value = "")
     @PreAuthorize("hasAuthority('CREAR_PEDIDOS')")
-    public ResponseEntity<?> create(@RequestBody GuardarPedidoDTO pedido)
+    public ResponseEntity<?> create(@RequestBody GuardarPedidoDTO pedido) throws RecordNotFoundException
     {
         return ResponseEntity.ok().body(pedidoServicio.createPedido(pedido));
     }

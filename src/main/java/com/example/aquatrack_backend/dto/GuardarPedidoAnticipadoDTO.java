@@ -5,15 +5,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GuardarPedidoDTO {
-    private String tipo;
-    private LocalDateTime fechaCoordinadaEntrega;
+public class GuardarPedidoAnticipadoDTO {
+    private Long idRuta;
     private Long idDomicilio;
-    private List<PedidoProductoDTO> pedidoProductos;
-    private Long idRuta; //Caso de pedido extraordinario
+    private LocalDateTime fechaCoordinadaEntrega;
 }

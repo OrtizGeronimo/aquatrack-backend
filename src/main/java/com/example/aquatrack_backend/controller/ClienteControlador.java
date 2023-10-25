@@ -106,4 +106,24 @@ public class ClienteControlador {
     public ResponseEntity<?> updateCurrentClientAddressMobile(@RequestBody EditarDomicilioMobileDTO domicilio) throws UserUnauthorizedException, EntidadNoValidaException {
         return ResponseEntity.ok().body(clienteServicio.editarDomicilioMobile(domicilio));
     }
+
+    @GetMapping("/pedido-habitual")
+    public ResponseEntity<?> getPedidoHabitualMobile() throws UserUnauthorizedException {
+        return ResponseEntity.ok().body(clienteServicio.getPedidoHabitual());
+    }
+
+    @PostMapping("/pedido-habitual")
+    public ResponseEntity<?> crearPedidoHabitualMobile(@RequestBody GuardarPedidoHabitualMobileDTO pedido) throws UserUnauthorizedException {
+        return ResponseEntity.ok().body(clienteServicio.crearPedidoHabitual(pedido));
+    }
+
+    @PutMapping("/pedido-habitual")
+    public ResponseEntity<?> editarPedidoHabitualMobile(@RequestBody GuardarPedidoHabitualMobileDTO pedido) throws UserUnauthorizedException {
+        return ResponseEntity.ok().body(clienteServicio.updatePedidoHabitual(pedido));
+    }
+
+    @GetMapping("/edit-pedido-habitual")
+    public ResponseEntity<?> editPedidoHabitualMobile() throws UserUnauthorizedException {
+        return ResponseEntity.ok().body(clienteServicio.editPedidoHabitual());
+    }
 }

@@ -11,11 +11,6 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PedidoFormDTO {
-
-    private List<String> estados;
-    private List<String> tipos;
-    private List<String> rutas;
-    private List<ProductoDTO> productos;
-
+public class PedidoFormMobileDTO {
+    private List<ObjetoGenericoDTO> productos;
 }

@@ -52,7 +52,9 @@ INSERT INTO estado_pedido(id, nombre_estado_pedido)
 VALUES
     (1, 'Pendiente de aprobación'),
     (2, 'Aprobado'),
-    (3, 'Rechazado');
+    (3, 'Rechazado'),
+    (4, 'Cancelado');
+
 
 INSERT INTO estado_reparto(id, nombre)
 VALUES
@@ -77,10 +79,7 @@ VALUES
 INSERT INTO tipo_pedido(id, nombre_tipo_pedido)
 VALUES
     (1, 'Habitual'),
-    (2, 'Atípico'),
-    (3, 'Anticipado'),
-    (4, 'Planificado'),
-    (5, 'Extraordinario');
+    (2, 'Extraordinario');
 
 INSERT INTO usuario (id,contraseña,direccion_email,fecha_creacion,fecha_fin_vigencia, validado)
 VALUES (1,'$2a$12$QxJltIw5pIXkdc8LzTck4O.4nZsMf2WjM4jsDm99JbMidBLtlFbrS','geroortiz@gmail.com',CURRENT_DATE,NULL, b'1'),

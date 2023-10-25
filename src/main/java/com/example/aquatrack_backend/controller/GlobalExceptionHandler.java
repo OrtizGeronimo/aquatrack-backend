@@ -118,6 +118,11 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());
   }
 
+  @ExceptionHandler({ PedidoNoValidoException.class })
+  public ResponseEntity<?> handlePedidoNotValidatedException(PedidoNoValidoException ex) {
+    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getErrors());
+  }
+
   @ExceptionHandler({UsuarioYaValidadoException.class})
   public ResponseEntity<?> handleUsuarioYaValidado(UsuarioYaValidadoException ex){
     return ResponseEntity.status(HttpStatus.FORBIDDEN)

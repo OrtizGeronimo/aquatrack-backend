@@ -254,7 +254,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
     }
 
-    @Transactional
+/*    @Transactional
     public boolean crearRepartoAnticipado(Long idRuta, LocalDateTime fechaPedido, Domicilio domicilio) throws RecordNotFoundException{
 
         Reparto reparto = new Reparto();
@@ -289,7 +289,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
         repartoRepo.save(reparto);
         return true;
-    }
+    }*/
 
     private List<Entrega> calcularRutaOptima(List<Entrega> domicilioRutas, Ruta ruta) throws ValidacionException {
         String apiKey = bingMapsConfig.getApiKey();

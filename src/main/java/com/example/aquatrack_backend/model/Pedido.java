@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class Pedido {
   private LocalDateTime fechaFinVigencia;
 
   @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
-  private LocalDateTime fechaCoordinadaEntrega;
+  private LocalDate fechaCoordinadaEntrega;
 
   @ManyToOne()
   private TipoPedido tipoPedido;

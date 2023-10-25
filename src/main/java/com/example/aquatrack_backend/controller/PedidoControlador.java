@@ -3,7 +3,9 @@ package com.example.aquatrack_backend.controller;
 import com.example.aquatrack_backend.dto.AprobarPedidoDTO;
 import com.example.aquatrack_backend.dto.GuardarPedidoAnticipadoDTO;
 import com.example.aquatrack_backend.dto.GuardarPedidoDTO;
+import com.example.aquatrack_backend.exception.PedidoNoValidoException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
+import com.example.aquatrack_backend.helpers.ValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +19,7 @@ public class PedidoControlador{
 
     @Autowired
     private PedidoServicio pedidoServicio;
+    private ValidationHelper validationHelper = new ValidationHelper<>();
 
     @GetMapping(value = "")
     @PreAuthorize("hasAuthority('LISTAR_PEDIDOS')")
@@ -32,19 +35,44 @@ public class PedidoControlador{
         return ResponseEntity.ok().body(pedidoServicio.getAllPedidos(page, size, mostrar_inactivos, nombreCliente, estadoPedido, tipoPedido, fechaCoordinadaEntregaDesde, fechaCoordinadaEntregaHasta));
     }
 
-    @PostMapping(value = "")
-    @PreAuthorize("hasAuthority('CREAR_PEDIDOS')")
-    public ResponseEntity<?> create(@RequestBody GuardarPedidoDTO pedido) throws RecordNotFoundException
-    {
-        return ResponseEntity.ok().body(pedidoServicio.createPedido(pedido));
+    @GetMapping("/parametros")
+    @PreAuthorize("hasAuthority('LISTAR_PEDIDOS')")
+    public ResponseEntity<?> getParametrosPedidosWeb(){
+        return ResponseEntity.ok().body(pedidoServicio.getParametrosPedidoWeb());
     }
 
-    @PostMapping(value = "/{id}")
+    @GetMapping("/parametros/mobile")
+    @PreAuthorize("hasAuthority('LISTAR_PEDIDOS')")
+    public ResponseEntity<?> getParametrosPedidosMobile(){
+        return ResponseEntity.ok().body(pedidoServicio.getParametrosPedidoMobile());
+    }
+
+    @PostMapping(value = "")
+    @PreAuthorize("hasAuthority('CREAR_PEDIDOS')")
+    public ResponseEntity<?> createExtraordinarioWeb(@RequestBody GuardarPedidoDTO pedido) throws PedidoNoValidoException
+    {
+        if (validationHelper.hasValidationErrors(pedido)) {
+            return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(pedido));
+        }
+        return ResponseEntity.ok().body(pedidoServicio.createPedidoExtraordinarioWeb(pedido));
+    }
+
+    @PostMapping(value = "/mobile")
+    @PreAuthorize("hasAuthority('CREAR_PEDIDOS')")
+    public ResponseEntity<?> createExtraordinarioMobile(@RequestBody GuardarPedidoDTO pedido) throws PedidoNoValidoException
+    {
+        if (validationHelper.hasValidationErrors(pedido)) {
+            return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(pedido));
+        }
+        return ResponseEntity.ok().body(pedidoServicio.createPedidoExtraordinarioMobile(pedido));
+    }
+
+/*    @PostMapping(value = "/{id}")
     @PreAuthorize("hasAuthority('CREAR_PEDIDOS')")
     public ResponseEntity<?> createPedidoAnticipado(@RequestBody GuardarPedidoAnticipadoDTO pedido, @PathVariable("id") Long idDomicilio) throws RecordNotFoundException
     {
         return ResponseEntity.ok().body(pedidoServicio.createPedidoAnticipado(pedido, idDomicilio));
-    }
+    }*/
 
     @GetMapping(value = "/{id}")
     @PreAuthorize("hasAuthority('LISTAR_PEDIDOS')")
@@ -55,15 +83,23 @@ public class PedidoControlador{
 
     @PutMapping(value = "/{id}/aprobar")
     @PreAuthorize("hasAuthority('EDITAR_PEDIDOS')")
-    public ResponseEntity<?> aprobarPedido(@RequestBody AprobarPedidoDTO pedido, @PathVariable("id") Long idPedido) throws RecordNotFoundException
+    public ResponseEntity<?> aprobarPedido(/*@RequestBody AprobarPedidoDTO pedido,*/ @PathVariable("id") Long idPedido) throws RecordNotFoundException
     {
-        return ResponseEntity.ok().body(pedidoServicio.aprobarPedido(pedido, idPedido));
+        return ResponseEntity.ok().body(pedidoServicio.aprobarPedido(/*pedido,*/ idPedido));
     }
 
     @PutMapping(value = "/{id}/rechazar")
     @PreAuthorize("hasAuthority('EDITAR_PEDIDOS')")
-    public ResponseEntity<?> rechazarPedido(@PathVariable Long idPedido) throws RecordNotFoundException
+    public ResponseEntity<?> rechazarPedido(@PathVariable("id") Long idPedido) throws RecordNotFoundException
     {
         return ResponseEntity.ok().body(pedidoServicio.rechazarPedido(idPedido));
+    }
+
+    @DeleteMapping(value = "/{id}")
+    @PreAuthorize("hasAuthority('ELIMINAR_PEDIDOS')")
+    public ResponseEntity<?> cancelarPedido(@PathVariable("id") Long idPedido) throws RecordNotFoundException
+    {
+        pedidoServicio.cancelarPedido(idPedido);
+        return ResponseEntity.noContent().build();
     }
 }

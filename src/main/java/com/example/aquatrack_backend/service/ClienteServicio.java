@@ -36,7 +36,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     @Autowired
     private UsuarioRepo usuarioRepo;
     @Autowired
-    private EstadoUsuarioRepo estadoUsuarioRepo;
+    private ProductoRepo productoRepo;
     @Autowired
     private EstadoClienteRepo estadoClienteRepo;
     private ModelMapper modelMapper = new ModelMapper();

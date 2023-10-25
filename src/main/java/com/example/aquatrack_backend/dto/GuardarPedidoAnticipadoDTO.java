@@ -11,6 +11,5 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class GuardarPedidoAnticipadoDTO {
     private Long idRuta;
-    private Long idDomicilio;
     private LocalDateTime fechaCoordinadaEntrega;
 }

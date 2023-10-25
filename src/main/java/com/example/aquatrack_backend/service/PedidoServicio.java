@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -78,17 +79,22 @@ public class PedidoServicio extends ServicioBaseImpl<Pedido> {
   }
 
   @Transactional
-  public PedidoListDTO createPedidoAnticipado(GuardarPedidoAnticipadoDTO pedido) throws RecordNotFoundException{
+  public PedidoListDTO createPedidoAnticipado(GuardarPedidoAnticipadoDTO pedido, Long idDomicilio) throws RecordNotFoundException{
 
     Pedido pedidoNuevo = new Pedido();
-    Domicilio domicilio = domicilioRepo.findById(pedido.getIdDomicilio()).get();
+    Domicilio domicilio = domicilioRepo.findById(idDomicilio).get();
     List<PedidoProducto> pedidoProductos = domicilio.getPedidos().stream()
-            .filter(p -> p.getTipoPedido().getId().equals(1) && p.getFechaFinVigencia() == null)
+            .filter(p -> p.getTipoPedido().getId().equals(Long.parseLong("1")) && p.getFechaFinVigencia() == null)
             .findFirst()
             .get()
             .getPedidoProductos();
 
-    pedidoNuevo.setPedidoProductos(pedidoProductos);
+    List<PedidoProducto> pedidoProductosAnticipado = new ArrayList<>();
+    for (PedidoProducto pedidoProducto : pedidoProductos) {
+      pedidoProductosAnticipado.add(new PedidoProducto(pedidoProducto.getCantidad(), pedidoNuevo, pedidoProducto.getProducto()));
+    }
+
+    pedidoNuevo.setPedidoProductos(pedidoProductosAnticipado);
 
     pedidoNuevo.setDomicilio(domicilio);
     pedidoNuevo.setTipoPedido(tipoPedidoRepo.findByNombreTipoPedido("Anticipado"));

@@ -1,6 +1,7 @@
 package com.example.aquatrack_backend.controller;
 
 import com.example.aquatrack_backend.dto.AprobarPedidoDTO;
+import com.example.aquatrack_backend.dto.GuardarPedidoAnticipadoDTO;
 import com.example.aquatrack_backend.dto.GuardarPedidoDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,13 @@ public class PedidoControlador{
     public ResponseEntity<?> create(@RequestBody GuardarPedidoDTO pedido) throws RecordNotFoundException
     {
         return ResponseEntity.ok().body(pedidoServicio.createPedido(pedido));
+    }
+
+    @PostMapping(value = "/{id}")
+    @PreAuthorize("hasAuthority('CREAR_PEDIDOS')")
+    public ResponseEntity<?> createPedidoAnticipado(@RequestBody GuardarPedidoAnticipadoDTO pedido, @PathVariable("id") Long idDomicilio) throws RecordNotFoundException
+    {
+        return ResponseEntity.ok().body(pedidoServicio.createPedidoAnticipado(pedido, idDomicilio));
     }
 
     @GetMapping(value = "/{id}")

@@ -13,5 +13,9 @@ import java.util.List;
 @AllArgsConstructor
 public class PedidoFormDTO {
 
+    private List<String> estados;
+    private List<String> tipos;
+    private List<String> rutas;
     private List<ProductoDTO> productos;
+
 }

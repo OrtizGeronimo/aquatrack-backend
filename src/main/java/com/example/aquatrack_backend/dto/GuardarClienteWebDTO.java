@@ -6,6 +6,7 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.util.List;
 
 @Data
 @Builder
@@ -28,4 +29,5 @@ public class GuardarClienteWebDTO {
     private double latitud;
     private double longitud;
     private String localidad;
+    private List<PedidoProductoDTO> pedidoProductos;
 }

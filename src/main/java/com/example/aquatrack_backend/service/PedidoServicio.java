@@ -67,9 +67,9 @@ public class PedidoServicio extends ServicioBaseImpl<Pedido> {
     pedidoNuevo.setTipoPedido(tipoPedidoRepo.findByNombreTipoPedido(pedido.getTipo()));
     pedidoNuevo.setFechaCoordinadaEntrega(pedido.getFechaCoordinadaEntrega());
 
-    if(pedido.getTipo().equalsIgnoreCase("Extraordinario")){
+    /*if(pedido.getTipo().equalsIgnoreCase("Extraordinario")){
       repartoServicio.crearRepartoAnticipado(pedido.getIdRuta(), pedido.getFechaCoordinadaEntrega(), domicilio);
-    }
+    }*/
 
     pedidoNuevo.setEstadoPedido(estadoPedidoRepo.findByNombreEstadoPedido("Aprobado"));
 
@@ -77,7 +77,7 @@ public class PedidoServicio extends ServicioBaseImpl<Pedido> {
     return makePedidoListDTO(p);
   }
 
-  @Transactional
+  /*@Transactional
   public PedidoListDTO createPedidoAnticipado(GuardarPedidoAnticipadoDTO pedido) throws RecordNotFoundException{
 
     Pedido pedidoNuevo = new Pedido();
@@ -100,7 +100,7 @@ public class PedidoServicio extends ServicioBaseImpl<Pedido> {
 
     Pedido p = pedidoRepo.save(pedidoNuevo);
     return makePedidoListDTO(p);
-  }
+  }*/
 
   @Transactional
   public PedidoListDTO detallarPedido(Long idPedido) throws RecordNotFoundException {
@@ -115,9 +115,9 @@ public class PedidoServicio extends ServicioBaseImpl<Pedido> {
 
     Pedido pedido = pedidoRepo.findById(idPedido).orElseThrow(()-> new RecordNotFoundException("El pedido no fue encontrado"));
 
-    if(pedidoRequest.getTipoPedido().equalsIgnoreCase("Extraordinario") || pedidoRequest.getTipoPedido().equalsIgnoreCase("Anticipado")) {
+    /*if(pedidoRequest.getTipoPedido().equalsIgnoreCase("Extraordinario") || pedidoRequest.getTipoPedido().equalsIgnoreCase("Anticipado")) {
       repartoServicio.crearRepartoAnticipado(pedidoRequest.getIdRuta(), pedido.getFechaCoordinadaEntrega(), pedido.getDomicilio());
-    }
+    }*/
 
     pedido.setEstadoPedido(estadoPedidoRepo.findByNombreEstadoPedido("Aprobado"));
 

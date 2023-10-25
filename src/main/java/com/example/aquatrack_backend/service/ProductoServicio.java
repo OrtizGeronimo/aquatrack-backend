@@ -11,6 +11,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 
+import com.example.aquatrack_backend.exception.ProductoNoValidoException;
+import com.example.aquatrack_backend.validators.ProductoValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -40,6 +42,8 @@ ProductoServicio extends ServicioBaseImpl<Producto> {
   ProductoRepo productoRepo;
   @Autowired
   PrecioRepo precioRepo;
+  @Autowired
+  ProductoValidator productoValidator;
   // @Autowired
   // private ResourceLoader resourceLoader;
   // @Value("${image.upload.directory}")
@@ -174,22 +178,32 @@ ProductoServicio extends ServicioBaseImpl<Producto> {
 }
 
   @Transactional
-    public ProductoDTO createProducto(GuardarProductoDTO producto) {
-        Producto productoNuevo = new Producto();
-        Precio precioNuevo = new Precio();
-        productoNuevo.setNombre(producto.getNombre());
-        productoNuevo.setDescripcion(producto.getDescripcion());
-        productoNuevo.setCodigo(producto.getCodigo());
-        // pruductoNuevo.setImagen(producto.getImagen());
-        precioNuevo.setPrecio(producto.getPrecio());
-        precioNuevo.setProducto(productoNuevo);
-        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
-        productoNuevo.setEmpresa(empresa);
-        productoRepo.save(productoNuevo);
-        precioRepo.save(precioNuevo);
-        ProductoDTO productoDTO = new ModelMapper().map(productoNuevo, ProductoDTO.class);
-        productoDTO.setPrecio(precioNuevo.getPrecio());
-        return productoDTO;
+    public ProductoDTO createProducto(GuardarProductoDTO producto) throws ProductoNoValidoException {
+
+      Empresa empresa = getUsuarioFromContext().getPersona().getEmpresa();
+
+      productoValidator.validateCrearProducto(producto, empresa.getId());
+
+      Producto productoNuevo = new Producto();
+      Precio precioNuevo = new Precio();
+
+      productoNuevo.setNombre(producto.getNombre());
+      productoNuevo.setDescripcion(producto.getDescripcion());
+      productoNuevo.setCodigo(producto.getCodigo());
+      // pruductoNuevo.setImagen(producto.getImagen());
+      productoNuevo.setMaximo(producto.getMaximo());
+      precioNuevo.setPrecio(producto.getPrecio());
+      precioNuevo.setProducto(productoNuevo);
+
+      productoNuevo.setEmpresa(empresa);
+      productoRepo.save(productoNuevo);
+
+      precioRepo.save(precioNuevo);
+
+      ProductoDTO productoDTO = new ModelMapper().map(productoNuevo, ProductoDTO.class);
+
+      productoDTO.setPrecio(precioNuevo.getPrecio());
+      return productoDTO;
     }
 
     @Transactional

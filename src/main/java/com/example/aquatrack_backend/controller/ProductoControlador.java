@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.Calendar;
 import java.util.HashMap;
 
+import com.example.aquatrack_backend.exception.ProductoNoValidoException;
 import com.example.aquatrack_backend.model.Precio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -73,7 +74,7 @@ public class ProductoControlador{
 
     @PostMapping(value = "")
     @PreAuthorize("hasAuthority('CREAR_PRODUCTOS')")
-    public ResponseEntity<?> create(@RequestBody GuardarProductoDTO producto) {
+    public ResponseEntity<?> create(@RequestBody GuardarProductoDTO producto) throws ProductoNoValidoException {
         if(validationHelper.hasValidationErrors(producto)){
             return ResponseEntity.badRequest().body(validationHelper.getValidationErrors(producto));
         }

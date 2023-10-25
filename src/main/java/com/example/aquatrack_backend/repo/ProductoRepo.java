@@ -35,5 +35,9 @@ public interface ProductoRepo extends RepoBase<Producto> {
             "WHERE empresa_id = :idEmpresa " +
             "AND fecha_fin_vigencia is NULL", nativeQuery = true)
     List<Producto> getAllProductos(@Param("idEmpresa")Long idEmpresa);
+
+    @Query(value = "SELECT count(*) as productos FROM producto p " +
+            "WHERE p.codigo = :codigo AND p.empresa_id = :empresaId", nativeQuery = true)
+    Integer validateCodigoUnico(@Param("codigo") String codigo, @Param("empresaId")Long empresaId);
 }
 

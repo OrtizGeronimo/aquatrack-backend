@@ -80,16 +80,12 @@ public class ClientValidator {
     }
 
     private boolean validateUniqueDni(Integer dni, Long idE) {
-        if (clienteRepo.validateUniqueDni(dni, idE) > 0) {
-            return false;
-        }
-        return true;
+        return clienteRepo.validateUniqueDni(dni, idE) <= 0;
     }
 
     private boolean validateIsContained(UbicacionDTO ubiCliente, Cobertura cobertura) {
-        boolean isContained = ubicacionHelper.estaContenida(ubiCliente, cobertura);
-  
-        return isContained;
+
+        return ubicacionHelper.estaContenida(ubiCliente, cobertura);
     }
 
     private boolean validateUniqueDniUpdate(Integer dni, Long idE, Long idC) {

@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,11 +37,17 @@ public class Pedido {
   private List<PedidoProducto> pedidoProductos;
 
   @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
-  private LocalDateTime fechaCoordinadaEntrega;
+  private LocalDateTime fechaFinVigencia;
+
+  @DateTimeFormat(pattern = "dd-MM-YYYY")
+  private LocalDate fechaCoordinadaEntrega;
 
   @ManyToOne()
   private TipoPedido tipoPedido;
 
   @ManyToOne()
   private EstadoPedido estadoPedido;
+
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "pedido")
+  private List<EntregaPedido> entregaPedidos;
 }

@@ -4,16 +4,12 @@ import com.example.aquatrack_backend.dto.UbicacionDTO;
 import com.example.aquatrack_backend.exception.ClienteNoCubiertoApp;
 import com.example.aquatrack_backend.exception.ClienteNoValidoException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
-import com.example.aquatrack_backend.model.Cliente;
-import com.example.aquatrack_backend.model.Empresa;
-import com.example.aquatrack_backend.model.Ubicacion;
+import com.example.aquatrack_backend.model.*;
 import com.example.aquatrack_backend.repo.*;
 import com.example.aquatrack_backend.validators.ClientValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.example.aquatrack_backend.model.Domicilio;
 
 @Service
 public class DomicilioServicio extends ServicioBaseImpl<Domicilio> {
@@ -54,5 +50,9 @@ public class DomicilioServicio extends ServicioBaseImpl<Domicilio> {
     Ubicacion ubicacion = domicilioRepo.findDomicilioUbi(id);
     UbicacionDTO ubicacionDTO = new ModelMapper().map(ubicacion, UbicacionDTO.class);
     return ubicacionDTO;
+  }
+
+  public Pedido getPedidoHabitual(Domicilio domicilio){
+    return domicilio.getPedidos().stream().filter(pedido -> (pedido.getFechaFinVigencia() == null) && (pedido.getTipoPedido().getId() == 1)).findFirst().get();
   }
 }

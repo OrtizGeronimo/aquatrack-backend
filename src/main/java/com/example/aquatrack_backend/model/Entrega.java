@@ -54,4 +54,7 @@ public class Entrega {
 
   @OneToOne(cascade = CascadeType.ALL)
   private Pago pago;
+
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "entrega")
+  private List<EntregaPedido> entregaPedidos;
 }

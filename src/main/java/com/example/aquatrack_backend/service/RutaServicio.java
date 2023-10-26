@@ -144,14 +144,6 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
 //    return mapper.map(rutaGuardada, RutaListDTO.class);
   }
 
-  private String nullableToEmptyString(Object value) {
-    if (value == null) {
-      return "";
-    } else {
-      return value.toString();
-    }
-  }
-
   public ResponseDetalleRutaDTO detalleRuta(Long id) throws RecordNotFoundException, EntidadNoVigenteException {
 
     Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró una ruta con el id" + id));
@@ -479,5 +471,13 @@ public class RutaServicio extends ServicioBaseImpl<Ruta> {
             .fechaFinVigencia(ruta.getFechaFinVigencia())
             .build();
     return response;
+  }
+  
+  private String nullableToEmptyString(Object value) {
+    if (value == null) {
+      return "";
+    } else {
+      return value.toString();
+    }
   }
 }

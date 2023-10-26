@@ -52,6 +52,8 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     public Page<ClienteListDTO> findAll(int page, int size, String texto, boolean mostrarInactivos) {
         Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
         Pageable paging = PageRequest.of(page, size);
+        Page<Cliente> clientes = clienteRepo
+                .findAllByEmpresaPaged(empresa.getId(), texto, mostrarInactivos, paging);
         return clienteRepo
                 .findAllByEmpresaPaged(empresa.getId(), texto, mostrarInactivos, paging)
                 .map(cliente -> ClienteListDTO.builder()

@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.TextStyle;
@@ -15,6 +16,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.example.aquatrack_backend.model.*;
+import com.example.aquatrack_backend.repo.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
@@ -36,25 +39,6 @@ import com.example.aquatrack_backend.dto.RepartoParametroDTO;
 import com.example.aquatrack_backend.exception.EntidadNoValidaException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.ValidacionException;
-import com.example.aquatrack_backend.model.DiaDomicilio;
-import com.example.aquatrack_backend.model.DiaRuta;
-import com.example.aquatrack_backend.model.Domicilio;
-import com.example.aquatrack_backend.model.DomicilioRuta;
-import com.example.aquatrack_backend.model.Empleado;
-import com.example.aquatrack_backend.model.Empresa;
-import com.example.aquatrack_backend.model.Entrega;
-import com.example.aquatrack_backend.model.EstadoEntrega;
-import com.example.aquatrack_backend.model.EstadoReparto;
-import com.example.aquatrack_backend.model.Reparto;
-import com.example.aquatrack_backend.model.Ruta;
-import com.example.aquatrack_backend.model.Ubicacion;
-import com.example.aquatrack_backend.repo.EmpleadoRepo;
-import com.example.aquatrack_backend.repo.EmpresaRepo;
-import com.example.aquatrack_backend.repo.EstadoEntregaRepo;
-import com.example.aquatrack_backend.repo.EstadoRepartoRepo;
-import com.example.aquatrack_backend.repo.RepartoRepo;
-import com.example.aquatrack_backend.repo.RepoBase;
-import com.example.aquatrack_backend.repo.RutaRepo;
 import com.google.ortools.Loader;
 
 @Service
@@ -65,6 +49,10 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
     @Autowired
     private RutaRepo rutaRepo;
+
+    @Autowired
+    private DomicilioRepo domicilioRepo;
+
 
     @Autowired
     private EstadoRepartoRepo estadoRepartoRepo;
@@ -83,6 +71,9 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    private DomicilioServicio domicilioServicio;
 
     private ModelMapper mapper = new ModelMapper();
 
@@ -194,6 +185,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("La ruta no fue encontrada"));
 
         LocalDateTime now = LocalDateTime.now();
+        LocalDate localDate = LocalDate.now();
 
         DayOfWeek dayOfWeek = now.getDayOfWeek();
 
@@ -242,11 +234,26 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         List<Entrega> entregas = new ArrayList<>();
 
         for (int i = 0; i < rutaOptima.size(); i++) {
-                Entrega entrega = rutaOptima.get(i);
-                entrega.setEstadoEntrega(estadoEntrega);
-                entrega.setReparto(reparto);
-                entrega.setOrdenVisita(i);
-                entregas.add(entrega);
+            Entrega entrega = rutaOptima.get(i);
+            entrega.setEstadoEntrega(estadoEntrega);
+            entrega.setReparto(reparto);
+            entrega.setOrdenVisita(i);
+
+            EntregaPedido entregaPedido = new EntregaPedido();
+            entregaPedido.setEntrega(entrega);
+            entregaPedido.setPedido(domicilioServicio.getPedidoHabitual(entrega.getDomicilio()));
+            entrega.setEntregaPedidos(new ArrayList<>());
+            entrega.getEntregaPedidos().add(entregaPedido);
+
+            for (Pedido pedido: entrega.getDomicilio().getPedidos().stream().filter(pedido -> pedido.getTipoPedido().getId() != 1 && pedido.getFechaCoordinadaEntrega().equals(localDate)).collect(Collectors.toList())) {
+                entregaPedido = new EntregaPedido();
+                entregaPedido.setPedido(pedido);
+                entregaPedido.setEntrega(entrega);
+                entrega.getEntregaPedidos().add(entregaPedido);
+            }
+
+            entregas.add(entrega);
+
         }
 
         reparto.setEntregas(entregas);
@@ -256,6 +263,43 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         return mapper.map(reparto, RepartoDTO.class);
 
     }
+
+    /*@Transactional
+    public boolean crearRepartoAnticipado(Long idRuta, LocalDate fechaPedido, Domicilio domicilio) throws RecordNotFoundException{
+
+        Reparto reparto = new Reparto();
+        Entrega entrega = new Entrega();
+
+        Ruta ruta = rutaRepo.findById(idRuta).orElseThrow(() -> new RecordNotFoundException("La ruta no fue encontrada"));
+        List<Reparto> repartosAnticipados = ruta.getRepartos().stream()
+                .filter(rep -> rep.getEstadoReparto().getNombre().equalsIgnoreCase("Anticipado"))
+                .collect(Collectors.toList());
+
+        List<Entrega> entregas = new ArrayList<>();
+        for (Reparto r: repartosAnticipados) {
+            if (r.getFechaEjecucion().equals(fechaPedido)) {
+                reparto = r;
+                entregas = r.getEntregas();
+                break;
+            }
+        }
+
+        entrega.setDomicilio(domicilio);
+        entrega.setReparto(reparto);
+        entrega.setEstadoEntrega(estadoEntregaRepo.findByNombreEstadoEntrega("Programada"));
+        entregas.add(entrega);
+        reparto.setEntregas(entregas);
+
+        reparto.setFechaEjecucion(fechaPedido);
+        reparto.setEstadoReparto(estadoRepartoRepo.findByNombre("Anticipado"));
+
+        if(reparto.getRuta() == null){
+            reparto.setRuta(ruta);
+        }
+
+        repartoRepo.save(reparto);
+        return true;
+    }*/
 
     private List<Entrega> calcularRutaOptima(List<Entrega> domicilioRutas, Ruta ruta) throws ValidacionException {
         String apiKey = bingMapsConfig.getApiKey();

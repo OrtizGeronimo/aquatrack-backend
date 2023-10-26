@@ -50,18 +50,19 @@ VALUES
 
 INSERT INTO estado_pedido(id, nombre_estado_pedido)
 VALUES
-    (1, 'Pendiente'),
+    (1, 'Pendiente de aprobación'),
     (2, 'Aprobado'),
     (3, 'Rechazado');
 
 INSERT INTO estado_reparto(id, nombre)
 VALUES
-    (1, 'Pendiente de Asignación'),
-    (2, 'Pendiente de Ejecución'),
-    (3, 'En Ejecución'),
-    (4, 'Incompleto'),
-    (5, 'Cancelado'),
-    (6, 'Finalizado');
+    (1, 'Anticipado'),
+    (2, 'Pendiente de Asignación'),
+    (3, 'Pendiente de Ejecución'),
+    (4, 'En Ejecución'),
+    (5, 'Incompleto'),
+    (6, 'Cancelado'),
+    (7, 'Finalizado');
 
 INSERT INTO medio_pago(id, nombre)
 VALUES
@@ -75,7 +76,11 @@ VALUES
 
 INSERT INTO tipo_pedido(id, nombre_tipo_pedido)
 VALUES
-    (1, 'Atípico');
+    (1, 'Habitual'),
+    (2, 'Atípico'),
+    (3, 'Anticipado'),
+    (4, 'Planificado'),
+    (5, 'Extraordinario');
 
 INSERT INTO usuario (id,contraseña,direccion_email,fecha_creacion,fecha_fin_vigencia, validado)
 VALUES (1,'$2a$12$QxJltIw5pIXkdc8LzTck4O.4nZsMf2WjM4jsDm99JbMidBLtlFbrS','geroortiz@gmail.com',CURRENT_DATE,NULL, b'1'),

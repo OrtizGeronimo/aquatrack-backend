@@ -14,25 +14,24 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-// @TableGenerator(name = "employee_gen", table = "sequence_generator", pkColumnName = "sequence_name", valueColumnName = "next_val", allocationSize = 1)
 public class Empleado extends Persona {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    private Integer legajo;
+  private Integer legajo;
 
-    private LocalDate fechaIngreso;
-    @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
-    private LocalDateTime fechaInicioVacaciones;
+  private LocalDate fechaIngreso;
+  @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
+  private LocalDateTime fechaInicioVacaciones;
 
-    @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
-    private LocalDateTime fechaFinVacaciones;
+  @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
+  private LocalDateTime fechaFinVacaciones;
 
-    @ManyToOne()
-    private TipoEmpleado tipo;
+  @ManyToOne()
+  private TipoEmpleado tipo;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "repartidor")
-    private List<Reparto> reparto;
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "repartidor")
+  private List<Reparto> reparto;
+
+  @OneToMany(mappedBy = "empleado")
+  private List<Pago> pagosRegistrados;
 }

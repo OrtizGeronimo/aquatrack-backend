@@ -132,7 +132,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         return response;
     }
 
-    @Scheduled(cron = "0 * * * * 1-7")
+    @Scheduled(cron = "0 * * * * *")
     @Transactional
     public void generacionAutomaticaRepartos() throws RecordNotFoundException, ValidacionException {
 
@@ -182,17 +182,18 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         int idDia = dayOfWeek.getValue();
 
         List<Entrega> entregasARepartir = new ArrayList<>();
-        for (DiaRuta dia : ruta.getDiaRutas()) {
-            if (dia.getDiaSemana().getId() == idDia) {
-                for (DiaDomicilio diaDomicilio : dia.getDiaDomicilios()) {
-                    if (diaDomicilio.getDomicilio().getFechaFinVigencia() == null) {
-                        Entrega entrega = new Entrega();
-                        Domicilio domicilio = diaDomicilio.getDomicilio();
-                        entrega.setDomicilio(domicilio);
-                        entregasARepartir.add(entrega);
-                    }
-                }
+        for(DiaRuta dia : ruta.getDiaRutas()){
+          if(dia.getDiaSemana().getId() == idDia){
+            for (DiaDomicilio diaDomicilio : dia.getDiaDomicilios()) {
+              if(diaDomicilio.getDomicilio().getFechaFinVigencia() == null){
+                Entrega entrega = new Entrega();
+                Domicilio domicilio = diaDomicilio.getDomicilio();
+                entrega.setDomicilio(domicilio);
+                entregasARepartir.add(entrega);
+              }
             }
+            break;
+          }
         }
 
         EstadoReparto estadoAnticipado = estadoRepartoRepo.findByNombre("Anticipado");
@@ -201,8 +202,8 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
         List<Entrega> entregasExistentes = new ArrayList<>();
 
-        for (Reparto repartoExistente : ruta.getRepartos()) {
-            if (repartoExistente.getEstadoReparto().equals(estadoAnticipado) && repartoExistente.getFechaEjecucion().equals(now)) {
+        for (Reparto repartoExistente: ruta.getRepartos()) {
+            if (repartoExistente.getEstadoReparto().equals(estadoAnticipado) && repartoExistente.getFechaEjecucion().equals(now)){
                 reparto = repartoExistente;
                 entregasExistentes = reparto.getEntregas();
             }

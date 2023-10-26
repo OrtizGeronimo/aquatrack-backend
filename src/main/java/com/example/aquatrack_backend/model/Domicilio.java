@@ -1,23 +1,13 @@
 package com.example.aquatrack_backend.model;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-
-import org.hibernate.annotations.Cascade;
-import org.springframework.format.annotation.DateTimeFormat;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -41,7 +31,7 @@ public class Domicilio {
   @OneToOne
   private Cliente cliente;
 
-  @OneToOne()
+  @OneToOne(cascade = CascadeType.ALL)
   private Deuda deuda;
 
   @OneToOne(cascade = CascadeType.ALL)

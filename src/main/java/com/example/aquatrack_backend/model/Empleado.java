@@ -17,7 +17,6 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-// @TableGenerator(name = "employee_gen", table = "sequence_generator", pkColumnName = "sequence_name", valueColumnName = "next_val", allocationSize = 1)
 public class Empleado extends Persona {
 
     private Integer legajo;
@@ -34,4 +33,7 @@ public class Empleado extends Persona {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "repartidor")
     private List<Reparto> reparto;
+
+    @OneToMany(mappedBy = "empleado")
+    private List<Pago> pagosRegistrados;
 }

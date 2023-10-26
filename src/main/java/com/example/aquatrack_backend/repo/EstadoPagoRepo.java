@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EstadoPagoRepo extends RepoBase<EstadoPago> {
 
+    EstadoPago findByNombre(String nombre);
+
 }

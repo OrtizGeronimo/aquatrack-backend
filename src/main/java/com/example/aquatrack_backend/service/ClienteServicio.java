@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -128,7 +129,13 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
             Ubicacion ubicacion = domicilio.getUbicacion();
             ubicacionDTO = modelMapper.map(ubicacion, UbicacionDTO.class);
         } else {
-            clienteNuevo.setEstadoCliente(estadoClienteRepo.findByNombreEstadoCliente("En proceso de creación").orElseThrow(() -> new RecordNotFoundException("El estado no fue encontrado.")));
+          Deuda deuda = new Deuda();
+          deuda.setMonto(BigDecimal.ZERO);
+          deuda.setMontoMaximo(BigDecimal.valueOf(2000));
+          deuda.setDomicilio(domicilio);
+          domicilio.setDeuda(deuda);
+            clienteNuevo.setEstadoCliente(estadoClienteRepo.findByNombreEstadoCliente("En proceso de creación")
+                    .orElseThrow(() -> new RecordNotFoundException("El estado no fue encontrado.")));
         }
         domicilio.setCalle(cliente.getCalle());
         domicilio.setNumero(cliente.getNumero());
@@ -159,6 +166,12 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
         domicilio.setPisoDepartamento(cliente.getPisoDepartamento());
         domicilio.setObservaciones(cliente.getObservaciones());
         domicilio.setLocalidad(cliente.getLocalidad());
+
+      Deuda deuda = new Deuda();
+      deuda.setMonto(BigDecimal.ZERO);
+      deuda.setMontoMaximo(BigDecimal.valueOf(2000));
+      deuda.setDomicilio(domicilio);
+      domicilio.setDeuda(deuda);
 
         Ubicacion ubicacion = new Ubicacion();
         ubicacion.setLatitud(cliente.getLatitud());

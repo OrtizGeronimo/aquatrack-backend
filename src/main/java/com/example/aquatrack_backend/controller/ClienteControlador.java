@@ -6,10 +6,16 @@ import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.UserUnauthorizedException;
 import com.example.aquatrack_backend.helpers.ValidationHelper;
 import com.example.aquatrack_backend.service.ClienteServicio;
+import com.example.aquatrack_backend.service.DeudaServicio;
+import com.example.aquatrack_backend.service.PagoServicio;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping(path = "/clientes")
@@ -17,7 +23,12 @@ public class ClienteControlador {
 
     @Autowired
     private ClienteServicio clienteServicio;
+    @Autowired
+    private DeudaServicio deudaServicio;
     private ValidationHelper validationHelper = new ValidationHelper<>();
+
+    @Autowired
+    private PagoServicio pagoServicio;
 
     @GetMapping(value = "")
     @PreAuthorize("hasAuthority('LISTAR_CLIENTES')")
@@ -105,5 +116,35 @@ public class ClienteControlador {
     @PutMapping(value = "/mobile-address")
     public ResponseEntity<?> updateCurrentClientAddressMobile(@RequestBody EditarDomicilioMobileDTO domicilio) throws UserUnauthorizedException, EntidadNoValidaException {
         return ResponseEntity.ok().body(clienteServicio.editarDomicilioMobile(domicilio));
+    }
+
+    @GetMapping("/{id}/deuda")
+//    @PreAuthorize("hasAuthority('LISTAR_DEUDAS')")
+    public ResponseEntity<?> detallarDeuda(@PathVariable Long id) throws RecordNotFoundException {
+        return ResponseEntity.ok().body(deudaServicio.detalleDeuda(id));
+    }
+
+    @GetMapping("/{id}/pagos")
+//    @PreAuthorize("hasAuthority('LISTAR_PAGOS')")
+    public ResponseEntity<?> listarPagos(@PathVariable Long id,
+                                         @RequestParam(required = false) Long idMedioPago,
+                                         @RequestParam(required = false) Long idEmpleado,
+                                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaCreacionDesde,
+                                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaCreacionHasta,
+                                         @RequestParam(required = false) BigDecimal montoDesde,
+                                         @RequestParam(required = false) BigDecimal montoHasta) throws RecordNotFoundException {
+        return ResponseEntity.ok().body(pagoServicio.listarPagosPorCliente(id, idMedioPago, idEmpleado, fechaCreacionDesde, fechaCreacionHasta, montoDesde, montoHasta));
+    }
+
+
+    @PostMapping("/{id}/pagos")
+    public ResponseEntity<?> cargarPagoCliente(@PathVariable Long id, @RequestBody PagoDataDTO dto) throws RecordNotFoundException {
+        return ResponseEntity.ok().body(pagoServicio.cargarPago(id, dto.getMonto(), dto.getIdMedioPago()));
+    }
+
+    @DeleteMapping("/{id}/pagos/{idPago}")
+    public ResponseEntity<?> anularPago(@PathVariable Long id, @PathVariable Long idPago) throws RecordNotFoundException {
+        pagoServicio.anularPago(idPago, id);
+        return ResponseEntity.ok().build();
     }
 }

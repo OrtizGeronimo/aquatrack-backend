@@ -1,24 +1,14 @@
 package com.example.aquatrack_backend.model;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-
-import org.springframework.format.annotation.DateTimeFormat;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -26,27 +16,30 @@ import lombok.Setter;
 @Entity
 public class Pago {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
-  private LocalDateTime fechaPago;
+    @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
+    private LocalDateTime fechaPago;
 
-  private BigDecimal total;
+    @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
+    private LocalDateTime fechaFinVigencia;
 
-  @ManyToOne()
-  private EstadoPago estadoPago;
+    private BigDecimal total;
 
-  @ManyToOne()
-  private MedioPago medioPago;
+    @ManyToOne()
+    private EstadoPago estadoPago;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "pago")
-  private List<DeudaPago> deudaPagos;
+    @ManyToOne()
+    private MedioPago medioPago;
 
-  @OneToOne(cascade = CascadeType.ALL, mappedBy = "pago")
-  private Entrega entrega;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "pago")
+    private List<DeudaPago> deudaPagos;
 
-  @ManyToOne
-  private Empleado empleado;
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "pago")
+    private Entrega entrega;
+
+    @ManyToOne
+    private Empleado empleado;
 }

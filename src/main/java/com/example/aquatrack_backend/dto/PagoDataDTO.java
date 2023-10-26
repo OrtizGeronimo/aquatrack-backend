@@ -10,7 +10,6 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 public class PagoDataDTO {
-
     private BigDecimal monto;
     private Long idMedioPago;
 }

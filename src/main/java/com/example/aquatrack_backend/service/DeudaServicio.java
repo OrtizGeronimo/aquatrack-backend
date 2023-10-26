@@ -4,16 +4,15 @@ import com.example.aquatrack_backend.dto.DeudaDTO;
 import com.example.aquatrack_backend.dto.DeudaPagoDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.model.Cliente;
+import com.example.aquatrack_backend.model.Deuda;
 import com.example.aquatrack_backend.model.DeudaPago;
 import com.example.aquatrack_backend.model.Domicilio;
 import com.example.aquatrack_backend.repo.ClienteRepo;
+import com.example.aquatrack_backend.repo.DeudaRepo;
 import com.example.aquatrack_backend.repo.DomicilioRepo;
+import com.example.aquatrack_backend.repo.RepoBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.example.aquatrack_backend.model.Deuda;
-import com.example.aquatrack_backend.repo.DeudaRepo;
-import com.example.aquatrack_backend.repo.RepoBase;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -33,7 +32,7 @@ public class DeudaServicio extends ServicioBaseImpl<Deuda> {
         super(repoBase);
     }
 
-    public DeudaDTO detalleDeudaMobile(){
+    public DeudaDTO detalleDeudaMobile() {
         Deuda deudaActual = ((Cliente) getUsuarioFromContext().getPersona()).getDomicilio().getDeuda();
 
         DeudaDTO response = mapearDeuda(deudaActual);
@@ -67,8 +66,10 @@ public class DeudaServicio extends ServicioBaseImpl<Deuda> {
 
         BigDecimal nuevoMonto = BigDecimal.ZERO;
 
-        for (DeudaPago deudaPago: deuda.getDeudaPagos()) {
-            nuevoMonto = nuevoMonto.add(deudaPago.getMontoAdeudadoPago());
+        for (DeudaPago deudaPago : deuda.getDeudaPagos()) {
+            if (deudaPago.getPago().getFechaFinVigencia() == null) {
+                nuevoMonto = nuevoMonto.add(deudaPago.getMontoAdeudadoPago());
+            }
         }
 
         deuda.setMonto(nuevoMonto);
@@ -84,7 +85,7 @@ public class DeudaServicio extends ServicioBaseImpl<Deuda> {
         response.setMonto(deuda.getMonto());
         response.setFechaUltimaActualizacion(deuda.getFechaUltimaActualizacion());
 
-        response.setCambios(deuda.getDeudaPagos().stream().map(deudaPago -> {
+        response.setCambios(deuda.getDeudaPagos().stream().filter(deudaPago -> deudaPago.getPago().getFechaFinVigencia() == null).map(deudaPago -> {
             DeudaPagoDTO dto = new DeudaPagoDTO();
             dto.setMonto(deudaPago.getMontoAdeudadoPago());
             dto.setId(deudaPago.getId());

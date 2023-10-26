@@ -29,5 +29,6 @@ public class GuardarClienteWebDTO {
     private double latitud;
     private double longitud;
     private String localidad;
-    private List<PedidoProductoDTO> pedidoProductos;
+
+    private List<GuardarClienteWebProductoDTO> productos;
 }

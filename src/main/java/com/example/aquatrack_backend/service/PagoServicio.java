@@ -147,13 +147,14 @@ public class PagoServicio extends ServicioBaseImpl<Pago> {
     public List<PagoDTO> listarPagosPorCliente(Long idCliente, Long idMedioPago, Long idEmpleado, LocalDate fechaCreacionDesde, LocalDate fechaCreacionHasta, BigDecimal montoDesde, BigDecimal montoHasta) throws RecordNotFoundException {
         Cliente cliente = clienteRepo.findById(idCliente).orElseThrow(() -> new RecordNotFoundException("No se encontró un cliente con el id " + idCliente));
 
-        List<Pago> pagos = pagoRepo.findAllPagosFromDeudaByClient(cliente.getDomicilio().getId(), idMedioPago, idEmpleado, fechaCreacionDesde, fechaCreacionHasta, montoDesde, montoHasta);
+        List<Pago> pagos = pagoRepo.findAllPagosFromClient(cliente.getDomicilio().getId(), idMedioPago, idEmpleado, fechaCreacionDesde, fechaCreacionHasta, montoDesde, montoHasta);
 
         return pagos.stream().map(pago -> {
             PagoDTO response = new PagoDTO();
             response.setId(pago.getId());
             response.setFechaPago(pago.getFechaPago());
             response.setTotal(pago.getTotal());
+            response.setFechaFinVigencia(pago.getFechaFinVigencia());
             response.setNombreRecaudador(pago.getEmpleado().getNombre() + " " + pago.getEmpleado().getApellido());
             response.setMedioPago(pago.getMedioPago().getNombre());
             response.setIdEntrega(pago.getEntrega() == null ? null : pago.getEntrega().getId());
@@ -178,7 +179,6 @@ public class PagoServicio extends ServicioBaseImpl<Pago> {
         Pago pago = pagoRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("No se encontró un pago con el id " + id));
 
         pago.setFechaFinVigencia(LocalDateTime.now());
-        pago.getDeudaPagos().clear();
 
         pagoRepo.save(pago);
         deudaServicio.recalcularDeuda(cliente.getDomicilio().getId());

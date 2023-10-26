@@ -15,6 +15,7 @@ public interface PagoRepo extends RepoBase<Pago> {
             "JOIN deuda_pago dp ON p.id = dp.pago_id " +
             "JOIN deuda d ON dp.deuda_id = d.id " +
             "JOIN domicilio dom ON dom.deuda_id = d.id " +
+            "LEFT JOIN entrega e ON dom.id = e.domicilio_id " +
             "WHERE (:idMedioPago IS NULL OR medio_pago_id = :idMedioPago) " +
             "AND dom.id = :idDomicilio " +
             "AND (:idEmpleado IS NULL OR empleado_id = :idEmpleado) " +
@@ -24,11 +25,11 @@ public interface PagoRepo extends RepoBase<Pago> {
             "AND (:montoHasta IS NULL OR total <= :montoHasta) " +
             "ORDER BY p.fecha_pago DESC",
             nativeQuery = true)
-    List<Pago> findAllPagosFromDeudaByClient(@Param("idDomicilio") Long idDomicilio,
-                                             @Param("idMedioPago") Long idMedioPago,
-                                             @Param("idEmpleado") Long idEmpleado,
-                                             @Param("fechaCreacionDesde") LocalDate fechaCreacionDesde,
-                                             @Param("fechaCreacionHasta") LocalDate fechaCreacionHasta,
-                                             @Param("montoDesde") BigDecimal montoDesde,
-                                             @Param("montoHasta") BigDecimal montoHasta);
+    List<Pago> findAllPagosFromClient(@Param("idDomicilio") Long idDomicilio,
+                                      @Param("idMedioPago") Long idMedioPago,
+                                      @Param("idEmpleado") Long idEmpleado,
+                                      @Param("fechaCreacionDesde") LocalDate fechaCreacionDesde,
+                                      @Param("fechaCreacionHasta") LocalDate fechaCreacionHasta,
+                                      @Param("montoDesde") BigDecimal montoDesde,
+                                      @Param("montoHasta") BigDecimal montoHasta);
 }

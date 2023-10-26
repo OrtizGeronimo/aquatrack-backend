@@ -18,4 +18,5 @@ public class PagoDTO {
     private LocalDateTime fechaPago;
     private Long idEntrega;
     private String nombreRecaudador;
+    private LocalDateTime fechaFinVigencia;
 }

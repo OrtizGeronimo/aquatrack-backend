@@ -80,5 +80,17 @@ public class EmailService {
         mailSender.send(message);
         usuarioRepo.save(usuario);
     }
+
+    public void sendRepartoIniciadoEmail(String clientEmail, String nombre, String empresa) {
+        String from = "aquatrack.notification@gmail.com";
+        String subject = "Tu pedido está en camino";
+        String body = nombre + ", el repartidor de " + empresa + " ya se encuentra en camino con tu pedido. Podes seguir el estado del mismo desde la app.";
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(from);
+        message.setTo(clientEmail);
+        message.setSubject(subject);
+        message.setText(body);
+        mailSender.send(message);
+    }
 }
 

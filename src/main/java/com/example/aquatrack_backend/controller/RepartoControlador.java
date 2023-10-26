@@ -1,9 +1,10 @@
 package com.example.aquatrack_backend.controller;
 
-import com.example.aquatrack_backend.dto.AsignarRepartidorDTO;
 import com.example.aquatrack_backend.dto.FinalizarRepartoIncompletoDTO;
+import com.example.aquatrack_backend.dto.UbicacionDTO;
 import com.example.aquatrack_backend.exception.EntidadNoValidaException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
+import com.example.aquatrack_backend.exception.UserUnauthorizedException;
 import com.example.aquatrack_backend.exception.ValidacionException;
 import com.example.aquatrack_backend.helpers.ValidationHelper;
 import com.example.aquatrack_backend.service.EntregaServicio;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/repartos")
-public class RepartoControlador{
+public class RepartoControlador {
 
     @Autowired
     private RepartoServicio servicio;
@@ -26,21 +27,21 @@ public class RepartoControlador{
     private ValidationHelper validationHelper = new ValidationHelper();
 
 
-//    @PostMapping("/{id}")
+    //    @PostMapping("/{id}")
 //    @PreAuthorize("hasAuthority('CREAR_REPARTOS')")
 //    public ResponseEntity<?> crearReparto(@PathVariable("id") Long id) throws RecordNotFoundException, ValidacionException {
 //            return ResponseEntity.ok().body(servicio.crearReparto(id));
 //    }
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('LISTAR_REPARTOS')")
-    public ResponseEntity<?> detallarReparto(@PathVariable("id") Long id) throws RecordNotFoundException{
-      return ResponseEntity.ok().body(servicio.detalleReparto(id));
+    public ResponseEntity<?> detallarReparto(@PathVariable("id") Long id) throws RecordNotFoundException {
+        return ResponseEntity.ok().body(servicio.detalleReparto(id));
     }
 
     @GetMapping("/{id}/entregas")
     @PreAuthorize("hasAuthority('LISTAR_ENTREGAS')")
     public ResponseEntity<?> listarEntregasReparto(@PathVariable("id") Long id) throws RecordNotFoundException {
-      return ResponseEntity.ok().body(entregaServicio.findAllEntregasByReparto(id));
+        return ResponseEntity.ok().body(entregaServicio.findAllEntregasByReparto(id));
     }
 
     @PostMapping("/{id}")
@@ -71,18 +72,17 @@ public class RepartoControlador{
     public ResponseEntity<?> getAsignarRepartidores() {
         return ResponseEntity.ok().body(servicio.getAsignarRepartidor());
     }
-  
+
     @PutMapping("/{id}/asignarRepartidor/{repartidor_id}")
     @PreAuthorize("hasAuthority('EDITAR_REPARTOS')")
     public ResponseEntity<?> asignarRepartidor(@PathVariable("id") Long id, @PathVariable("repartidor_id") Long repartidorId) throws RecordNotFoundException, ValidacionException {
         return ResponseEntity.ok().body(servicio.asignarRepartidor(id, repartidorId));
     }
 
-    @PutMapping("/iniciarReparto")
+    @PutMapping("/{id}/iniciarReparto")
     @PreAuthorize("hasAuthority('EDITAR_REPARTOS')")
-    public ResponseEntity<?> iniciarReparto(@RequestParam Long idReparto) throws RecordNotFoundException {
-        servicio.iniciarReparto(idReparto);
-        return ResponseEntity.ok().body("El reparto inició su ejecución");
+    public ResponseEntity<?> iniciarReparto(@PathVariable Long id) throws RecordNotFoundException, ValidacionException, UserUnauthorizedException {
+        return ResponseEntity.ok().body(servicio.iniciarReparto(id));
     }
 
     @PutMapping("/{id}/cancelarReparto")
@@ -106,7 +106,38 @@ public class RepartoControlador{
 
     @GetMapping("/parametros")
     @PreAuthorize("hasAuthority('LISTAR_REPARTOS')")
-    public ResponseEntity<?> getParametrosRepartos(){
+    public ResponseEntity<?> getParametrosRepartos() {
         return ResponseEntity.ok().body(servicio.getParametrosReparto());
+    }
+
+    @GetMapping("/asignados")
+    public ResponseEntity<?> getRepartosAsignados(@RequestParam Long estado) throws UserUnauthorizedException {
+        return ResponseEntity.ok().body(servicio.getRepartosAsignados(estado));
+    }
+
+    @GetMapping("/{id}/proxima-entrega")
+    public ResponseEntity<?> getProximaEntrega(@PathVariable("id") Long idReparto) throws RecordNotFoundException, ValidacionException {
+        return ResponseEntity.ok().body(servicio.getProximaEntrega(idReparto));
+    }
+
+    @GetMapping("/{id}/ubicaciones")
+    public ResponseEntity<?> getUbicaciones(@PathVariable("id") Long idReparto) throws RecordNotFoundException, ValidacionException {
+        return ResponseEntity.ok().body(servicio.getUbicaciones(idReparto));
+    }
+
+    @GetMapping("/{id}/en-ejecucion/entregas")
+    public ResponseEntity<?> getEntregasEjecucion(@PathVariable("id") Long idReparto) throws RecordNotFoundException, ValidacionException {
+        return ResponseEntity.ok().body(servicio.getEntregasEjecucion(idReparto));
+    }
+
+    @GetMapping("/{id}/ubicacion-repartidor")
+    public ResponseEntity<?> getUbicacionRepartidor(@PathVariable("id") Long idReparto) throws RecordNotFoundException, ValidacionException {
+        return ResponseEntity.ok().body(servicio.getUbicacionRepartidor(idReparto));
+    }
+
+    @PutMapping("/{id}/actualizar-ubicacion")
+    public ResponseEntity<?> actualizarUbicacion(@PathVariable("id") Long idReparto, @RequestBody UbicacionDTO ubicacion) throws RecordNotFoundException, ValidacionException {
+        servicio.actualizarUbicacion(idReparto, ubicacion);
+        return ResponseEntity.ok().build();
     }
 }

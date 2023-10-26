@@ -32,7 +32,7 @@ create table permiso_rol (id bigint not null auto_increment, permiso_id bigint, 
 create table producto (id bigint not null auto_increment, descripcion varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), nombre varchar(255), codigo varchar(255), imagen varchar(255), maximo integer, empresa_id bigint, primary key (id)) engine=InnoDB;
 create table pago (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), fecha_pago datetime(6), total decimal(10,2) not null, estado_pago_id bigint, medio_pago_id bigint, empleado_id bigint, primary key (id)) engine=InnoDB;
 create table precio (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), precio decimal(10,2), producto_id bigint, primary key (id)) engine=InnoDB;
-create table reparto (id bigint not null auto_increment,  fecha_ejecucion datetime(6), fecha_hora_inicio datetime(6), fecha_hora_fin datetime(6), observaciones varchar(255), estado_reparto_id bigint, repartidor_id bigint, ruta_id bigint, primary key (id)) engine=InnoDB;
+create table reparto (id bigint not null auto_increment,  fecha_ejecucion datetime(6), fecha_hora_inicio datetime(6), fecha_hora_fin datetime(6), observaciones varchar(255), estado_reparto_id bigint, repartidor_id bigint, ruta_id bigint, ubicacion_id bigint, primary key (id)) engine=InnoDB;
 create table rol (id bigint not null auto_increment, fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), nombre varchar(255), empresa_id bigint, primary key (id)) engine=InnoDB;
 create table rol_usuario (id bigint not null auto_increment, rol_id bigint, usuario_id bigint, primary key (id)) engine=InnoDB;
 create table ruta (id bigint not null auto_increment, nombre varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), empresa_id bigint, primary key (id)) engine=InnoDB;
@@ -93,3 +93,4 @@ alter table ruta add constraint FKhqf7i4x8hnad5gfbsgdw3wsca foreign key (empresa
 alter table ubicacion add constraint FK1ss12bcqh71c1gf98s9mi035b foreign key (cobertura_id) references cobertura (id);
 alter table usuario add constraint FKlq5bi6ct62v3aame1pixchbqt foreign key (estado_usuario_id) references estado_usuario (id);
 alter table usuario_codigo_validacion add constraint FK7wim923ngjhstxdgroodgtwck foreign key (usuario_id) references usuario (id);
+alter table reparto add constraint FK7wim923ngjhstxdgroodg0001 foreign key (ubicacion_id) references ubicacion (id);

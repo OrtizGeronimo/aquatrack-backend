@@ -2,8 +2,10 @@ package com.example.aquatrack_backend.service;
 
 import com.example.aquatrack_backend.config.BingMapsConfig;
 import com.example.aquatrack_backend.dto.*;
+import com.example.aquatrack_backend.email.EmailService;
 import com.example.aquatrack_backend.exception.EntidadNoValidaException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
+import com.example.aquatrack_backend.exception.UserUnauthorizedException;
 import com.example.aquatrack_backend.exception.ValidacionException;
 import com.example.aquatrack_backend.model.*;
 import com.example.aquatrack_backend.repo.*;
@@ -22,16 +24,14 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -66,7 +66,13 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
     private EmpleadoRepo empleadoRepo;
 
     @Autowired
+    private EntregaRepo entregaRepo;
+
+    @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    public EmailService emailService;
 
     private ModelMapper mapper = new ModelMapper();
 
@@ -214,7 +220,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
         entregasARepartir.addAll(entregasExistentes);
         if (entregasARepartir.isEmpty()) {
-            throw new ValidacionException("La ruta no contiene entregas a realizar en el dia");
+            return null;
         }
         List<Entrega> rutaOptima = calcularRutaOptima(entregasARepartir, ruta);
         EstadoReparto estado = estadoRepartoRepo.findByNombre("Pendiente de Asignación");
@@ -429,12 +435,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
         List<Empleado> repartidores = empleadoRepo.findRepartidoresLibres(empresa.getId());
 
-        return repartidores.stream()
-                .map(empleado -> RepartidorAsignableDTO.builder()
-                        .id(empleado.getId())
-                        .nombreRepartidor(empleado.getNombre() + " " + empleado.getApellido())
-                        .build())
-                .collect(Collectors.toList());
+        return repartidores.stream().map(empleado -> RepartidorAsignableDTO.builder().id(empleado.getId()).nombreRepartidor(empleado.getNombre() + " " + empleado.getApellido()).build()).collect(Collectors.toList());
 
     }
 
@@ -472,8 +473,21 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
     }
 
     @Transactional
-    public void iniciarReparto(Long idReparto) throws RecordNotFoundException {
+    public RepartoAsignadoDTO iniciarReparto(Long idReparto) throws RecordNotFoundException, UserUnauthorizedException, ValidacionException {
+        Persona persona = getUsuarioFromContext().getPersona();
+        Empleado repartidor = (Empleado) persona;
+        if (persona instanceof Cliente || !repartidor.getTipo().getNombre().equals("Repartidor")) {
+            throw new UserUnauthorizedException("Esta funcionalidad es exclusiva para repartidores.");
+        }
         Reparto reparto = repartoRepo.findById(idReparto).orElseThrow(() -> new RecordNotFoundException("El id del reparto ingresado no corresponde a uno existente"));
+        if (reparto.getEstadoReparto().getId() != 2L) {
+            throw new ValidacionException("El reparto debe estar pendiente de ejecución para ser iniciado.");
+        }
+
+        List<Reparto> repartosRepartidor = repartoRepo.findRepartosByRepartidorIdAndEstadoRepartoId(repartidor.getId(), 3L);
+        if (!repartosRepartidor.isEmpty()) {
+            throw new ValidacionException("No puede ejecutar un reparto si ya está ejecutando uno.");
+        }
 
         EstadoReparto enEjecucion = estadoRepartoRepo.findByNombre("En Ejecución");
 
@@ -484,12 +498,14 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
         for (Entrega entrega : reparto.getEntregas()) {
             entrega.setEstadoEntrega(pendiente);
+            Cliente cliente = entrega.getDomicilio().getCliente();
+            if (cliente.getUsuario() != null && cliente.getUsuario().getValidado()) {
+                emailService.sendRepartoIniciadoEmail(cliente.getUsuario().getDireccionEmail(), cliente.getNombre() + " " + cliente.getApellido(), cliente.getEmpresa().getNombre());
+            }
         }
 
-//        notificacionesServicio.enviarInicioReparto()
-
         repartoRepo.save(reparto);
-
+        return RepartoAsignadoDTO.builder().id(reparto.getId()).ruta(reparto.getRuta().getNombre()).fechaHoraInicio(reparto.getFechaHoraInicio()).fechaEjecucion(reparto.getFechaEjecucion()).cantEntregas(reparto.getEntregas().stream().filter(entrega -> entrega.getEstadoEntrega().getId() == 1L || entrega.getEstadoEntrega().getId() == 2L).count()).build();
     }
 
     @Transactional
@@ -604,6 +620,100 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         dto.setObservaciones(reparto.getObservaciones());
         dto.setLongitudInicio(empresa.getUbicacion().getLongitud());
         return dto;
+    }
+
+    public List<RepartoAsignadoDTO> getRepartosAsignados(Long estado) throws UserUnauthorizedException {
+        Persona persona = getUsuarioFromContext().getPersona();
+        Empleado repartidor = (Empleado) persona;
+        if (persona instanceof Cliente || !repartidor.getTipo().getNombre().equals("Repartidor")) {
+            throw new UserUnauthorizedException("Esta funcionalidad es exclusiva para repartidores.");
+        }
+
+        List<Reparto> repartos = repartoRepo.findRepartosAsignadosHoy(repartidor.getId(), estado);
+
+        return repartos.stream().map(reparto -> RepartoAsignadoDTO.builder().id(reparto.getId()).ruta(reparto.getRuta().getNombre()).fechaEjecucion(reparto.getFechaEjecucion()).cantEntregas(reparto.getEntregas().stream().filter(entrega -> entrega.getEstadoEntrega().getId() == 1L || entrega.getEstadoEntrega().getId() == 2L).count()).fechaHoraInicio(reparto.getFechaHoraInicio()).build()).collect(Collectors.toList());
+    }
+
+    public List<EntregaMobileDTO> getProximaEntrega(Long idReparto) throws RecordNotFoundException, ValidacionException {
+        Reparto reparto = repartoRepo.findById(idReparto).orElseThrow(() -> new RecordNotFoundException("El id del reparto ingresado no corresponde a uno existente"));
+        if (reparto.getEstadoReparto().getId() != 3L) {
+            throw new ValidacionException("El reparto no se encuentra en ejecución.");
+        }
+
+        List<Entrega> entregas = entregaRepo.findProximaEntrega(reparto.getId());
+        if (entregas.isEmpty()) {
+            return new ArrayList<EntregaMobileDTO>();
+        }
+
+        return entregas.stream().map(entrega -> EntregaMobileDTO.builder().id(entrega.getId()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(BigDecimal.valueOf(420.3)).observaciones(entrega.getDomicilio().getObservaciones()).build()).collect(Collectors.toList());
+    }
+
+    public List<GoogleDirectionsDTO> getUbicaciones(Long idReparto) throws ValidacionException, RecordNotFoundException {
+        Reparto reparto = repartoRepo.findById(idReparto).orElseThrow(() -> new RecordNotFoundException("El id del reparto ingresado no corresponde a uno existente"));
+        if (reparto.getEstadoReparto().getId() != 3L) {
+            throw new ValidacionException("El reparto no se encuentra en ejecución.");
+        }
+
+        GoogleDirectionsDTO inicio = GoogleDirectionsDTO.builder().latitude(reparto.getRepartidor().getEmpresa().getUbicacion().getLatitud()).longitude(reparto.getRepartidor().getEmpresa().getUbicacion().getLongitud()).build();
+        List<GoogleDirectionsDTO> direcciones = new ArrayList<>();
+        direcciones.add(inicio);
+        List<Domicilio> domicilios = reparto.getEntregas().stream().filter(e -> e.getEstadoEntrega().getId() != 5L).sorted(Comparator.comparing(Entrega::getOrdenVisita)).map(e -> e.getDomicilio()).collect(Collectors.toList());
+        for (Domicilio domicilio : domicilios) {
+            direcciones.add(GoogleDirectionsDTO.builder().latitude(domicilio.getUbicacion().getLatitud()).longitude(domicilio.getUbicacion().getLongitud()).build());
+        }
+        return direcciones;
+    }
+
+    public List<EntregaMobileDTO> getEntregasEjecucion(Long idReparto) throws ValidacionException, RecordNotFoundException {
+        Reparto reparto = repartoRepo.findById(idReparto).orElseThrow(() -> new RecordNotFoundException("El id del reparto ingresado no corresponde a uno existente"));
+        if (reparto.getEstadoReparto().getId() != 3L) {
+            throw new ValidacionException("El reparto no se encuentra en ejecución.");
+        }
+
+        List<Entrega> entregas = reparto.getEntregas().stream().sorted(Comparator.comparing(Entrega::getOrdenVisita)).collect(Collectors.toList());
+        return entregas.stream().map(entrega -> EntregaMobileDTO.builder().id(entrega.getId()).observaciones(entrega.getDomicilio().getObservaciones()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(BigDecimal.valueOf(420.3)).estado(entrega.getEstadoEntrega().getNombreEstadoEntrega()).build()).collect(Collectors.toList());
+    }
+
+    private String formatAddress(String calle, Integer numero, String piso) {
+        StringBuilder formattedAddress = new StringBuilder(calle);
+
+        if (numero != null) {
+            formattedAddress.append(" ").append(numero);
+        }
+
+        if (piso != null) {
+            formattedAddress.append(" ").append(piso);
+        }
+
+        return formattedAddress.toString();
+    }
+
+    public void actualizarUbicacion(Long idReparto, UbicacionDTO ubicacion) throws ValidacionException, RecordNotFoundException {
+        Reparto reparto = repartoRepo.findById(idReparto).orElseThrow(() -> new RecordNotFoundException("El id del reparto ingresado no corresponde a uno existente"));
+        if (reparto.getEstadoReparto().getId() != 3L) {
+            throw new ValidacionException("El reparto no se encuentra en ejecución.");
+        }
+
+        if (reparto.getUbicacion() == null) {
+            Ubicacion ubicacionReparto = new Ubicacion();
+            ubicacionReparto.setLatitud(ubicacion.getLatitud());
+            ubicacionReparto.setLongitud(ubicacion.getLongitud());
+            reparto.setUbicacion(ubicacionReparto);
+        } else {
+            reparto.getUbicacion().setLatitud(ubicacion.getLatitud());
+            reparto.getUbicacion().setLongitud(ubicacion.getLongitud());
+        }
+
+        repartoRepo.save(reparto);
+    }
+
+    public GoogleDirectionsDTO getUbicacionRepartidor(Long idReparto) throws ValidacionException, RecordNotFoundException {
+        Reparto reparto = repartoRepo.findById(idReparto).orElseThrow(() -> new RecordNotFoundException("El id del reparto ingresado no corresponde a uno existente"));
+        if (reparto.getEstadoReparto().getId() != 3L) {
+            throw new ValidacionException("El reparto no se encuentra en ejecución.");
+        }
+
+        return GoogleDirectionsDTO.builder().latitude(reparto.getUbicacion().getLatitud()).longitude(reparto.getUbicacion().getLongitud()).build();
     }
 }
 

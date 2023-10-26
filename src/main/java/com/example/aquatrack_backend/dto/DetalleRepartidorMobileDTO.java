@@ -13,7 +13,7 @@ public class DetalleRepartidorMobileDTO {
     private String nombre;
     private String apellido;
     private String numTelefono;
-    private int legajo;
+    private Integer legajo;
     private String empresa;
     private String direccionEmail;
 }

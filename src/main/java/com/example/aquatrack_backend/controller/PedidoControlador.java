@@ -35,6 +35,12 @@ public class PedidoControlador{
         return ResponseEntity.ok().body(pedidoServicio.getAllPedidos(page, size, mostrar_inactivos, nombreCliente, estadoPedido, tipoPedido, fechaCoordinadaEntregaDesde, fechaCoordinadaEntregaHasta));
     }
 
+    @GetMapping("/parametro")
+    @PreAuthorize("hasAuthority('LISTAR_PEDIDOS')")
+    public ResponseEntity<?> getParametrosBusqueda(){
+        return ResponseEntity.ok().body(pedidoServicio.getParametrosBusqueda());
+    }
+
     @GetMapping("/parametros")
     @PreAuthorize("hasAuthority('LISTAR_PEDIDOS')")
     public ResponseEntity<?> getParametrosPedidosWeb(){

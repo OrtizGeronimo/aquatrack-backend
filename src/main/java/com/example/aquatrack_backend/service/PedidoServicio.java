@@ -52,6 +52,28 @@ public class PedidoServicio extends ServicioBaseImpl<Pedido> {
   }
 
   @Transactional
+  public PedidoBusquedaDTO getParametrosBusqueda(){
+
+    PedidoBusquedaDTO pedidoBusquedaDTO = new PedidoBusquedaDTO();
+
+    pedidoBusquedaDTO.setTipos(tipoPedidoRepo.findAllActives().stream()
+            .map(tipo -> ObjetoGenericoDTO.builder()
+                    .id(tipo.getId())
+                    .nombre(tipo.getNombreTipoPedido())
+                    .build())
+            .collect(Collectors.toList()));
+
+    pedidoBusquedaDTO.setEstados(estadoPedidoRepo.findAllActives().stream()
+            .map(estado -> ObjetoGenericoDTO.builder()
+                    .id(estado.getId())
+                    .nombre(estado.getNombreEstadoPedido())
+                    .build())
+            .collect(Collectors.toList()));
+
+    return pedidoBusquedaDTO;
+  }
+
+  @Transactional
   public PedidoFormWebDTO getParametrosPedidoWeb(){
 
     PedidoFormWebDTO pedidoFormDTO = new PedidoFormWebDTO();

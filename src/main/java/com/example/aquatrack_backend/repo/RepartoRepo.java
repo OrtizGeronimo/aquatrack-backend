@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -16,11 +17,13 @@ public interface RepartoRepo extends RepoBase<Reparto> {
             " WHERE " +
             "(:idEstado IS NULL OR er.id = :idEstado) " +
             "AND (:idRuta IS NULL OR ru.id = :idRuta) " +
+            "AND (:fechaEjecucionDesde IS NULL OR fecha_ejecucion >= :fechaEjecucionDesde) " +
+            "AND (:fechaEjecucionHasta IS NULL OR fecha_ejecucion <= :fechaEjecucionHasta) " +
             "AND (:idRepartidor IS NULL OR e.id = :idRepartidor) " +
             "AND ru.empresa_id = :empresaId " +
-            "ORDER BY er.id, ru.nombre "
+            "ORDER BY r.fecha_ejecucion DESC, er.id, ru.nombre"
             , nativeQuery = true)
-    Page<Reparto> search(Long empresaId, Long idRuta, Long idRepartidor, Long idEstado, Pageable pageable);
+    Page<Reparto> search(Long empresaId, Long idRuta, Long idRepartidor, Long idEstado, LocalDate fechaEjecucionDesde, LocalDate fechaEjecucionHasta, Pageable pageable);
 
     @Query(value = "SELECT * FROM reparto r WHERE repartidor_id = :id_repartidor AND DATE(fecha_ejecucion) = CURRENT_DATE AND estado_reparto_id = :id_estado", nativeQuery = true)
     List<Reparto> findRepartosAsignadosHoy(@Param("id_repartidor") Long idRepartidor, @Param("id_estado") Long idEstado);

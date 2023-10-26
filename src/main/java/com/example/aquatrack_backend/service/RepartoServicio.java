@@ -242,6 +242,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
             EntregaPedido entregaPedido = new EntregaPedido();
             entregaPedido.setEntrega(entrega);
             entregaPedido.setPedido(domicilioServicio.getPedidoHabitual(entrega.getDomicilio()));
+            entrega.setEntregaPedidos(new ArrayList<>());
             entrega.getEntregaPedidos().add(entregaPedido);
 
             for (Pedido pedido: entrega.getDomicilio().getPedidos().stream().filter(pedido -> pedido.getTipoPedido().getId() != 1 && pedido.getFechaCoordinadaEntrega().equals(localDate)).collect(Collectors.toList())) {

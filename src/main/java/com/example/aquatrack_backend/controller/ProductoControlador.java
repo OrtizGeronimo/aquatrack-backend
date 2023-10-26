@@ -3,6 +3,7 @@ package com.example.aquatrack_backend.controller;
 import com.example.aquatrack_backend.dto.GuardarProductoDTO;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.helpers.ValidationHelper;
+import com.example.aquatrack_backend.exception.ProductoNoValidoException;
 import com.example.aquatrack_backend.service.ProductoServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -58,8 +59,8 @@ public class ProductoControlador {
 
     @PostMapping(value = "")
     @PreAuthorize("hasAuthority('CREAR_PRODUCTOS')")
-    public ResponseEntity<?> create(@RequestBody GuardarProductoDTO producto) {
-        if (validationHelper.hasValidationErrors(producto)) {
+    public ResponseEntity<?> create(@RequestBody GuardarProductoDTO producto) throws ProductoNoValidoException {
+        if(validationHelper.hasValidationErrors(producto)){
             return ResponseEntity.badRequest().body(validationHelper.getValidationErrors(producto));
         }
         return ResponseEntity.ok().body(productoServicio.createProducto(producto));

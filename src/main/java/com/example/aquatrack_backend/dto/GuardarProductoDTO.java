@@ -26,6 +26,9 @@ public class GuardarProductoDTO {
 
   private String imagen;
 
+  @NotBlank
   private String codigo;
-  
+
+  @Min(value = 1, message = "La cantidad máxima de un producto solicitable por un cliente debe ser al menos una unidad.")
+  private Integer maximo;
 }

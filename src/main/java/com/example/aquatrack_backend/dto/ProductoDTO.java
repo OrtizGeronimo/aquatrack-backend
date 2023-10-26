@@ -20,4 +20,5 @@ public class ProductoDTO {
     private LocalDateTime fechaFinVigencia;
     private String codigo;
     private String imagen;
+    private Integer maximo;
 }

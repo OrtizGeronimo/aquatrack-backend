@@ -20,4 +20,9 @@ public interface DomicilioRepo extends RepoBase<Domicilio> {
     @Query(value = "SELECT * FROM domicilio d JOIN cliente c ON c.id = d.cliente_id " +
             "WHERE (:mostrarInactivos = true OR c.fecha_fin_vigencia IS NULL) ", nativeQuery = true)
     List<Domicilio> findAllActivos(Boolean mostrarInactivos);
+
+    @Query(value = "SELECT * FROM domicilio d INNER JOIN " +
+            "(SELECT * FROM cliente WHERE empresa_id = :idE) c " +
+            "ON c.id = d.cliente_id WHERE d.fecha_fin_vigencia IS NULL", nativeQuery = true)
+    List<Domicilio> findAllActivosByEmpresa(@Param("idE")Long idEmpresa);
 }

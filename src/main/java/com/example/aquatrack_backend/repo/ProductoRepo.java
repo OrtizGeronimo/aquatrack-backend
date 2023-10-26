@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.repo;
 
+import java.util.List;
 import com.example.aquatrack_backend.model.Producto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,5 +24,13 @@ public interface ProductoRepo extends RepoBase<Producto> {
     List<Producto> findProductsByEmpresa(@Param("empresa_id") Long empresaId);
 
     Producto findProductoById(Long id);
+    @Query(value = "SELECT * FROM producto " +
+            "WHERE empresa_id = :idEmpresa " +
+            "AND fecha_fin_vigencia is NULL", nativeQuery = true)
+    List<Producto> getAllProductos(@Param("idEmpresa")Long idEmpresa);
+
+    @Query(value = "SELECT count(*) as productos FROM producto p " +
+            "WHERE p.codigo = :codigo AND p.empresa_id = :empresaId", nativeQuery = true)
+    Integer validateCodigoUnico(@Param("codigo") String codigo, @Param("empresaId")Long empresaId);
 }
 

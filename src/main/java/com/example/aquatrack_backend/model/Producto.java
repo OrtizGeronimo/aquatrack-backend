@@ -36,6 +36,8 @@ public class Producto {
 
   private String codigo;
 
+  private Integer maximo;
+
   @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
   private LocalDateTime fechaCreacion = LocalDateTime.now();
 

@@ -254,7 +254,9 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
     }
 
+/*    @Transactional
     public boolean crearRepartoAnticipado(Long idRuta, LocalDateTime fechaPedido, Domicilio domicilio) throws RecordNotFoundException{
+
         Reparto reparto = new Reparto();
         Entrega entrega = new Entrega();
 
@@ -273,16 +275,21 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         }
 
         entrega.setDomicilio(domicilio);
+        entrega.setReparto(reparto);
+        entrega.setEstadoEntrega(estadoEntregaRepo.findByNombreEstadoEntrega("Programada"));
         entregas.add(entrega);
         reparto.setEntregas(entregas);
 
         reparto.setFechaEjecucion(fechaPedido);
+        reparto.setEstadoReparto(estadoRepartoRepo.findByNombre("Anticipado"));
 
         if(reparto.getRuta() == null){
             reparto.setRuta(ruta);
         }
+
+        repartoRepo.save(reparto);
         return true;
-    }
+    }*/
 
     private List<Entrega> calcularRutaOptima(List<Entrega> domicilioRutas, Ruta ruta) throws ValidacionException {
         String apiKey = bingMapsConfig.getApiKey();

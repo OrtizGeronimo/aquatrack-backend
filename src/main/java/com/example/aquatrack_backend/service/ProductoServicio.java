@@ -29,18 +29,43 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.example.aquatrack_backend.exception.ProductoNoValidoException;
+import com.example.aquatrack_backend.validators.ProductoValidator;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.example.aquatrack_backend.dto.GuardarProductoDTO;
+import com.example.aquatrack_backend.dto.ImagenDTO;
+import com.example.aquatrack_backend.dto.ProductoDTO;
+import com.example.aquatrack_backend.exception.RecordNotFoundException;
+import com.example.aquatrack_backend.model.Empleado;
+import com.example.aquatrack_backend.model.Empresa;
+import com.example.aquatrack_backend.model.Precio;
+import com.example.aquatrack_backend.model.Producto;
+import com.example.aquatrack_backend.repo.PrecioRepo;
+import com.example.aquatrack_backend.repo.ProductoRepo;
+import com.example.aquatrack_backend.repo.RepoBase;
+
 @Service
 public class
 ProductoServicio extends ServicioBaseImpl<Producto> {
 
-    @Autowired
-    ProductoRepo productoRepo;
-    @Autowired
-    PrecioRepo precioRepo;
-    // @Autowired
-    // private ResourceLoader resourceLoader;
-    // @Value("${image.upload.directory}")
-    // private String uploadDirectory;
+  @Autowired
+  ProductoRepo productoRepo;
+  @Autowired
+  PrecioRepo precioRepo;
+  @Autowired
+  ProductoValidator productoValidator;
+  // @Autowired
+  // private ResourceLoader resourceLoader;
+  // @Value("${image.upload.directory}")
+  // private String uploadDirectory;
 
     public ProductoServicio(RepoBase<Producto> repoBase) {
         super(repoBase);
@@ -170,23 +195,33 @@ ProductoServicio extends ServicioBaseImpl<Producto> {
         }
     }
 
-    @Transactional
-    public ProductoDTO createProducto(GuardarProductoDTO producto) {
-        Producto productoNuevo = new Producto();
-        Precio precioNuevo = new Precio();
-        productoNuevo.setNombre(producto.getNombre());
-        productoNuevo.setDescripcion(producto.getDescripcion());
-        productoNuevo.setCodigo(producto.getCodigo());
-        // pruductoNuevo.setImagen(producto.getImagen());
-        precioNuevo.setPrecio(producto.getPrecio());
-        precioNuevo.setProducto(productoNuevo);
-        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
-        productoNuevo.setEmpresa(empresa);
-        productoRepo.save(productoNuevo);
-        precioRepo.save(precioNuevo);
-        ProductoDTO productoDTO = new ModelMapper().map(productoNuevo, ProductoDTO.class);
-        productoDTO.setPrecio(precioNuevo.getPrecio());
-        return productoDTO;
+  @Transactional
+    public ProductoDTO createProducto(GuardarProductoDTO producto) throws ProductoNoValidoException {
+
+      Empresa empresa = getUsuarioFromContext().getPersona().getEmpresa();
+
+      productoValidator.validateCrearProducto(producto, empresa.getId());
+
+      Producto productoNuevo = new Producto();
+      Precio precioNuevo = new Precio();
+
+      productoNuevo.setNombre(producto.getNombre());
+      productoNuevo.setDescripcion(producto.getDescripcion());
+      productoNuevo.setCodigo(producto.getCodigo());
+      // pruductoNuevo.setImagen(producto.getImagen());
+      productoNuevo.setMaximo(producto.getMaximo());
+      precioNuevo.setPrecio(producto.getPrecio());
+      precioNuevo.setProducto(productoNuevo);
+
+      productoNuevo.setEmpresa(empresa);
+      productoRepo.save(productoNuevo);
+
+      precioRepo.save(precioNuevo);
+
+      ProductoDTO productoDTO = new ModelMapper().map(productoNuevo, ProductoDTO.class);
+
+      productoDTO.setPrecio(precioNuevo.getPrecio());
+      return productoDTO;
     }
 
     @Transactional

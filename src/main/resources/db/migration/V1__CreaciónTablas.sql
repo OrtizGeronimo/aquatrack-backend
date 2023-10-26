@@ -24,7 +24,7 @@ insert into hibernate_sequence values ( 1 );
 create table hibernate_sequences (sequence_name varchar(255) not null, next_val bigint, primary key (sequence_name)) engine=InnoDB;
 insert into hibernate_sequences(sequence_name, next_val) values ('default',0);
 create table medio_pago (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre varchar(255), primary key (id)) engine=InnoDB;
-create table pago (id bigint not null auto_increment, fecha_pago datetime(6), total decimal(10,2) not null, estado_pago_id bigint, medio_pago_id bigint, empleado_id bigint, primary key (id)) engine=InnoDB;
+create table pago (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), fecha_pago datetime(6), total decimal(10,2) not null, estado_pago_id bigint, medio_pago_id bigint, empleado_id bigint, primary key (id)) engine=InnoDB;
 create table pedido (id bigint not null auto_increment, fecha_coordinada_entrega datetime(6), domicilio_id bigint, estado_pedido_id bigint, tipo_pedido_id bigint, primary key (id)) engine=InnoDB;
 create table pedido_producto (id bigint not null auto_increment, cantidad integer, pedido_id bigint, producto_id bigint, primary key (id)) engine=InnoDB;
 create table permiso (id bigint not null auto_increment, descripcion varchar(255), fecha_fin_vigencia datetime(6), primary key (id)) engine=InnoDB;

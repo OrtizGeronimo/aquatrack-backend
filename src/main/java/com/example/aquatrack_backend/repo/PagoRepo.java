@@ -1,10 +1,34 @@
 package com.example.aquatrack_backend.repo;
 
 import com.example.aquatrack_backend.model.Pago;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
 
 @Repository
 public interface PagoRepo extends RepoBase<Pago> {
-
+    @Query(value = "SELECT p.* FROM pago p " +
+            "JOIN deuda_pago dp ON p.id = dp.pago_id " +
+            "JOIN deuda d ON dp.deuda_id = d.id " +
+            "JOIN domicilio dom ON dom.deuda_id = d.id " +
+            "WHERE (:idMedioPago IS NULL OR medio_pago_id = :idMedioPago) " +
+            "AND dom.id = :idDomicilio " +
+            "AND (:idEmpleado IS NULL OR empleado_id = :idEmpleado) " +
+            "AND (:fechaCreacionDesde IS NULL OR fecha_pago >= :fechaCreacionDesde) " +
+            "AND (:fechaCreacionHasta IS NULL OR fecha_pago <= :fechaCreacionHasta) " +
+            "AND (:montoDesde IS NULL OR total >= :montoDesde) " +
+            "AND (:montoHasta IS NULL OR total <= :montoHasta) " +
+            "ORDER BY p.fecha_pago DESC",
+            nativeQuery = true)
+    List<Pago> findAllPagosFromDeudaByClient(@Param("idDomicilio") Long idDomicilio,
+                                             @Param("idMedioPago") Long idMedioPago,
+                                             @Param("idEmpleado") Long idEmpleado,
+                                             @Param("fechaCreacionDesde") LocalDate fechaCreacionDesde,
+                                             @Param("fechaCreacionHasta") LocalDate fechaCreacionHasta,
+                                             @Param("montoDesde") BigDecimal montoDesde,
+                                             @Param("montoHasta") BigDecimal montoHasta);
 }

@@ -22,12 +22,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-// @TableGenerator(name = "employee_gen", table = "sequence_generator", pkColumnName = "sequence_name", valueColumnName = "next_val", allocationSize = 1)
 public class Empleado extends Persona {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
 
   private Integer legajo;
 

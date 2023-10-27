@@ -7,7 +7,7 @@ create table dia_domicilio (id bigint not null auto_increment, dia_ruta_id bigin
 create table dia_ruta (id bigint not null auto_increment, dia_semana_id bigint, ruta_id bigint, primary key (id)) engine=InnoDB;
 create table dia_semana (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre varchar(255), primary key (id)) engine=InnoDB;
 create table domicilio (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), calle varchar(255), numero integer, piso_departamento varchar(255), observaciones varchar(255), localidad varchar(255), cliente_id bigint, deuda_id bigint, ubicacion_id bigint, primary key (id)) engine=InnoDB;
-create table domicilio_producto (id bigint not null auto_increment, cantidad integer, domicilio_id bigint, producto_id bigint, primary key (id)) engine=InnoDB;
+create table domicilio_producto (id bigint not null auto_increment, cantidad integer, cantidad_devolver integer, domicilio_id bigint, producto_id bigint, primary key (id)) engine=InnoDB;
 create table domicilio_ruta (id bigint not null auto_increment, domicilio_id bigint, ruta_id bigint, primary key (id)) engine=InnoDB;
 create table empleado (id bigint not null, apellido varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), nombre varchar(255), num_telefono varchar(255), usuario_id bigint, fecha_fin_vacaciones datetime(6), fecha_ingreso datetime(6), fecha_inicio_vacaciones datetime(6), legajo integer, empresa_id bigint, tipo_id bigint, primary key (id)) engine=InnoDB;
 create table estado_cliente (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), nombre_estado_cliente varchar(255), primary key (id)) engine=InnoDB;
@@ -29,7 +29,7 @@ create table pedido (id bigint not null auto_increment, fecha_coordinada_entrega
 create table pedido_producto (id bigint not null auto_increment, cantidad integer, pedido_id bigint, producto_id bigint, primary key (id)) engine=InnoDB;
 create table permiso (id bigint not null auto_increment, descripcion varchar(255), fecha_fin_vigencia datetime(6), primary key (id)) engine=InnoDB;
 create table permiso_rol (id bigint not null auto_increment, permiso_id bigint, rol_id bigint, primary key (id)) engine=InnoDB;
-create table producto (id bigint not null auto_increment, descripcion varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), nombre varchar(255), codigo varchar(255), imagen varchar(255), maximo integer, empresa_id bigint, primary key (id)) engine=InnoDB;
+create table producto (id bigint not null auto_increment, descripcion varchar(255), fecha_creacion datetime(6), fecha_fin_vigencia datetime(6), nombre varchar(255), codigo varchar(255), imagen varchar(255), maximo integer, retornable bit, empresa_id bigint, primary key (id)) engine=InnoDB;
 create table pago (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), fecha_pago datetime(6), total decimal(10,2) not null, estado_pago_id bigint, medio_pago_id bigint, empleado_id bigint, primary key (id)) engine=InnoDB;
 create table precio (id bigint not null auto_increment, fecha_fin_vigencia datetime(6), precio decimal(10,2), producto_id bigint, primary key (id)) engine=InnoDB;
 create table reparto (id bigint not null auto_increment,  fecha_ejecucion datetime(6), fecha_hora_inicio datetime(6), fecha_hora_fin datetime(6), observaciones varchar(255), estado_reparto_id bigint, repartidor_id bigint, ruta_id bigint, ubicacion_id bigint, primary key (id)) engine=InnoDB;

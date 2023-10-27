@@ -24,7 +24,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.DayOfWeek;
@@ -645,7 +644,13 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
             return new ArrayList<EntregaMobileDTO>();
         }
 
-        return entregas.stream().map(entrega -> EntregaMobileDTO.builder().id(entrega.getId()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(BigDecimal.valueOf(420.3)).observaciones(entrega.getDomicilio().getObservaciones()).build()).collect(Collectors.toList());
+        return entregas.stream()
+                .map(entrega -> EntregaMobileDTO.builder()
+                        .id(entrega.getId())
+                        .nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido())
+                        .domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad())
+                        .montoRecaudar(entregaRepo.getMontoTotalByEntrega(entrega.getId()))
+                        .observaciones(entrega.getDomicilio().getObservaciones()).build()).collect(Collectors.toList());
     }
 
     public List<GoogleDirectionsDTO> getUbicaciones(Long idReparto) throws ValidacionException, RecordNotFoundException {
@@ -671,7 +676,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         }
 
         List<Entrega> entregas = reparto.getEntregas().stream().sorted(Comparator.comparing(Entrega::getOrdenVisita)).collect(Collectors.toList());
-        return entregas.stream().map(entrega -> EntregaMobileDTO.builder().id(entrega.getId()).observaciones(entrega.getDomicilio().getObservaciones()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(BigDecimal.valueOf(420.3)).estado(entrega.getEstadoEntrega().getNombreEstadoEntrega()).build()).collect(Collectors.toList());
+        return entregas.stream().map(entrega -> EntregaMobileDTO.builder().id(entrega.getId()).observaciones(entrega.getDomicilio().getObservaciones()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(entregaRepo.getMontoTotalByEntrega(entrega.getId())).estado(entrega.getEstadoEntrega().getNombreEstadoEntrega()).build()).collect(Collectors.toList());
     }
 
     private String formatAddress(String calle, Integer numero, String piso) {

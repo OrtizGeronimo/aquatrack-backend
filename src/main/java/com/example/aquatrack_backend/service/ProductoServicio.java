@@ -3,11 +3,13 @@ package com.example.aquatrack_backend.service;
 import com.example.aquatrack_backend.dto.GuardarProductoDTO;
 import com.example.aquatrack_backend.dto.ImagenDTO;
 import com.example.aquatrack_backend.dto.ProductoDTO;
+import com.example.aquatrack_backend.exception.ProductoNoValidoException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.model.*;
 import com.example.aquatrack_backend.repo.PrecioRepo;
 import com.example.aquatrack_backend.repo.ProductoRepo;
 import com.example.aquatrack_backend.repo.RepoBase;
+import com.example.aquatrack_backend.validators.ProductoValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,43 +31,20 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.example.aquatrack_backend.exception.ProductoNoValidoException;
-import com.example.aquatrack_backend.validators.ProductoValidator;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.example.aquatrack_backend.dto.GuardarProductoDTO;
-import com.example.aquatrack_backend.dto.ImagenDTO;
-import com.example.aquatrack_backend.dto.ProductoDTO;
-import com.example.aquatrack_backend.exception.RecordNotFoundException;
-import com.example.aquatrack_backend.model.Empleado;
-import com.example.aquatrack_backend.model.Empresa;
-import com.example.aquatrack_backend.model.Precio;
-import com.example.aquatrack_backend.model.Producto;
-import com.example.aquatrack_backend.repo.PrecioRepo;
-import com.example.aquatrack_backend.repo.ProductoRepo;
-import com.example.aquatrack_backend.repo.RepoBase;
-
 @Service
 public class
 ProductoServicio extends ServicioBaseImpl<Producto> {
 
-  @Autowired
-  ProductoRepo productoRepo;
-  @Autowired
-  PrecioRepo precioRepo;
-  @Autowired
-  ProductoValidator productoValidator;
-  // @Autowired
-  // private ResourceLoader resourceLoader;
-  // @Value("${image.upload.directory}")
-  // private String uploadDirectory;
+    @Autowired
+    ProductoRepo productoRepo;
+    @Autowired
+    PrecioRepo precioRepo;
+    @Autowired
+    ProductoValidator productoValidator;
+    // @Autowired
+    // private ResourceLoader resourceLoader;
+    // @Value("${image.upload.directory}")
+    // private String uploadDirectory;
 
     public ProductoServicio(RepoBase<Producto> repoBase) {
         super(repoBase);
@@ -81,12 +60,12 @@ ProductoServicio extends ServicioBaseImpl<Producto> {
         }
     }
 
-    public Page<ProductoDTO> getProductosActivos(int page, int size, String nombre, boolean mostrarInactivos, int precio1, int precio2) throws Exception, IOException {
+    public Page<ProductoDTO> getProductosActivos(int page, int size, String nombre, boolean mostrarInactivos, boolean mostrar_retornables, int precio1, int precio2) throws Exception, IOException {
         Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
         Long id = empresa.getId();
         Pageable paging = PageRequest.of(page, size);
 
-        return productoRepo.getProductosActivos(id, nombre, mostrarInactivos, precio1, precio2, paging)
+        return productoRepo.getProductosActivos(id, nombre, mostrarInactivos, mostrar_retornables, precio1, precio2, paging)
                 .map(producto -> {
                     ProductoDTO productoDTO = new ModelMapper().map(producto, ProductoDTO.class);
                     // String imagenFileName = producto.getImagen();
@@ -195,33 +174,34 @@ ProductoServicio extends ServicioBaseImpl<Producto> {
         }
     }
 
-  @Transactional
+    @Transactional
     public ProductoDTO createProducto(GuardarProductoDTO producto) throws ProductoNoValidoException {
 
-      Empresa empresa = getUsuarioFromContext().getPersona().getEmpresa();
+        Empresa empresa = getUsuarioFromContext().getPersona().getEmpresa();
 
-      productoValidator.validateCrearProducto(producto, empresa.getId());
+        productoValidator.validateCrearProducto(producto, empresa.getId());
 
-      Producto productoNuevo = new Producto();
-      Precio precioNuevo = new Precio();
+        Producto productoNuevo = new Producto();
+        Precio precioNuevo = new Precio();
 
-      productoNuevo.setNombre(producto.getNombre());
-      productoNuevo.setDescripcion(producto.getDescripcion());
-      productoNuevo.setCodigo(producto.getCodigo());
-      // pruductoNuevo.setImagen(producto.getImagen());
-      productoNuevo.setMaximo(producto.getMaximo());
-      precioNuevo.setPrecio(producto.getPrecio());
-      precioNuevo.setProducto(productoNuevo);
+        productoNuevo.setNombre(producto.getNombre());
+        productoNuevo.setDescripcion(producto.getDescripcion());
+        productoNuevo.setCodigo(producto.getCodigo());
+        productoNuevo.setRetornable(producto.getRetornable());
+        // pruductoNuevo.setImagen(producto.getImagen());
+        productoNuevo.setMaximo(producto.getMaximo());
+        precioNuevo.setPrecio(producto.getPrecio());
+        precioNuevo.setProducto(productoNuevo);
 
-      productoNuevo.setEmpresa(empresa);
-      productoRepo.save(productoNuevo);
+        productoNuevo.setEmpresa(empresa);
+        productoRepo.save(productoNuevo);
 
-      precioRepo.save(precioNuevo);
+        precioRepo.save(precioNuevo);
 
-      ProductoDTO productoDTO = new ModelMapper().map(productoNuevo, ProductoDTO.class);
+        ProductoDTO productoDTO = new ModelMapper().map(productoNuevo, ProductoDTO.class);
 
-      productoDTO.setPrecio(precioNuevo.getPrecio());
-      return productoDTO;
+        productoDTO.setPrecio(precioNuevo.getPrecio());
+        return productoDTO;
     }
 
     @Transactional
@@ -231,6 +211,7 @@ ProductoServicio extends ServicioBaseImpl<Producto> {
         Producto productoModificado = productoRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El producto solicitado no fue encontrado"));
         productoModificado.setNombre(producto.getNombre());
         productoModificado.setDescripcion(producto.getDescripcion());
+        productoModificado.setRetornable(producto.getRetornable());
         Precio precioActual = precioRepo.getPrecioActivo(productoModificado.getId());
         productoDTO = new ModelMapper().map(productoModificado, ProductoDTO.class);
         if (producto.getPrecio() != precioActual.getPrecio()) {

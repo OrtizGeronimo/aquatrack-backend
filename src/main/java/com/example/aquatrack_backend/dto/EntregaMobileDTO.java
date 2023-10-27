@@ -14,4 +14,5 @@ public class EntregaMobileDTO {
     private BigDecimal montoRecaudar;
     private String estado;
     private String observaciones;
+    private Integer ordenVisita;
 }

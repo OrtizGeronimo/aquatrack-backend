@@ -647,6 +647,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         return entregas.stream()
                 .map(entrega -> EntregaMobileDTO.builder()
                         .id(entrega.getId())
+                        .ordenVisita(entrega.getOrdenVisita())
                         .nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido())
                         .domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad())
                         .montoRecaudar(entregaRepo.getMontoTotalByEntrega(entrega.getId()))
@@ -676,7 +677,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         }
 
         List<Entrega> entregas = reparto.getEntregas().stream().sorted(Comparator.comparing(Entrega::getOrdenVisita)).collect(Collectors.toList());
-        return entregas.stream().map(entrega -> EntregaMobileDTO.builder().id(entrega.getId()).observaciones(entrega.getDomicilio().getObservaciones()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(entregaRepo.getMontoTotalByEntrega(entrega.getId())).estado(entrega.getEstadoEntrega().getNombreEstadoEntrega()).build()).collect(Collectors.toList());
+        return entregas.stream().map(entrega -> EntregaMobileDTO.builder().id(entrega.getId()).ordenVisita(entrega.getOrdenVisita()).observaciones(entrega.getDomicilio().getObservaciones()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(entregaRepo.getMontoTotalByEntrega(entrega.getId())).estado(entrega.getEstadoEntrega().getNombreEstadoEntrega()).build()).collect(Collectors.toList());
     }
 
     private String formatAddress(String calle, Integer numero, String piso) {

@@ -18,4 +18,12 @@ public interface PedidoProductoRepo extends RepoBase<PedidoProducto> {
             "WHERE pre.fecha_fin_vigencia IS NULL AND ep.entrega_id = :idEntrega\n" +
             "GROUP BY pr.id, pr.nombre", nativeQuery = true)
     List<PedidoProductoProjection> getAllPedidoProductos(Long idEntrega);
+
+    @Query(value = "SELECT pr.id as id, pr.nombre as nombre, pr.retornable as retornable, SUM(pre.precio) as precio, SUM(pp.cantidad) as cantidad FROM pedido p \n" +
+            "JOIN pedido_producto pp ON p.id = pp.pedido_id\n" +
+            "JOIN producto pr ON pr.id = pp.producto_id\n" +
+            "JOIN precio pre ON pr.id = pre.producto_id\n" +
+            "WHERE pre.fecha_fin_vigencia IS NULL AND p.id = :idPedido\n" +
+            "GROUP BY pr.id, pr.nombre", nativeQuery = true)
+    List<PedidoProductoProjection> getPedidoProductos(Long idPedido);
 }

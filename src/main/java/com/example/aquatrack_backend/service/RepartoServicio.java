@@ -677,7 +677,34 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         }
 
         List<Entrega> entregas = reparto.getEntregas().stream().sorted(Comparator.comparing(Entrega::getOrdenVisita)).collect(Collectors.toList());
-        return entregas.stream().map(entrega -> EntregaMobileDTO.builder().id(entrega.getId()).ordenVisita(entrega.getOrdenVisita()).observaciones(entrega.getDomicilio().getObservaciones()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(entregaRepo.getMontoTotalByEntrega(entrega.getId())).estado(entrega.getEstadoEntrega().getNombreEstadoEntrega()).build()).collect(Collectors.toList());
+        return entregas.stream().map(entrega -> {
+            if (entrega.getEstadoEntrega().getNombreEstadoEntrega().equals("Programada") || entrega.getEstadoEntrega().getNombreEstadoEntrega().equals("Pendiente")) {
+                return EntregaMobileDTO.builder().repartoId(entrega.getReparto().getId()).fechaEjecucion(entrega.getReparto().getFechaEjecucion()).id(entrega.getId()).ordenVisita(entrega.getOrdenVisita()).observaciones(entrega.getDomicilio().getObservaciones()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(entregaRepo.getMontoTotalByEntrega(entrega.getId())).estado(entrega.getEstadoEntrega().getNombreEstadoEntrega()).build();
+            }
+
+            if (entrega.getEstadoEntrega().getNombreEstadoEntrega().equals("Cancelada")) {
+                return EntregaMobileDTO.builder().repartoId(entrega.getReparto().getId()).fechaEjecucion(entrega.getReparto().getFechaEjecucion()).id(entrega.getId()).ordenVisita(entrega.getOrdenVisita()).observacionesEntrega(entrega.getObservaciones()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(entregaRepo.getMontoTotalByEntrega(entrega.getId())).estado(entrega.getEstadoEntrega().getNombreEstadoEntrega()).build();
+            }
+
+            if (entrega.getEstadoEntrega().getNombreEstadoEntrega().equals("Ausente")) {
+                return EntregaMobileDTO.builder().repartoId(entrega.getReparto().getId()).fechaHoraVisita(entrega.getFechaHoraVisita()).id(entrega.getId()).ordenVisita(entrega.getOrdenVisita()).observacionesEntrega(entrega.getObservaciones()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(entregaRepo.getMontoTotalByEntrega(entrega.getId())).estado(entrega.getEstadoEntrega().getNombreEstadoEntrega()).build();
+            }
+
+            EntregaMobileDTO response = new EntregaMobileDTO();
+            response.setId(entrega.getId());
+            response.setRepartoId(entrega.getReparto().getId());
+            response.setFechaHoraVisita(entrega.getFechaHoraVisita());
+            response.setEstado(entrega.getEstadoEntrega().getNombreEstadoEntrega());
+            response.setDomicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad());
+            response.setNombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido());
+            response.setMontoEntregado(entrega.getMonto());
+            if (entrega.getPago() != null) {
+                response.setMontoRecaudado(entrega.getPago().getTotal());
+                response.setMedioPago(entrega.getPago().getMedioPago().getNombre());
+            }
+            response.setObservacionesEntrega(entrega.getObservaciones());
+            return response;
+        }).collect(Collectors.toList());
     }
 
     private String formatAddress(String calle, Integer numero, String piso) {

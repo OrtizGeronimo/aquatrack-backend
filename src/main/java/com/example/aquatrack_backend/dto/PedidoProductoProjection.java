@@ -7,6 +7,8 @@ public interface PedidoProductoProjection {
 
     public String getNombre();
 
+    public Boolean getRetornable();
+
     public BigDecimal getPrecio();
 
     public Integer getCantidad();

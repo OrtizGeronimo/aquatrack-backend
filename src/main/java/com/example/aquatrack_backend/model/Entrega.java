@@ -39,7 +39,7 @@ public class Entrega {
     //monto de lo que fue entregado, debería ser nulo hasta que se PROCESE LA ENTREGA
     private BigDecimal monto;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "entrega")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "entrega")
     private List<EntregaDetalle> entregaDetalles;
 
     @OneToOne(cascade = CascadeType.ALL)

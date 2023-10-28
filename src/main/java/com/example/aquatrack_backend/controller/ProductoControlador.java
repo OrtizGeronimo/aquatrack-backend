@@ -1,9 +1,9 @@
 package com.example.aquatrack_backend.controller;
 
 import com.example.aquatrack_backend.dto.GuardarProductoDTO;
+import com.example.aquatrack_backend.exception.ProductoNoValidoException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.helpers.ValidationHelper;
-import com.example.aquatrack_backend.exception.ProductoNoValidoException;
 import com.example.aquatrack_backend.service.ProductoServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,10 +37,11 @@ public class ProductoControlador {
     public ResponseEntity<?> getProductosActivos(@RequestParam(defaultValue = "0") int page,
                                                  @RequestParam(defaultValue = "10") int size,
                                                  @RequestParam(defaultValue = "false") boolean mostrar_inactivos,
+                                                 @RequestParam(required = false) boolean mostrar_retornables,
                                                  @RequestParam(required = false) String nombre,
                                                  @RequestParam(defaultValue = "0") int precio1,
                                                  @RequestParam(defaultValue = "20000") int precio2) throws Exception {
-        return ResponseEntity.ok().body(productoServicio.getProductosActivos(page, size, nombre, mostrar_inactivos, precio1, precio2));
+        return ResponseEntity.ok().body(productoServicio.getProductosActivos(page, size, nombre, mostrar_inactivos, mostrar_retornables, precio1, precio2));
     }
 
     @GetMapping("/image/{id}")
@@ -60,7 +61,7 @@ public class ProductoControlador {
     @PostMapping(value = "")
     @PreAuthorize("hasAuthority('CREAR_PRODUCTOS')")
     public ResponseEntity<?> create(@RequestBody GuardarProductoDTO producto) throws ProductoNoValidoException {
-        if(validationHelper.hasValidationErrors(producto)){
+        if (validationHelper.hasValidationErrors(producto)) {
             return ResponseEntity.badRequest().body(validationHelper.getValidationErrors(producto));
         }
         return ResponseEntity.ok().body(productoServicio.createProducto(producto));

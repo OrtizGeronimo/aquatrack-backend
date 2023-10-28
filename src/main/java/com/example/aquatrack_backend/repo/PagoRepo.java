@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository
 public interface PagoRepo extends RepoBase<Pago> {
-    @Query(value = "SELECT p.* FROM pago p " +
+    @Query(value = "SELECT DISTINCT p.* FROM pago p " +
             "JOIN deuda_pago dp ON p.id = dp.pago_id " +
             "JOIN deuda d ON dp.deuda_id = d.id " +
             "JOIN domicilio dom ON dom.deuda_id = d.id " +

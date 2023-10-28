@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class EntregaMobileDTO {
+public class EntregaWebDTO {
     private Long id;
     private String nombreCliente;
     private String domicilio;
@@ -27,4 +27,5 @@ public class EntregaMobileDTO {
     private String medioPago;
     private String observacionesEntrega;
     private Long repartoId;
+    private String nombreRepartidor;
 }

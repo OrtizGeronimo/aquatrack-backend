@@ -103,7 +103,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         dto.setLongitudInicio(empresa.getUbicacion().getLongitud());
         return dto;
     }
-
+    
     public RepartoParametroDTO getParametrosReparto() {
         RepartoParametroDTO response = new RepartoParametroDTO();
 
@@ -747,6 +747,51 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         }
 
         return GoogleDirectionsDTO.builder().latitude(reparto.getUbicacion().getLatitud()).longitude(reparto.getUbicacion().getLongitud()).build();
+    }
+
+    public List<ListarRepartoMobileDTO> listarRepartosMobile(Long ruta, Long estado, LocalDate fechaEjecucionDesde, LocalDate fechaEjecucionHasta) throws UserUnauthorizedException {
+        Persona persona = getUsuarioFromContext().getPersona();
+        Empleado repartidor = (Empleado) persona;
+        if (persona instanceof Cliente || !repartidor.getTipo().getNombre().equals("Repartidor")) {
+            throw new UserUnauthorizedException("Esta funcionalidad es exclusiva para repartidores.");
+        }
+
+        List<Reparto> repartos = repartoRepo.searchMobile(ruta, repartidor.getId(), estado, fechaEjecucionDesde, fechaEjecucionHasta);
+        return repartos.stream().map(r -> ListarRepartoMobileDTO.builder().id(r.getId()).ruta(r.getRuta().getNombre()).cantEntregas(r.getEntregas().size()).fechaEjecucion(r.getFechaEjecucion()).estado(r.getEstadoReparto().getNombre()).build()).collect(Collectors.toList());
+    }
+
+    public List<EntregaMobileDTO> getEntregasMobile(Long idReparto) throws ValidacionException, RecordNotFoundException {
+        Reparto reparto = repartoRepo.findById(idReparto).orElseThrow(() -> new RecordNotFoundException("El id del reparto ingresado no corresponde a uno existente"));
+
+        List<Entrega> entregas = reparto.getEntregas().stream().sorted(Comparator.comparing(Entrega::getOrdenVisita)).collect(Collectors.toList());
+        return entregas.stream().map(entrega -> {
+            if (entrega.getEstadoEntrega().getNombreEstadoEntrega().equals("Programada") || entrega.getEstadoEntrega().getNombreEstadoEntrega().equals("Pendiente")) {
+                return EntregaMobileDTO.builder().repartoId(entrega.getReparto().getId()).fechaEjecucion(entrega.getReparto().getFechaEjecucion()).id(entrega.getId()).ordenVisita(entrega.getOrdenVisita()).observaciones(entrega.getDomicilio().getObservaciones()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(entregaRepo.getMontoTotalByEntrega(entrega.getId())).estado(entrega.getEstadoEntrega().getNombreEstadoEntrega()).build();
+            }
+
+            if (entrega.getEstadoEntrega().getNombreEstadoEntrega().equals("Cancelada")) {
+                return EntregaMobileDTO.builder().repartoId(entrega.getReparto().getId()).fechaEjecucion(entrega.getReparto().getFechaEjecucion()).id(entrega.getId()).ordenVisita(entrega.getOrdenVisita()).observacionesEntrega(entrega.getObservaciones()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(entregaRepo.getMontoTotalByEntrega(entrega.getId())).estado(entrega.getEstadoEntrega().getNombreEstadoEntrega()).build();
+            }
+
+            if (entrega.getEstadoEntrega().getNombreEstadoEntrega().equals("Ausente")) {
+                return EntregaMobileDTO.builder().repartoId(entrega.getReparto().getId()).fechaHoraVisita(entrega.getFechaHoraVisita()).id(entrega.getId()).ordenVisita(entrega.getOrdenVisita()).observacionesEntrega(entrega.getObservaciones()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(entregaRepo.getMontoTotalByEntrega(entrega.getId())).estado(entrega.getEstadoEntrega().getNombreEstadoEntrega()).build();
+            }
+
+            EntregaMobileDTO response = new EntregaMobileDTO();
+            response.setId(entrega.getId());
+            response.setRepartoId(entrega.getReparto().getId());
+            response.setFechaHoraVisita(entrega.getFechaHoraVisita());
+            response.setEstado(entrega.getEstadoEntrega().getNombreEstadoEntrega());
+            response.setDomicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad());
+            response.setNombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido());
+            response.setMontoEntregado(entrega.getMonto());
+            if (entrega.getPago() != null) {
+                response.setMontoRecaudado(entrega.getPago().getTotal());
+                response.setMedioPago(entrega.getPago().getMedioPago().getNombre());
+            }
+            response.setObservacionesEntrega(entrega.getObservaciones());
+            return response;
+        }).collect(Collectors.toList());
     }
 }
 

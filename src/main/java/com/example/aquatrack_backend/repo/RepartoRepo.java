@@ -29,4 +29,15 @@ public interface RepartoRepo extends RepoBase<Reparto> {
     List<Reparto> findRepartosAsignadosHoy(@Param("id_repartidor") Long idRepartidor, @Param("id_estado") Long idEstado);
 
     List<Reparto> findRepartosByRepartidorIdAndEstadoRepartoId(Long idRepartidor, Long idEstadoReparto);
+
+    @Query(value = "SELECT * FROM reparto r JOIN estado_reparto er ON r.estado_reparto_id = er.id JOIN ruta ru ON ru.id = r.ruta_id " +
+            " WHERE " +
+            "(:idEstado IS NULL OR er.id = :idEstado) " +
+            "AND (:idRuta IS NULL OR ru.id = :idRuta) " +
+            "AND (:fechaEjecucionDesde IS NULL OR fecha_ejecucion >= :fechaEjecucionDesde) " +
+            "AND (:fechaEjecucionHasta IS NULL OR fecha_ejecucion <= :fechaEjecucionHasta) " +
+            "AND r.repartidor_id = :idRepartidor " +
+            "ORDER BY r.fecha_ejecucion DESC, er.id, ru.nombre"
+            , nativeQuery = true)
+    List<Reparto> searchMobile(Long idRuta, Long idRepartidor, Long idEstado, LocalDate fechaEjecucionDesde, LocalDate fechaEjecucionHasta);
 }

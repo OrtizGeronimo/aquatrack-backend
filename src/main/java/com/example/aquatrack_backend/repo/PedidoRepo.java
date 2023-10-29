@@ -25,7 +25,7 @@ public interface PedidoRepo extends RepoBase<Pedido> {
             "AND (:fechaCoordinadaDesde IS NULL OR fecha_coordinada_entrega >= :fechaCoordinadaDesde) " +
             "AND (:fechaCoordinadaHasta IS NULL OR fecha_coordinada_entrega <= :fechaCoordinadaHasta) " +
             "AND (:mostrar_inactivos = true OR fecha_fin_vigencia IS NULL)" +
-            "ORDER BY fecha_coordinada_entrega ASC", nativeQuery = true)
+            "ORDER BY fecha_coordinada_entrega ASC", countQuery = "SELECT COUNT(id) FROM pedido", nativeQuery = true)
     Page<Pedido> getAllPedidos(@Param("idEmpresa") Long idEmpresa,
                                Pageable pageable,
                                @Param("mostrar_inactivos") boolean mostrarInactivos,

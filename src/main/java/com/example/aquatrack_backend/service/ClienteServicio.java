@@ -1,10 +1,7 @@
 package com.example.aquatrack_backend.service;
 
 import com.example.aquatrack_backend.dto.*;
-import com.example.aquatrack_backend.exception.ClienteNoValidoException;
-import com.example.aquatrack_backend.exception.EntidadNoValidaException;
-import com.example.aquatrack_backend.exception.RecordNotFoundException;
-import com.example.aquatrack_backend.exception.UserUnauthorizedException;
+import com.example.aquatrack_backend.exception.*;
 import com.example.aquatrack_backend.helpers.UbicacionHelper;
 import com.example.aquatrack_backend.model.*;
 import com.example.aquatrack_backend.repo.*;
@@ -39,6 +36,8 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     @Autowired
     private ProductoRepo productoRepo;
     @Autowired
+    private EntregaRepo entregaRepo;
+    @Autowired
     private EstadoUsuarioRepo estadoUsuarioRepo;
     @Autowired
     private EstadoClienteRepo estadoClienteRepo;
@@ -46,7 +45,9 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     private TipoPedidoRepo tipoPedidoRepo;
     @Autowired
     private PedidoRepo pedidoRepo;
-    private ModelMapper modelMapper = new ModelMapper();
+    @Autowired
+    private EstadoEntregaRepo estadoEntregaRepo;
+    private final ModelMapper modelMapper = new ModelMapper();
 
     @Autowired
     private ClientValidator clientValidator;
@@ -56,7 +57,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     }
 
     public Page<ClienteListDTO> findAll(int page, int size, String texto, boolean mostrarInactivos) {
-        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+        Empresa empresa = getUsuarioFromContext().getPersona().getEmpresa();
         Pageable paging = PageRequest.of(page, size);
         Page<Cliente> clientes = clienteRepo.findAllByEmpresaPaged(empresa.getId(), texto, mostrarInactivos, paging);
         return clienteRepo.findAllByEmpresaPaged(empresa.getId(), texto, mostrarInactivos, paging).map(cliente -> ClienteListDTO.builder().id(cliente.getId()).nombreCompleto(cliente.getNombre() + " " + cliente.getApellido()).fechaCreacion(cliente.getFechaCreacion()).fechaFinVigencia(cliente.getFechaFinVigencia()).dni(cliente.getDni().toString()).direccionEmail(cliente.getUsuario() == null ? "" : cliente.getUsuario().getDireccionEmail()).numTelefono(cliente.getNumTelefono()).domicilio(cliente.getDomicilio() == null ? "" : cliente.getDomicilio().getCalle() + " " + nullableToEmptyString(cliente.getDomicilio().getNumero()) + " " + nullableToEmptyString(cliente.getDomicilio().getPisoDepartamento()) + ", " + nullableToEmptyString(cliente.getDomicilio().getLocalidad())).build());
@@ -129,13 +130,12 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
             Ubicacion ubicacion = domicilio.getUbicacion();
             ubicacionDTO = modelMapper.map(ubicacion, UbicacionDTO.class);
         } else {
-          Deuda deuda = new Deuda();
-          deuda.setMonto(BigDecimal.ZERO);
-          deuda.setMontoMaximo(BigDecimal.valueOf(2000));
-          deuda.setDomicilio(domicilio);
-          domicilio.setDeuda(deuda);
-            clienteNuevo.setEstadoCliente(estadoClienteRepo.findByNombreEstadoCliente("En proceso de creación")
-                    .orElseThrow(() -> new RecordNotFoundException("El estado no fue encontrado.")));
+            Deuda deuda = new Deuda();
+            deuda.setMonto(BigDecimal.ZERO);
+            deuda.setMontoMaximo(BigDecimal.valueOf(2000));
+            deuda.setDomicilio(domicilio);
+            domicilio.setDeuda(deuda);
+            clienteNuevo.setEstadoCliente(estadoClienteRepo.findByNombreEstadoCliente("En proceso de creación").orElseThrow(() -> new RecordNotFoundException("El estado no fue encontrado.")));
         }
         domicilio.setCalle(cliente.getCalle());
         domicilio.setNumero(cliente.getNumero());
@@ -150,7 +150,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
 
     @Transactional
     public ClienteListDTO createFromWeb(GuardarClienteWebDTO cliente) throws ClienteNoValidoException {
-        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+        Empresa empresa = getUsuarioFromContext().getPersona().getEmpresa();
         clientValidator.validateWebClient(cliente, empresa);
 
         Cliente clienteNuevo = new Cliente();
@@ -167,11 +167,11 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
         domicilio.setObservaciones(cliente.getObservaciones());
         domicilio.setLocalidad(cliente.getLocalidad());
 
-      Deuda deuda = new Deuda();
-      deuda.setMonto(BigDecimal.ZERO);
-      deuda.setMontoMaximo(BigDecimal.valueOf(2000));
-      deuda.setDomicilio(domicilio);
-      domicilio.setDeuda(deuda);
+        Deuda deuda = new Deuda();
+        deuda.setMonto(BigDecimal.ZERO);
+        deuda.setMontoMaximo(BigDecimal.valueOf(2000));
+        deuda.setDomicilio(domicilio);
+        domicilio.setDeuda(deuda);
 
         Ubicacion ubicacion = new Ubicacion();
         ubicacion.setLatitud(cliente.getLatitud());
@@ -204,7 +204,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
 
     @Transactional
     public ClienteListDTO updateFromWeb(Long id, GuardarClienteWebDTO cliente) throws RecordNotFoundException, EntidadNoValidaException {
-        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+        Empresa empresa = getUsuarioFromContext().getPersona().getEmpresa();
         Cliente clienteUpdate = clienteRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El cliente solicitado no fue encontrado"));
         clientValidator.validateWebClientUpdate(cliente, empresa);
         clienteUpdate.setNombre(cliente.getNombre());
@@ -378,6 +378,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
         // filtro despues los dias de esta semana pasado el día de hoy
         List<Long> diasSemanaActual = ((Cliente) persona).getDomicilio().getDiaDomicilios().stream().map(dia -> dia.getDiaRuta().getDiaSemana().getId()).filter(d -> (d - idDia) >= 0).sorted(Comparator.naturalOrder()).collect(Collectors.toList());
 
+
         if (!diasSemanaActual.isEmpty()) {
             Long proximoDia = diasSemanaActual.get(0);
             if (proximoDia == idDia) {
@@ -491,5 +492,87 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
         Pedido pedido = pedidoRepo.getClientPedido(((Cliente) persona).getDomicilio().getId()).get();
 
         return GuardarPedidoHabitualMobileDTO.builder().productos(pedido.getPedidoProductos().stream().map(pp -> GuardarClienteWebProductoDTO.builder().idProducto(pp.getProducto().getId()).cantidad(pp.getCantidad()).build()).collect(Collectors.toList())).build();
+    }
+
+    public ClienteEntregaPendienteDTO getEntregaPendienteCliente() throws UserUnauthorizedException {
+        Persona persona = getUsuarioFromContext().getPersona();
+        if (persona instanceof Empleado) {
+            throw new UserUnauthorizedException("Esta funcionalidad es exclusiva para clientes de Aquatrack.");
+        }
+
+        Cliente cliente = (Cliente) persona;
+        Entrega entrega = entregaRepo.entregaActualCliente(cliente.getDomicilio().getId());
+        if (entrega == null) {
+            return ClienteEntregaPendienteDTO.builder().tieneEntrega(false).build();
+        } else {
+            return ClienteEntregaPendienteDTO.builder().tieneEntrega(true).idReparto(entrega.getReparto().getId()).repartidor(entrega.getReparto().getRepartidor().getNombre()).build();
+        }
+    }
+
+    public GoogleDirectionsDTO getUbicacionRepartidor() throws UserUnauthorizedException {
+        Persona persona = getUsuarioFromContext().getPersona();
+        if (persona instanceof Empleado) {
+            throw new UserUnauthorizedException("Esta funcionalidad es exclusiva para clientes de Aquatrack.");
+        }
+
+        Cliente cliente = (Cliente) persona;
+        Entrega entrega = entregaRepo.entregaActualCliente(cliente.getDomicilio().getId());
+        if (entrega != null) {
+            return GoogleDirectionsDTO.builder().latitude(entrega.getReparto().getUbicacion().getLatitud()).longitude(entrega.getReparto().getUbicacion().getLongitud()).build();
+        } else {
+            return null;
+        }
+    }
+
+    public GoogleDirectionsDTO getUbicacionCliente() throws UserUnauthorizedException {
+        Persona persona = getUsuarioFromContext().getPersona();
+        if (persona instanceof Empleado) {
+            throw new UserUnauthorizedException("Esta funcionalidad es exclusiva para clientes de Aquatrack.");
+        }
+
+        Cliente cliente = (Cliente) persona;
+        return GoogleDirectionsDTO.builder().latitude(cliente.getDomicilio().getUbicacion().getLatitud()).longitude(cliente.getDomicilio().getUbicacion().getLongitud()).build();
+    }
+
+    public List<EntregaMobileClienteDTO> getEntregasMobile(LocalDate fechaVisitaDesde, LocalDate fechaVisitaHasta, boolean sinPagar) throws UserUnauthorizedException {
+        Persona persona = getUsuarioFromContext().getPersona();
+        if (persona instanceof Empleado) {
+            throw new UserUnauthorizedException("Esta funcionalidad es exclusiva para clientes de Aquatrack.");
+        }
+
+        Cliente cliente = (Cliente) persona;
+        List<Entrega> entregas = entregaRepo.getEntregasProcesadasCliente(cliente.getDomicilio().getId(), fechaVisitaDesde, fechaVisitaHasta, sinPagar);
+        return entregas.stream().map(entrega -> {
+            EntregaMobileClienteDTO response = new EntregaMobileClienteDTO();
+            response.setId(entrega.getId());
+            response.setMontoEntrega(entrega.getMonto());
+            response.setRepartidor(entrega.getReparto().getRepartidor().getNombre() + " " + entrega.getReparto().getRepartidor().getApellido());
+            response.setFechaHoraVisita(entrega.getFechaHoraVisita());
+            response.setProductosEntregados(entrega.getEntregaDetalles().stream().map(ed -> PedidoProductoDTO.builder().idProducto(ed.getProducto().getId()).nombreProducto(ed.getProducto().getNombre()).cantidad(ed.getCantidadEntregada()).build()).collect(Collectors.toList()));
+            if (!entrega.getPago().getTotal().equals(BigDecimal.ZERO)) {
+                response.setPago(EntregaMobileClientePagoDTO.builder().monto(entrega.getPago().getTotal()).medioPago(entrega.getPago().getMedioPago().getNombre()).build());
+            } else {
+                response.setPago(null);
+            }
+            return response;
+        }).collect(Collectors.toList());
+    }
+
+    public void cancelarEntregaPendiente(CancelarEntregaClienteDTO observaciones) throws UserUnauthorizedException, ValidacionException {
+        Persona persona = getUsuarioFromContext().getPersona();
+        if (persona instanceof Empleado) {
+            throw new UserUnauthorizedException("Esta funcionalidad es exclusiva para clientes de Aquatrack.");
+        }
+
+        Cliente cliente = (Cliente) persona;
+        Entrega entrega = entregaRepo.entregaActualCliente(cliente.getDomicilio().getId());
+        if (entrega == null) {
+            throw new ValidacionException("No tiene ninguna entrega pendiente para cancelar.");
+        }
+
+        EstadoEntrega cancelada = estadoEntregaRepo.findByNombreEstadoEntrega("Cancelada");
+        entrega.setEstadoEntrega(cancelada);
+        entrega.setObservaciones(observaciones.getObservaciones());
+        entregaRepo.save(entrega);
     }
 }

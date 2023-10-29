@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -30,4 +31,20 @@ public interface EntregaRepo extends RepoBase<Entrega> {
             "\tGROUP BY pr.id\n" +
             ") precios", nativeQuery = true)
     BigDecimal getMontoTotalByEntrega(@Param("id_entrega") Long idEntrega);
+
+    @Query(value = "SELECT * FROM entrega e \n" +
+            "JOIN reparto r ON e.reparto_id = r.id \n" +
+            "WHERE date(r.fecha_ejecucion) = CURRENT_DATE \n" +
+            "AND r.estado_reparto_id = 3\n" +
+            "AND e.domicilio_id = :id\n" +
+            "AND e.estado_entrega_id = 2 LIMIT 1", nativeQuery = true)
+    Entrega entregaActualCliente(Long id);
+
+    @Query(value = "SELECT * FROM entrega e INNER JOIN pago p ON e.pago_id = p.id " +
+            "WHERE e.domicilio_id = :idDomicilio " +
+            "AND (:fechaVisitaDesde IS NULL OR fecha_hora_visita >= :fechaVisitaDesde) " +
+            "AND (:fechaVisitaHasta IS NULL OR fecha_hora_visita <= :fechaVisitaHasta) " +
+            "AND (:sinPagar = false OR p.total = 0) " +
+            "AND e.estado_entrega_id = 3 ORDER BY fecha_hora_visita DESC", nativeQuery = true)
+    List<Entrega> getEntregasProcesadasCliente(Long idDomicilio, LocalDate fechaVisitaDesde, LocalDate fechaVisitaHasta, boolean sinPagar);
 }

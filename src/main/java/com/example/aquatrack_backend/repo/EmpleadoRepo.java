@@ -18,7 +18,7 @@ public interface EmpleadoRepo extends RepoBase<Empleado> {
             "JOIN tipo_empleado t ON t.id = e.tipo_id " +
             "WHERE e.empresa_id = :empresaId " +
             "AND (:nombre IS NULL OR e.nombre LIKE %:nombre% OR e.apellido LIKE %:nombre%) " +
-            "AND (:mostrarInactivos = true OR e.fecha_fin_vigencia IS NULL)",
+            "AND (:mostrarInactivos = true OR e.fecha_fin_vigencia IS NULL)", countQuery = "SELECT COUNT(id) FROM empleado",
             nativeQuery = true)
     Page<Empleado> findAllByEnterprise(Long empresaId, String nombre, boolean mostrarInactivos, Pageable pageable);
 
@@ -31,8 +31,8 @@ public interface EmpleadoRepo extends RepoBase<Empleado> {
     List<Empleado> findAllByEmpresaId(Long id);
 
     @Query(value = "SELECT DISTINCT e.* FROM empleado e " +
-            "LEFT JOIN reparto r ON r.repartidor_id = e.id " +
-            "WHERE e.tipo_id = 2 AND r.estado_reparto_id != 3 AND e.empresa_id = :id_empresa AND e.fecha_fin_vigencia IS NULL",
+            "LEFT JOIN reparto r ON r.repartidor_id = e.id AND r.estado_reparto_id != 3 " +
+            "WHERE e.tipo_id = 2 AND e.empresa_id = :id_empresa AND e.fecha_fin_vigencia IS NULL",
             nativeQuery = true
     )
     List<Empleado> findRepartidoresLibres(@Param("id_empresa") Long idEmpresa);

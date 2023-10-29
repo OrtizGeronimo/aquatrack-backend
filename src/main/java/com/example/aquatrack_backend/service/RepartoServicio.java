@@ -103,7 +103,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         dto.setLongitudInicio(empresa.getUbicacion().getLongitud());
         return dto;
     }
-    
+
     public RepartoParametroDTO getParametrosReparto() {
         RepartoParametroDTO response = new RepartoParametroDTO();
 
@@ -379,15 +379,11 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
     public Page<ListarRepartosDTO> listarRepartos(Long estado, Long idRepartidor, Long idRuta, LocalDate fechaEjecucionDesde, LocalDate fechaEjecucionHasta, int page, int size) throws RecordNotFoundException {
 
-        Pageable pageable = PageRequest.of(page, size/*, Sort.by("er.id, ru.nombre")*/);
+        Pageable pageable = PageRequest.of(page, size);
 
         Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
 
         Page<Reparto> repartos = repartoRepo.search(empresa.getId(), idRuta, idRepartidor, estado, fechaEjecucionDesde, fechaEjecucionHasta, pageable);
-
-//        if (repartos == null || repartos.isEmpty()){
-//            return null;
-//        }
 
         Page<ListarRepartosDTO> response = repartos.map(reparto -> {
             ListarRepartosDTO dto = new ListarRepartosDTO();

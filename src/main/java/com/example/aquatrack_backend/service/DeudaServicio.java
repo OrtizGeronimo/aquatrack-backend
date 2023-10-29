@@ -33,11 +33,11 @@ public class DeudaServicio extends ServicioBaseImpl<Deuda> {
         super(repoBase);
     }
 
-    public DeudaDTO detalleDeudaMobile() {
-        Deuda deudaActual = ((Cliente) getUsuarioFromContext().getPersona()).getDomicilio().getDeuda();
+    public DeudaDTO detalleDeudaMobile() throws RecordNotFoundException {
+        Cliente cliente = clienteRepo.findById(((Cliente) getUsuarioFromContext().getPersona()).getId()).orElseThrow(() -> new RecordNotFoundException("No se encontró un cliente con el id"));
 
+        Deuda deudaActual = cliente.getDomicilio().getDeuda();
         DeudaDTO response = mapearDeuda(deudaActual);
-
 
         return response;
     }

@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface ProductoRepo extends RepoBase<Producto> {
 
-    @Query(value = "SELECT * FROM producto " + "INNER JOIN precio pr ON producto.id = pr.producto_id " + "WHERE :id = producto.empresa_id " + "AND pr.fecha_fin_vigencia is NULL " + "AND (producto.fecha_fin_vigencia is NULL or :mostrarInactivos = true) " + "AND (:mostrar_retornables = false OR producto.retornable = 1) " + "AND (:nombre IS NULL OR producto.nombre LIKE %:nombre%) " + "AND :precio1 <= pr.precio AND :precio2 >= pr.precio " + "ORDER BY producto.id", nativeQuery = true)
+    @Query(value = "SELECT * FROM producto " + "INNER JOIN precio pr ON producto.id = pr.producto_id " + "WHERE :id = producto.empresa_id " + "AND pr.fecha_fin_vigencia is NULL " + "AND (producto.fecha_fin_vigencia is NULL or :mostrarInactivos = true) " + "AND (:mostrar_retornables = false OR producto.retornable = 1) " + "AND (:nombre IS NULL OR producto.nombre LIKE %:nombre%) " + "AND :precio1 <= pr.precio AND :precio2 >= pr.precio " + "ORDER BY producto.id", countQuery = "SELECT COUNT(id) FROM producto", nativeQuery = true)
     Page<Producto> getProductosActivos(Long id, String nombre, boolean mostrarInactivos, boolean mostrar_retornables, int precio1, int precio2, Pageable pageable);
 
     @Query(value = "SELECT * FROM producto " + "WHERE codigo LIKE %:code% " + "AND empresa_id = :id", nativeQuery = true)

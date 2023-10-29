@@ -12,21 +12,11 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ListarRepartosDTO {
-
+public class ListarRepartoMobileDTO {
     private Long id;
-    private Long idRuta;
-    private String repartidor;
     private String estado;
     private Integer cantEntregas;
+    private String ruta;
     @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
     private LocalDateTime fechaEjecucion;
-    @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
-    private LocalDateTime fechaHoraInicio;
-    @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
-    private LocalDateTime fechaHoraFin;
-    private double latitudInicio;
-    private double longitudInicio;
-    private String nombreRuta;
-    private String observaciones;
 }

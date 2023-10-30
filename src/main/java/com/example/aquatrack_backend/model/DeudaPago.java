@@ -3,12 +3,7 @@ package com.example.aquatrack_backend.model;
 
 import java.math.BigDecimal;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,7 +24,7 @@ public class DeudaPago {
     @ManyToOne()
     private Deuda deuda;
 
-    @ManyToOne()
+    @OneToOne()
     private Pago pago;
 
 }

@@ -46,6 +46,8 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
     @Autowired
     private PedidoRepo pedidoRepo;
     @Autowired
+    private DomicilioProductoRepo domicilioProductoRepo;
+    @Autowired
     private EstadoEntregaRepo estadoEntregaRepo;
     private final ModelMapper modelMapper = new ModelMapper();
 
@@ -259,6 +261,13 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
                 pedido.setPedidoProductos(new ArrayList<>());
                 pedido.setTipoPedido(pedidoHabitualTipo);
                 for (GuardarClienteWebProductoDTO producto : cliente.getProductos()) {
+                    Optional<DomicilioProducto> dp = clienteUpdate.getDomicilio().getProductoDomicilios().stream().filter(pd -> pd.getProducto().getId() == producto.getIdProducto()).findFirst();
+                    if (dp.isPresent()) {
+                        if (dp.get().getCantidadDevolver() != null && dp.get().getCantidadDevolver() > 0 && dp.get().getCantidad() >= producto.getCantidad()) {
+                            dp.get().setCantidadDevolver(dp.get().getCantidad() - producto.getCantidad());
+                            domicilioProductoRepo.save(dp.get());
+                        }
+                    }
                     PedidoProducto pedidoProducto = new PedidoProducto();
                     Producto productoToAdd = productoRepo.findProductoById(producto.getIdProducto());
                     pedidoProducto.setProducto(productoToAdd);
@@ -467,6 +476,13 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
         pedidoNuevo.setPedidoProductos(new ArrayList<>());
         pedidoNuevo.setTipoPedido(pedidoHabitual);
         for (GuardarClienteWebProductoDTO producto : pedido.getProductos()) {
+            Optional<DomicilioProducto> dp = cliente.getDomicilio().getProductoDomicilios().stream().filter(pd -> pd.getProducto().getId() == producto.getIdProducto()).findFirst();
+            if (dp.isPresent()) {
+                if (dp.get().getCantidadDevolver() != null && dp.get().getCantidadDevolver() > 0 && dp.get().getCantidad() >= producto.getCantidad()) {
+                    dp.get().setCantidadDevolver(dp.get().getCantidad() - producto.getCantidad());
+                    domicilioProductoRepo.save(dp.get());
+                }
+            }
             PedidoProducto pedidoProducto = new PedidoProducto();
             Producto productoToAdd = productoRepo.findProductoById(producto.getIdProducto());
             pedidoProducto.setProducto(productoToAdd);

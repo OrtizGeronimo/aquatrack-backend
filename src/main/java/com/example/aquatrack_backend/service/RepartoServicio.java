@@ -9,11 +9,13 @@ import com.example.aquatrack_backend.exception.UserUnauthorizedException;
 import com.example.aquatrack_backend.exception.ValidacionException;
 import com.example.aquatrack_backend.model.*;
 import com.example.aquatrack_backend.repo.*;
+import com.example.aquatrack_backend.reports.ReporteReparto;
 import com.google.ortools.Loader;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -649,6 +651,16 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         }
 
         return GoogleDirectionsDTO.builder().latitude(reparto.getUbicacion().getLatitud()).longitude(reparto.getUbicacion().getLongitud()).build();
+    }
+
+    public InputStreamResource reporte(Long id) throws RecordNotFoundException, ValidacionException {
+        Reparto reparto = repartoRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El id del reparto ingresado no corresponde a uno existente"));
+
+        if (reparto.getEstadoReparto().getId() != 4 && reparto.getEstadoReparto().getId() != 6){
+            throw new ValidacionException("Solo se pueden realizar reportes de repartos Finalizados o Incompletos");
+        }
+
+        return new InputStreamResource(ReporteReparto.generarReporte(reparto));
     }
 }
 

@@ -1,12 +1,12 @@
 package com.example.aquatrack_backend.dto;
 
-import java.time.LocalDateTime;
-import java.math.BigDecimal;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -20,4 +20,6 @@ public class ProductoDTO {
     private LocalDateTime fechaFinVigencia;
     private String codigo;
     private String imagen;
+    private Integer maximo;
+    private Boolean retornable;
 }

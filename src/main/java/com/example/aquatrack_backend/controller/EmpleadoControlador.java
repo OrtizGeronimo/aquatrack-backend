@@ -2,6 +2,7 @@ package com.example.aquatrack_backend.controller;
 
 import com.example.aquatrack_backend.dto.EditarRepartidorMobileDTO;
 import com.example.aquatrack_backend.dto.GuardarEmpleadoDTO;
+import com.example.aquatrack_backend.exception.EntidadNoValidaException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.UserUnauthorizedException;
 import com.example.aquatrack_backend.helpers.ValidationHelper;
@@ -34,7 +35,7 @@ public class EmpleadoControlador {
 
     @PostMapping(value = "")
     @PreAuthorize("hasAuthority('CREAR_EMPLEADOS')")
-    public ResponseEntity<?> create(@RequestBody GuardarEmpleadoDTO empleado) throws RecordNotFoundException {
+    public ResponseEntity<?> create(@RequestBody GuardarEmpleadoDTO empleado) throws RecordNotFoundException, EntidadNoValidaException {
         if (validationHelper.hasValidationErrors(empleado)) {
             return ResponseEntity.badRequest().body(validationHelper.getValidationErrors(empleado));
         }
@@ -43,7 +44,7 @@ public class EmpleadoControlador {
 
     @PutMapping(value = "/{id}")
     @PreAuthorize("hasAuthority('EDITAR_EMPLEADOS')")
-    public ResponseEntity<?> update(@RequestBody GuardarEmpleadoDTO empleado, @PathVariable("id") Long id) throws RecordNotFoundException {
+    public ResponseEntity<?> update(@RequestBody GuardarEmpleadoDTO empleado, @PathVariable("id") Long id) throws RecordNotFoundException, EntidadNoValidaException {
         if (validationHelper.hasValidationErrors(empleado)) {
             return ResponseEntity.badRequest().body(validationHelper.getValidationErrors(empleado));
         }

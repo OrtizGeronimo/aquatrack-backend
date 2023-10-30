@@ -1,14 +1,14 @@
 package com.example.aquatrack_backend.dto;
 
-import java.util.List;
-import java.math.BigDecimal;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 
 @Data
 @Builder
@@ -16,16 +16,21 @@ import javax.validation.constraints.*;
 @AllArgsConstructor
 public class GuardarProductoDTO {
 
-  @NotBlank()
-  private String nombre;
+    @NotBlank()
+    private String nombre;
 
-  private String descripcion;
+    private String descripcion;
 
-  @NotNull()
-  private BigDecimal precio;
+    @NotNull()
+    private BigDecimal precio;
 
-  private String imagen;
+    private String imagen;
 
-  private String codigo;
-  
+    private Boolean retornable;
+
+    @NotBlank
+    private String codigo;
+
+    @Min(value = 1, message = "La cantidad máxima de un producto solicitable por un cliente debe ser al menos una unidad.")
+    private Integer maximo;
 }

@@ -13,7 +13,7 @@ public class DeudaControlador {
     @Autowired
     private DeudaServicio deudaServicio;
 
-    @GetMapping("")
+    @GetMapping("/mobile")
 //    @PreAuthorize("hasAuthority('LISTAR_DEUDAS')")
     public ResponseEntity<?> detallarDeudaMobile() throws RecordNotFoundException {
         return ResponseEntity.ok().body(deudaServicio.detalleDeudaMobile());

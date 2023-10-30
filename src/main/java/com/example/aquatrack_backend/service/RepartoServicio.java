@@ -26,10 +26,10 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
@@ -42,7 +42,14 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
     private RepartoRepo repartoRepo;
 
     @Autowired
+    private DomicilioServicio domicilioServicio;
+
+    @Autowired
     private RutaRepo rutaRepo;
+
+    @Autowired
+    private DomicilioRepo domicilioRepo;
+
 
     @Autowired
     private EstadoRepartoRepo estadoRepartoRepo;
@@ -178,24 +185,25 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         Ruta ruta = rutaRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("La ruta no fue encontrada"));
 
         LocalDateTime now = LocalDateTime.now();
+        LocalDate localDate = LocalDate.now();
 
         DayOfWeek dayOfWeek = now.getDayOfWeek();
 
         int idDia = dayOfWeek.getValue();
 
         List<Entrega> entregasARepartir = new ArrayList<>();
-        for(DiaRuta dia : ruta.getDiaRutas()){
-          if(dia.getDiaSemana().getId() == idDia){
-            for (DiaDomicilio diaDomicilio : dia.getDiaDomicilios()) {
-              if(diaDomicilio.getDomicilio().getFechaFinVigencia() == null){
-                Entrega entrega = new Entrega();
-                Domicilio domicilio = diaDomicilio.getDomicilio();
-                entrega.setDomicilio(domicilio);
-                entregasARepartir.add(entrega);
-              }
+        for (DiaRuta dia : ruta.getDiaRutas()) {
+            if (dia.getDiaSemana().getId() == idDia) {
+                for (DiaDomicilio diaDomicilio : dia.getDiaDomicilios()) {
+                    if (diaDomicilio.getDomicilio().getFechaFinVigencia() == null) {
+                        Entrega entrega = new Entrega();
+                        Domicilio domicilio = diaDomicilio.getDomicilio();
+                        entrega.setDomicilio(domicilio);
+                        entregasARepartir.add(entrega);
+                    }
+                }
+                break;
             }
-            break;
-          }
         }
 
         EstadoReparto estadoAnticipado = estadoRepartoRepo.findByNombre("Anticipado");
@@ -204,8 +212,8 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
 
         List<Entrega> entregasExistentes = new ArrayList<>();
 
-        for (Reparto repartoExistente: ruta.getRepartos()) {
-            if (repartoExistente.getEstadoReparto().equals(estadoAnticipado) && repartoExistente.getFechaEjecucion().equals(now)){
+        for (Reparto repartoExistente : ruta.getRepartos()) {
+            if (repartoExistente.getEstadoReparto().equals(estadoAnticipado) && repartoExistente.getFechaEjecucion().equals(now)) {
                 reparto = repartoExistente;
                 entregasExistentes = reparto.getEntregas();
             }
@@ -230,7 +238,22 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
             entrega.setEstadoEntrega(estadoEntrega);
             entrega.setReparto(reparto);
             entrega.setOrdenVisita(i);
+
+            EntregaPedido entregaPedido = new EntregaPedido();
+            entregaPedido.setEntrega(entrega);
+            entregaPedido.setPedido(domicilioServicio.getPedidoHabitual(entrega.getDomicilio()));
+            entrega.setEntregaPedidos(new ArrayList<>());
+            entrega.getEntregaPedidos().add(entregaPedido);
+
+            for (Pedido pedido : entrega.getDomicilio().getPedidos().stream().filter(pedido -> pedido.getTipoPedido().getId() != 1 && pedido.getFechaCoordinadaEntrega().equals(localDate)).collect(Collectors.toList())) {
+                entregaPedido = new EntregaPedido();
+                entregaPedido.setPedido(pedido);
+                entregaPedido.setEntrega(entrega);
+                entrega.getEntregaPedidos().add(entregaPedido);
+            }
+
             entregas.add(entrega);
+
         }
 
         reparto.setEntregas(entregas);
@@ -240,6 +263,43 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         return mapper.map(reparto, RepartoDTO.class);
 
     }
+
+/*    @Transactional
+    public boolean crearRepartoAnticipado(Long idRuta, LocalDateTime fechaPedido, Domicilio domicilio) throws RecordNotFoundException{
+
+        Reparto reparto = new Reparto();
+        Entrega entrega = new Entrega();
+
+        Ruta ruta = rutaRepo.findById(idRuta).orElseThrow(() -> new RecordNotFoundException("La ruta no fue encontrada"));
+        List<Reparto> repartosAnticipados = ruta.getRepartos().stream()
+                .filter(rep -> rep.getEstadoReparto().getNombre().equalsIgnoreCase("Anticipado"))
+                .collect(Collectors.toList());
+
+        List<Entrega> entregas = new ArrayList<>();
+        for (Reparto r: repartosAnticipados) {
+            if (r.getFechaEjecucion().equals(fechaPedido)) {
+                reparto = r;
+                entregas = r.getEntregas();
+                break;
+            }
+        }
+
+        entrega.setDomicilio(domicilio);
+        entrega.setReparto(reparto);
+        entrega.setEstadoEntrega(estadoEntregaRepo.findByNombreEstadoEntrega("Programada"));
+        entregas.add(entrega);
+        reparto.setEntregas(entregas);
+
+        reparto.setFechaEjecucion(fechaPedido);
+        reparto.setEstadoReparto(estadoRepartoRepo.findByNombre("Anticipado"));
+
+        if(reparto.getRuta() == null){
+            reparto.setRuta(ruta);
+        }
+
+        repartoRepo.save(reparto);
+        return true;
+    }*/
 
     private List<Entrega> calcularRutaOptima(List<Entrega> domicilioRutas, Ruta ruta) throws ValidacionException {
         String apiKey = bingMapsConfig.getApiKey();
@@ -289,7 +349,11 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
             List<Entrega> ubicacionesOrdenadas = new ArrayList<>();
 
             JSONObject jsonResponse = new JSONObject(response.toString());
-            JSONArray coordinates = jsonResponse.getJSONArray("resourceSets").getJSONObject(0).getJSONArray("resources").getJSONObject(0).getJSONArray("waypointsOrder");
+            JSONArray coordinates = jsonResponse.getJSONArray("resourceSets")
+                    .getJSONObject(0)
+                    .getJSONArray("resources")
+                    .getJSONObject(0)
+                    .getJSONArray("waypointsOrder");
 
             for (int i = 1; i <= coordinates.length() - 2; i++) {
                 String coordenada = coordinates.getString(i);
@@ -315,17 +379,13 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
     }
 
 
-    public Page<ListarRepartosDTO> listarRepartos(Long estado, Long idRepartidor, Long idRuta, int page, int size) throws RecordNotFoundException {
+    public Page<ListarRepartosDTO> listarRepartos(Long estado, Long idRepartidor, Long idRuta, LocalDate fechaEjecucionDesde, LocalDate fechaEjecucionHasta, int page, int size) throws RecordNotFoundException {
 
-        Pageable pageable = PageRequest.of(page, size/*, Sort.by("er.id, ru.nombre")*/);
+        Pageable pageable = PageRequest.of(page, size);
 
         Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
 
-        Page<Reparto> repartos = repartoRepo.search(empresa.getId(), idRuta, idRepartidor, estado, pageable);
-
-//        if (repartos == null || repartos.isEmpty()){
-//            return null;
-//        }
+        Page<Reparto> repartos = repartoRepo.search(empresa.getId(), idRuta, idRepartidor, estado, fechaEjecucionDesde, fechaEjecucionHasta, pageable);
 
         Page<ListarRepartosDTO> response = repartos.map(reparto -> {
             ListarRepartosDTO dto = new ListarRepartosDTO();
@@ -582,7 +642,14 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
             return new ArrayList<EntregaMobileDTO>();
         }
 
-        return entregas.stream().map(entrega -> EntregaMobileDTO.builder().id(entrega.getId()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(BigDecimal.valueOf(420.3)).observaciones(entrega.getDomicilio().getObservaciones()).build()).collect(Collectors.toList());
+        return entregas.stream()
+                .map(entrega -> EntregaMobileDTO.builder()
+                        .id(entrega.getId())
+                        .ordenVisita(entrega.getOrdenVisita())
+                        .nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido())
+                        .domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad())
+                        .montoRecaudar(entregaRepo.getMontoTotalByEntrega(entrega.getId()))
+                        .observaciones(entrega.getDomicilio().getObservaciones()).build()).collect(Collectors.toList());
     }
 
     public List<GoogleDirectionsDTO> getUbicaciones(Long idReparto) throws ValidacionException, RecordNotFoundException {
@@ -608,7 +675,34 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         }
 
         List<Entrega> entregas = reparto.getEntregas().stream().sorted(Comparator.comparing(Entrega::getOrdenVisita)).collect(Collectors.toList());
-        return entregas.stream().map(entrega -> EntregaMobileDTO.builder().id(entrega.getId()).observaciones(entrega.getDomicilio().getObservaciones()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(BigDecimal.valueOf(420.3)).estado(entrega.getEstadoEntrega().getNombreEstadoEntrega()).build()).collect(Collectors.toList());
+        return entregas.stream().map(entrega -> {
+            if (entrega.getEstadoEntrega().getNombreEstadoEntrega().equals("Programada") || entrega.getEstadoEntrega().getNombreEstadoEntrega().equals("Pendiente")) {
+                return EntregaMobileDTO.builder().repartoId(entrega.getReparto().getId()).fechaEjecucion(entrega.getReparto().getFechaEjecucion()).id(entrega.getId()).ordenVisita(entrega.getOrdenVisita()).observaciones(entrega.getDomicilio().getObservaciones()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(entregaRepo.getMontoTotalByEntrega(entrega.getId())).estado(entrega.getEstadoEntrega().getNombreEstadoEntrega()).build();
+            }
+
+            if (entrega.getEstadoEntrega().getNombreEstadoEntrega().equals("Cancelada")) {
+                return EntregaMobileDTO.builder().repartoId(entrega.getReparto().getId()).fechaEjecucion(entrega.getReparto().getFechaEjecucion()).id(entrega.getId()).ordenVisita(entrega.getOrdenVisita()).observacionesEntrega(entrega.getObservaciones()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(entregaRepo.getMontoTotalByEntrega(entrega.getId())).estado(entrega.getEstadoEntrega().getNombreEstadoEntrega()).build();
+            }
+
+            if (entrega.getEstadoEntrega().getNombreEstadoEntrega().equals("Ausente")) {
+                return EntregaMobileDTO.builder().repartoId(entrega.getReparto().getId()).fechaHoraVisita(entrega.getFechaHoraVisita()).id(entrega.getId()).ordenVisita(entrega.getOrdenVisita()).observacionesEntrega(entrega.getObservaciones()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(entregaRepo.getMontoTotalByEntrega(entrega.getId())).estado(entrega.getEstadoEntrega().getNombreEstadoEntrega()).build();
+            }
+
+            EntregaMobileDTO response = new EntregaMobileDTO();
+            response.setId(entrega.getId());
+            response.setRepartoId(entrega.getReparto().getId());
+            response.setFechaHoraVisita(entrega.getFechaHoraVisita());
+            response.setEstado(entrega.getEstadoEntrega().getNombreEstadoEntrega());
+            response.setDomicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad());
+            response.setNombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido());
+            response.setMontoEntregado(entrega.getMonto());
+            if (entrega.getPago() != null) {
+                response.setMontoRecaudado(entrega.getPago().getTotal());
+                response.setMedioPago(entrega.getPago().getMedioPago().getNombre());
+            }
+            response.setObservacionesEntrega(entrega.getObservaciones());
+            return response;
+        }).collect(Collectors.toList());
     }
 
     private String formatAddress(String calle, Integer numero, String piso) {
@@ -661,6 +755,50 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
         }
 
         return new InputStreamResource(ReporteReparto.generarReporte(reparto));
+    }
+    public List<ListarRepartoMobileDTO> listarRepartosMobile(Long ruta, Long estado, LocalDate fechaEjecucionDesde, LocalDate fechaEjecucionHasta) throws UserUnauthorizedException {
+        Persona persona = getUsuarioFromContext().getPersona();
+        Empleado repartidor = (Empleado) persona;
+        if (persona instanceof Cliente || !repartidor.getTipo().getNombre().equals("Repartidor")) {
+            throw new UserUnauthorizedException("Esta funcionalidad es exclusiva para repartidores.");
+        }
+
+        List<Reparto> repartos = repartoRepo.searchMobile(ruta, repartidor.getId(), estado, fechaEjecucionDesde, fechaEjecucionHasta);
+        return repartos.stream().map(r -> ListarRepartoMobileDTO.builder().id(r.getId()).ruta(r.getRuta().getNombre()).cantEntregas(r.getEntregas().size()).fechaEjecucion(r.getFechaEjecucion()).estado(r.getEstadoReparto().getNombre()).build()).collect(Collectors.toList());
+    }
+
+    public List<EntregaMobileDTO> getEntregasMobile(Long idReparto) throws ValidacionException, RecordNotFoundException {
+        Reparto reparto = repartoRepo.findById(idReparto).orElseThrow(() -> new RecordNotFoundException("El id del reparto ingresado no corresponde a uno existente"));
+
+        List<Entrega> entregas = reparto.getEntregas().stream().sorted(Comparator.comparing(Entrega::getOrdenVisita)).collect(Collectors.toList());
+        return entregas.stream().map(entrega -> {
+            if (entrega.getEstadoEntrega().getNombreEstadoEntrega().equals("Programada") || entrega.getEstadoEntrega().getNombreEstadoEntrega().equals("Pendiente")) {
+                return EntregaMobileDTO.builder().repartoId(entrega.getReparto().getId()).fechaEjecucion(entrega.getReparto().getFechaEjecucion()).id(entrega.getId()).ordenVisita(entrega.getOrdenVisita()).observaciones(entrega.getDomicilio().getObservaciones()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(entregaRepo.getMontoTotalByEntrega(entrega.getId())).estado(entrega.getEstadoEntrega().getNombreEstadoEntrega()).build();
+            }
+
+            if (entrega.getEstadoEntrega().getNombreEstadoEntrega().equals("Cancelada")) {
+                return EntregaMobileDTO.builder().repartoId(entrega.getReparto().getId()).fechaEjecucion(entrega.getReparto().getFechaEjecucion()).id(entrega.getId()).ordenVisita(entrega.getOrdenVisita()).observacionesEntrega(entrega.getObservaciones()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(entregaRepo.getMontoTotalByEntrega(entrega.getId())).estado(entrega.getEstadoEntrega().getNombreEstadoEntrega()).build();
+            }
+
+            if (entrega.getEstadoEntrega().getNombreEstadoEntrega().equals("Ausente")) {
+                return EntregaMobileDTO.builder().repartoId(entrega.getReparto().getId()).fechaHoraVisita(entrega.getFechaHoraVisita()).id(entrega.getId()).ordenVisita(entrega.getOrdenVisita()).observacionesEntrega(entrega.getObservaciones()).nombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido()).domicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad()).montoRecaudar(entregaRepo.getMontoTotalByEntrega(entrega.getId())).estado(entrega.getEstadoEntrega().getNombreEstadoEntrega()).build();
+            }
+
+            EntregaMobileDTO response = new EntregaMobileDTO();
+            response.setId(entrega.getId());
+            response.setRepartoId(entrega.getReparto().getId());
+            response.setFechaHoraVisita(entrega.getFechaHoraVisita());
+            response.setEstado(entrega.getEstadoEntrega().getNombreEstadoEntrega());
+            response.setDomicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad());
+            response.setNombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido());
+            response.setMontoEntregado(entrega.getMonto());
+            if (entrega.getPago() != null) {
+                response.setMontoRecaudado(entrega.getPago().getTotal());
+                response.setMedioPago(entrega.getPago().getMedioPago().getNombre());
+            }
+            response.setObservacionesEntrega(entrega.getObservaciones());
+            return response;
+        }).collect(Collectors.toList());
     }
 }
 

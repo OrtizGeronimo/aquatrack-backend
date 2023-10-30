@@ -1,6 +1,7 @@
 package com.example.aquatrack_backend.controller;
 
 import com.example.aquatrack_backend.dto.UbicacionDTO;
+import com.example.aquatrack_backend.exception.ValidacionException;
 import com.example.aquatrack_backend.service.CoberturaServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,20 +18,26 @@ public class CoberturaControlador {
     @Autowired
     CoberturaServicio coberturaServicio;
 
+    @GetMapping("/ubicaciones")
+    @PreAuthorize("hasAuthority('DETALLAR_COBERTURAS')")
+    public ResponseEntity<?> ubicacionesCubiertas() throws Exception {
+        return ResponseEntity.status(HttpStatus.OK).body(coberturaServicio.ubicacionesCubiertas());
+    }
+
     @GetMapping("")
     @PreAuthorize("hasAuthority('DETALLAR_COBERTURAS')")
-    public ResponseEntity<?> verCobertura() throws Exception{
+    public ResponseEntity<?> verCobertura() throws Exception {
         return ResponseEntity.status(HttpStatus.OK).body(coberturaServicio.verCobertura());
     }
 
     @PostMapping("")
     @PreAuthorize("hasAuthority('CREAR_COBERTURAS')")
-    public ResponseEntity<?> crearCobertura(@RequestBody List<UbicacionDTO> vertices) {
+    public ResponseEntity<?> crearCobertura(@RequestBody List<UbicacionDTO> vertices) throws ValidacionException {
         return ResponseEntity.status(HttpStatus.OK).body(coberturaServicio.guardarCobertura(vertices));
     }
 
     @GetMapping("/conocer_cercana")
-    public ResponseEntity<?> conocerCoberturaCercana(@RequestParam double latitud, @RequestParam double longitud) throws Exception{
-      return ResponseEntity.status(HttpStatus.OK).body(coberturaServicio.conocerCobertura(latitud, longitud));
+    public ResponseEntity<?> conocerCoberturaCercana(@RequestParam double latitud, @RequestParam double longitud) throws Exception {
+        return ResponseEntity.status(HttpStatus.OK).body(coberturaServicio.conocerCobertura(latitud, longitud));
     }
 }

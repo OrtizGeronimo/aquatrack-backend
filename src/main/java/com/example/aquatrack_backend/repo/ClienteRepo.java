@@ -1,6 +1,7 @@
 package com.example.aquatrack_backend.repo;
 
 import com.example.aquatrack_backend.model.Cliente;
+import com.example.aquatrack_backend.model.Empresa;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
@@ -27,6 +28,8 @@ public interface ClienteRepo extends RepoBase<Cliente> {
             " AND fecha_fin_vigencia IS NULL",
             nativeQuery = true)
     List<Cliente> findAllByEmpresa(@Param("idEmpresa") Long empresaId);
+
+    List<Cliente> findClientesByEmpresa(Empresa empresa);
 
     @Query(value = "SELECT count(*) as clientes FROM cliente c " +
             "WHERE c.dni = :dni AND c.empresa_id = :empresaId", nativeQuery = true)

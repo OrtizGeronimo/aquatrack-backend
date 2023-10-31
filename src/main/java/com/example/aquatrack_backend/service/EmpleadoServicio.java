@@ -129,7 +129,7 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
     public EmpleadoDTO update(Long id, GuardarEmpleadoDTO empleado) throws RecordNotFoundException, EntidadNoValidaException {
         Empleado empleadoExistente = empleadoRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El empleado no fue encontrado"));
 
-        if (empleado.getUsuario().getDireccionEmail() != empleadoExistente.getUsuario().getDireccionEmail() && usuarioRepo.findByDireccionEmail(empleado.getUsuario().getDireccionEmail()).isPresent()) {
+        if (!empleado.getUsuario().getDireccionEmail().equals(empleadoExistente.getUsuario().getDireccionEmail()) && usuarioRepo.findByDireccionEmail(empleado.getUsuario().getDireccionEmail()).isPresent()) {
             HashMap<String, String> errors = new HashMap<>();
             errors.put("usuario.direccionEmail", "Ya existe un usuario con la dirección de mail ingresada.");
             throw new EntidadNoValidaException(errors);

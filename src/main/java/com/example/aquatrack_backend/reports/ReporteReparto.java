@@ -129,6 +129,10 @@ public class ReporteReparto {
             balanceHeaderCell.setCellStyle(dataStyleBold);
             balanceHeaderCell.setCellValue("Balance");
 
+            Cell observacionesEntregaCell = tableHeaderRow.createCell(6);
+            observacionesEntregaCell.setCellStyle(dataStyleBold);
+            observacionesEntregaCell.setCellValue("Observaciones de la entrega");
+
             int index = 9;
 
             int cantidadAusentes = 0;
@@ -168,9 +172,13 @@ public class ReporteReparto {
                 balanceCell.setCellStyle(dataStyle);
 //                balanceCell.setCellValue(entrega.getPago().getDeudaPago().getMontoAdeudadoPago().toString());
 
+                Cell observacionesEntrega = entregaRow.createCell(6);
+                observacionesEntrega.setCellStyle(dataStyle);
+
                 if (encontrado){
                     totalCell.setCellValue("$" + entrega.getMonto().toString());
                     payCell.setCellValue("$" + entrega.getPago().getTotal().toString());
+                    observacionesEntrega.setCellValue(entrega.getObservaciones());
                     if (entrega.getPago().getDeudaPago().getMontoAdeudadoPago().compareTo(BigDecimal.ZERO) > 0){
                         balanceCell.setCellStyle(redStyle);
                         balanceCell.setCellValue("$" + entrega.getPago().getDeudaPago().getMontoAdeudadoPago().toString());
@@ -186,6 +194,7 @@ public class ReporteReparto {
                     totalCell.setCellValue(" - ");
                     payCell.setCellValue(" - ");
                     balanceCell.setCellValue(" - ");
+                    observacionesEntrega.setCellValue(" - ");
                 }
 
             }
@@ -219,6 +228,7 @@ public class ReporteReparto {
             sheet.createRow(index++);
 
             Font observationsFont = wb.createFont();
+            observationsFont.setFontName("Arial");
             observationsFont.setFontHeightInPoints((short) 12);
 
             CellStyle observationsStyle = wb.createCellStyle();
@@ -260,7 +270,8 @@ public class ReporteReparto {
     }
 
     public static String obtenerDescripcionDomicilio(Domicilio domicilio){
-        return domicilio.getCalle() + " " + nullableToEmptyString(domicilio.getNumero()) + " " + nullableToEmptyString(domicilio.getPisoDepartamento() + ", " + nullableToEmptyString(domicilio.getLocalidad()));
+        //return domicilio.getCalle() + " " + nullableToEmptyString(domicilio.getNumero()) + " " + nullableToEmptyString(domicilio.getPisoDepartamento() + ", " + nullableToEmptyString(domicilio.getLocalidad()));
+        return formatAddress(domicilio.getCalle(), domicilio.getNumero(), domicilio.getPisoDepartamento(), domicilio.getLocalidad());
     }
 
     private static String nullableToEmptyString(Object value) {
@@ -278,5 +289,23 @@ public class ReporteReparto {
             return false;
         }
         return true;
+    }
+
+    private static String formatAddress(String calle, Integer numero, String piso, String localidad) {
+        StringBuilder formattedAddress = new StringBuilder(calle);
+
+        if (numero != null) {
+            formattedAddress.append(" ").append(numero);
+        }
+
+        if (piso != null) {
+            formattedAddress.append(" ").append(piso);
+        }
+
+        if (localidad != null) {
+            formattedAddress.append(" ").append(localidad);
+        }
+
+        return formattedAddress.toString();
     }
 }

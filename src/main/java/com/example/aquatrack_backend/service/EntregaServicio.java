@@ -306,9 +306,9 @@ public class EntregaServicio extends ServicioBaseImpl<Entrega> {
         response.setDomicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad());
         response.setNombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido());
         response.setMontoEntregado(entrega.getMonto());
-        if (entrega.getPago() != null) {
-            response.setMontoRecaudado(entrega.getPago().getTotal());
-            response.setMedioPago(entrega.getPago().getMedioPago().getNombre());
+        if (entrega.getPago().getMedioPago() != null) {
+          response.setMontoRecaudado(entrega.getPago().getTotal());
+          response.setMedioPago(entrega.getPago().getMedioPago().getNombre());
         }
         response.setObservacionesEntrega(entrega.getObservaciones());
         return response;
@@ -383,9 +383,9 @@ public class EntregaServicio extends ServicioBaseImpl<Entrega> {
         response.setDomicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad());
         response.setNombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido());
         response.setMontoEntregado(entrega.getMonto());
-        if (entrega.getPago() != null) {
-            response.setMontoRecaudado(entrega.getPago().getTotal());
-            response.setMedioPago(entrega.getPago().getMedioPago().getNombre());
+        if (entrega.getPago().getMedioPago() != null) {
+          response.setMontoRecaudado(entrega.getPago().getTotal());
+          response.setMedioPago(entrega.getPago().getMedioPago().getNombre());
         }
         response.setObservacionesEntrega(entrega.getObservaciones());
         return response;

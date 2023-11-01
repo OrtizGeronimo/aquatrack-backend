@@ -26,6 +26,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.DayOfWeek;
@@ -696,7 +697,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
             response.setDomicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad());
             response.setNombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido());
             response.setMontoEntregado(entrega.getMonto());
-            if (entrega.getPago() != null) {
+            if (entrega.getPago().getMedioPago() != null) {
                 response.setMontoRecaudado(entrega.getPago().getTotal());
                 response.setMedioPago(entrega.getPago().getMedioPago().getNombre());
             }
@@ -792,9 +793,9 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
             response.setDomicilio(formatAddress(entrega.getDomicilio().getCalle(), entrega.getDomicilio().getNumero(), entrega.getDomicilio().getPisoDepartamento()) + ", " + entrega.getDomicilio().getLocalidad());
             response.setNombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido());
             response.setMontoEntregado(entrega.getMonto());
-            if (entrega.getPago() != null) {
-                response.setMontoRecaudado(entrega.getPago().getTotal());
-                response.setMedioPago(entrega.getPago().getMedioPago().getNombre());
+            if (entrega.getPago().getMedioPago() != null) {
+              response.setMontoRecaudado(entrega.getPago().getTotal());
+              response.setMedioPago(entrega.getPago().getMedioPago().getNombre());
             }
             response.setObservacionesEntrega(entrega.getObservaciones());
             return response;

@@ -134,7 +134,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
         } else {
             Deuda deuda = new Deuda();
             deuda.setMonto(BigDecimal.ZERO);
-            deuda.setMontoMaximo(BigDecimal.valueOf(2000));
+            deuda.setMontoMaximo(BigDecimal.valueOf(200000));
             deuda.setDomicilio(domicilio);
             domicilio.setDeuda(deuda);
             clienteNuevo.setEstadoCliente(estadoClienteRepo.findByNombreEstadoCliente("En proceso de creación").orElseThrow(() -> new RecordNotFoundException("El estado no fue encontrado.")));
@@ -171,7 +171,7 @@ public class ClienteServicio extends ServicioBaseImpl<Cliente> {
 
         Deuda deuda = new Deuda();
         deuda.setMonto(BigDecimal.ZERO);
-        deuda.setMontoMaximo(BigDecimal.valueOf(2000));
+        deuda.setMontoMaximo(BigDecimal.valueOf(200000));
         deuda.setDomicilio(domicilio);
         domicilio.setDeuda(deuda);
 

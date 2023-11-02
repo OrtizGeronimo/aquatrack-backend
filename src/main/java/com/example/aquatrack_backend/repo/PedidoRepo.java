@@ -13,19 +13,20 @@ import java.util.Optional;
 @Repository
 public interface PedidoRepo extends RepoBase<Pedido> {
 
-    @Query(value = "SELECT * FROM pedido INNER JOIN (" +
-            "SELECT id as idD FROM domicilio INNER JOIN (" +
-            "SELECT id as idC FROM cliente c " +
-            "WHERE empresa_id = :idEmpresa " +
-            "AND (:nombreCliente IS NULL OR nombre LIKE %:nombreCliente%)" +
-            ") c ON c.idC = domicilio.cliente_id" +
-            ") d ON d.idD = pedido.domicilio_id " +
-            "WHERE estado_pedido_id = :estadoPedido " +
-            "AND tipo_pedido_id = :tipoPedido " +
-            "AND (:fechaCoordinadaDesde IS NULL OR fecha_coordinada_entrega >= :fechaCoordinadaDesde) " +
-            "AND (:fechaCoordinadaHasta IS NULL OR fecha_coordinada_entrega <= :fechaCoordinadaHasta) " +
-            "AND (:mostrar_inactivos = true OR fecha_fin_vigencia IS NULL)" +
-            "ORDER BY fecha_coordinada_entrega ASC", countQuery = "SELECT COUNT(id) FROM pedido", nativeQuery = true)
+    @Query(value = "SELECT * FROM pedido p " +
+            "JOIN domicilio d ON p.domicilio_id = d.id " +
+            "JOIN cliente c ON c.id = d.cliente_id " +
+            "WHERE c.empresa_id = :idEmpresa AND " +
+            "(:mostrar_inactivos = true OR p.fecha_fin_vigencia IS NULL) AND " +
+            "(:nombreCliente IS NULL OR :nombreCliente LIKE CONCAT('%', c.nombre, ' ', c.apellido, '%')) AND " +
+            "(:estadoPedido IS NULL OR :estadoPedido = p.estado_pedido_id) AND " +
+            "(:tipoPedido IS NULL OR :tipoPedido = p.tipo_pedido_id) AND " +
+            "(:fechaCoordinadaDesde IS NULL OR :fechaCoordinadaDesde >= p.fecha_coordinada_entrega) AND " +
+            "(:fechaCoordinadaHasta IS NULL OR :fechaCoordinadaHasta <= p.fecha_coordinada_entrega) " +
+            "ORDER BY p.tipo_pedido_id DESC, p.fecha_coordinada_entrega DESC "
+            , countQuery = "SELECT COUNT(id) FROM pedidos"
+            , nativeQuery = true
+    )
     Page<Pedido> getAllPedidos(@Param("idEmpresa") Long idEmpresa,
                                Pageable pageable,
                                @Param("mostrar_inactivos") boolean mostrarInactivos,

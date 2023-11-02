@@ -11,153 +11,154 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class PedidoServicio extends ServicioBaseImpl<Pedido> {
 
-  @Autowired
-  private PedidoRepo pedidoRepo;
-  @Autowired
-  private ProductoRepo productoRepo;
-  @Autowired
-  private PedidoValidator pedidoValidator;
-  @Autowired
-  private TipoPedidoRepo tipoPedidoRepo;
-  @Autowired
-  private EstadoPedidoRepo estadoPedidoRepo;
-  @Autowired
-  private DomicilioRepo domicilioRepo;
-  @Autowired
-  private ClienteRepo clienteRepo;
+    @Autowired
+    private PedidoRepo pedidoRepo;
+    @Autowired
+    private ProductoRepo productoRepo;
+    @Autowired
+    private PedidoValidator pedidoValidator;
+    @Autowired
+    private TipoPedidoRepo tipoPedidoRepo;
+    @Autowired
+    private EstadoPedidoRepo estadoPedidoRepo;
+    @Autowired
+    private DomicilioRepo domicilioRepo;
+    @Autowired
+    private ClienteRepo clienteRepo;
 
 
-  public PedidoServicio(RepoBase<Pedido> repoBase) {
-    super(repoBase);
-  }
+    public PedidoServicio(RepoBase<Pedido> repoBase) {
+        super(repoBase);
+    }
 
-  @Transactional
-  public Page<PedidoListDTO> getAllPedidos(Integer page, Integer size, boolean mostrar_inactivos, String nombreCliente, Long estadoPedido, Long tipoPedido, String fechaCoordinadaEntregaDesde, String fechaCoordinadaEntregaHasta){
-    Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
-    Pageable paging = PageRequest.of(page, size);
-    Page<Pedido> pedidos = pedidoRepo.getAllPedidos(empresa.getId(), paging, mostrar_inactivos, nombreCliente, estadoPedido, tipoPedido,
-            fechaCoordinadaEntregaDesde == null ? null : LocalDateTime.parse(fechaCoordinadaEntregaDesde),
-            fechaCoordinadaEntregaHasta == null ? null : LocalDateTime.parse(fechaCoordinadaEntregaHasta));
-    return pedidos.map(this::makePedidoListDTO);
-  }
+    @Transactional
+    public Page<PedidoListDTO> getAllPedidos(Integer page, Integer size, boolean mostrar_inactivos, String nombreCliente, Long estadoPedido, Long tipoPedido, String fechaCoordinadaEntregaDesde, String fechaCoordinadaEntregaHasta) {
+        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+        Pageable paging = PageRequest.of(page, size);
+        Page<Pedido> pedidos = pedidoRepo.getAllPedidos(empresa.getId(), paging, mostrar_inactivos, nombreCliente, estadoPedido, tipoPedido,
+                fechaCoordinadaEntregaDesde == null ? null : LocalDateTime.parse(fechaCoordinadaEntregaDesde),
+                fechaCoordinadaEntregaHasta == null ? null : LocalDateTime.parse(fechaCoordinadaEntregaHasta));
+        return pedidos.map(this::makePedidoListDTO);
+    }
 
-  @Transactional
-  public PedidoBusquedaDTO getParametrosBusqueda(){
+    @Transactional
+    public PedidoBusquedaDTO getParametrosBusqueda() {
 
-    PedidoBusquedaDTO pedidoBusquedaDTO = new PedidoBusquedaDTO();
+        PedidoBusquedaDTO pedidoBusquedaDTO = new PedidoBusquedaDTO();
 
-    pedidoBusquedaDTO.setTipos(tipoPedidoRepo.findAllActives().stream()
-            .map(tipo -> ObjetoGenericoDTO.builder()
-                    .id(tipo.getId())
-                    .nombre(tipo.getNombreTipoPedido())
-                    .build())
-            .collect(Collectors.toList()));
+        pedidoBusquedaDTO.setTipos(tipoPedidoRepo.findAllActives().stream()
+                .map(tipo -> ObjetoGenericoDTO.builder()
+                        .id(tipo.getId())
+                        .nombre(tipo.getNombreTipoPedido())
+                        .build())
+                .collect(Collectors.toList()));
 
-    pedidoBusquedaDTO.setEstados(estadoPedidoRepo.findAllActives().stream()
-            .map(estado -> ObjetoGenericoDTO.builder()
-                    .id(estado.getId())
-                    .nombre(estado.getNombreEstadoPedido())
-                    .build())
-            .collect(Collectors.toList()));
+        pedidoBusquedaDTO.setEstados(estadoPedidoRepo.findAllActives().stream()
+                .map(estado -> ObjetoGenericoDTO.builder()
+                        .id(estado.getId())
+                        .nombre(estado.getNombreEstadoPedido())
+                        .build())
+                .collect(Collectors.toList()));
 
-    return pedidoBusquedaDTO;
-  }
+        return pedidoBusquedaDTO;
+    }
 
-  @Transactional
-  public PedidoFormWebDTO getParametrosPedidoWeb(){
+    @Transactional
+    public PedidoFormWebDTO getParametrosPedidoWeb() {
 
-    PedidoFormWebDTO pedidoFormDTO = new PedidoFormWebDTO();
-    Long idE = getUsuarioFromContext().getPersona().getEmpresa().getId();
+        PedidoFormWebDTO pedidoFormDTO = new PedidoFormWebDTO();
+        Long idE = getUsuarioFromContext().getPersona().getEmpresa().getId();
 
-    pedidoFormDTO.setProductos(getProductosParametro(idE));
-    pedidoFormDTO.setClientes(clienteRepo.findAllByEmpresa(idE).stream()
-            .map(cliente -> ObjetoGenericoDTO.builder()
-                    .id(cliente.getId())
-                    .nombre(cliente.getNombre())
-                    .build())
-            .collect(Collectors.toList()));
+        pedidoFormDTO.setProductos(getProductosParametro(idE));
+        pedidoFormDTO.setClientes(clienteRepo.findAllByEmpresa(idE).stream()
+                .map(cliente -> ObjetoGenericoDTO.builder()
+                        .id(cliente.getId())
+                        .nombre(cliente.getNombre())
+                        .build())
+                .collect(Collectors.toList()));
 
-    return pedidoFormDTO;
-  }
+        return pedidoFormDTO;
+    }
 
-  @Transactional
-  public PedidoFormMobileDTO getParametrosPedidoMobile(){
+    @Transactional
+    public PedidoFormMobileDTO getParametrosPedidoMobile() {
 
-    Long idE = getUsuarioFromContext().getPersona().getEmpresa().getId();
+        Long idE = getUsuarioFromContext().getPersona().getEmpresa().getId();
 
-    PedidoFormMobileDTO pedidoFormDTO = new PedidoFormMobileDTO();
-    pedidoFormDTO.setProductos(getProductosParametro(idE));
+        PedidoFormMobileDTO pedidoFormDTO = new PedidoFormMobileDTO();
+        pedidoFormDTO.setProductos(getProductosParametro(idE));
 
-    return pedidoFormDTO;
-  }
+        return pedidoFormDTO;
+    }
 
-  private List<ObjetoGenericoDTO> getProductosParametro(Long idE){
-    return productoRepo.getAllProductos(idE).stream()
-            .map(
-            producto -> ObjetoGenericoDTO.builder()
-                    .id(producto.getId())
-                    .nombre(producto.getNombre())
-                    .build()
-    )
-            .collect(Collectors.toList());
-  }
+    private List<ObjetoGenericoDTO> getProductosParametro(Long idE) {
+        return productoRepo.getAllProductos(idE).stream()
+                .map(
+                        producto -> ObjetoGenericoDTO.builder()
+                                .id(producto.getId())
+                                .nombre(producto.getNombre())
+                                .build()
+                )
+                .collect(Collectors.toList());
+    }
 
-  @Transactional
-  public PedidoListDTO createPedidoExtraordinarioWeb(GuardarPedidoDTO pedido) throws PedidoNoValidoException {
+    @Transactional
+    public PedidoListDTO createPedidoExtraordinarioWeb(GuardarPedidoDTO pedido) throws PedidoNoValidoException {
 
-    Pedido pedidoNuevo = createPedidoExtraordinario(pedido);
-    pedidoNuevo.setEstadoPedido(estadoPedidoRepo.findByNombreEstadoPedido("Aprobado"));
+        Pedido pedidoNuevo = createPedidoExtraordinario(pedido);
+        pedidoNuevo.setEstadoPedido(estadoPedidoRepo.findByNombreEstadoPedido("Aprobado"));
 
-    Pedido p = pedidoRepo.save(pedidoNuevo);
-    return makePedidoListDTO(p);
-  }
+        Pedido p = pedidoRepo.save(pedidoNuevo);
+        return makePedidoListDTO(p);
+    }
 
-  @Transactional
-  public PedidoListDTO createPedidoExtraordinarioMobile(GuardarPedidoDTO pedido) throws PedidoNoValidoException{
+    @Transactional
+    public PedidoListDTO createPedidoExtraordinarioMobile(GuardarPedidoDTO pedido) throws PedidoNoValidoException {
 
-    Pedido pedidoNuevo = createPedidoExtraordinario(pedido);
-    pedidoNuevo.setEstadoPedido(estadoPedidoRepo.findByNombreEstadoPedido("Pendiente de aprobación"));
+        Pedido pedidoNuevo = createPedidoExtraordinario(pedido);
+        pedidoNuevo.setEstadoPedido(estadoPedidoRepo.findByNombreEstadoPedido("Pendiente de aprobación"));
 
-    Pedido p = pedidoRepo.save(pedidoNuevo);
-    return makePedidoListDTO(p);
-  }
+        Pedido p = pedidoRepo.save(pedidoNuevo);
+        return makePedidoListDTO(p);
+    }
 
-  private Pedido createPedidoExtraordinario(GuardarPedidoDTO pedido) throws PedidoNoValidoException{
+    private Pedido createPedidoExtraordinario(GuardarPedidoDTO pedido) throws PedidoNoValidoException {
 
-    pedidoValidator.validateCreacionPedido(pedido);
+        pedidoValidator.validateCreacionPedido(pedido);
 
-    Pedido pedidoNuevo = new Pedido();
+        Pedido pedidoNuevo = new Pedido();
 
-    pedidoNuevo.setPedidoProductos(
-            pedido.getPedidoProductos().stream().map(
-                    pedidoProducto -> new PedidoProducto(pedidoProducto.getCantidad(),
-                            pedidoNuevo,
-                            productoRepo.findById(pedidoProducto.getIdProducto()).get()
-                    )
-            ).collect(Collectors.toList())
-    );
+        pedidoNuevo.setPedidoProductos(
+                pedido.getPedidoProductos().stream().map(
+                        pedidoProducto -> new PedidoProducto(pedidoProducto.getCantidad(),
+                                pedidoNuevo,
+                                productoRepo.findById(pedidoProducto.getIdProducto()).get()
+                        )
+                ).collect(Collectors.toList())
+        );
 
-    Domicilio domicilio = domicilioRepo.findById(pedido.getIdDomicilio()).get();
-    pedidoNuevo.setDomicilio(domicilio);
-    pedidoNuevo.setTipoPedido(tipoPedidoRepo.findByNombreTipoPedido("Extraordinario"));
-    pedidoNuevo.setFechaCoordinadaEntrega(pedido.getFechaCoordinadaEntrega());
+        Domicilio domicilio = domicilioRepo.findById(pedido.getIdDomicilio()).get();
+        pedidoNuevo.setDomicilio(domicilio);
+        pedidoNuevo.setTipoPedido(tipoPedidoRepo.findByNombreTipoPedido("Extraordinario"));
+        pedidoNuevo.setFechaCoordinadaEntrega(pedido.getFechaCoordinadaEntrega());
 
     /*    if(pedido.getTipo().equalsIgnoreCase("Extraordinario")){
       repartoServicio.crearRepartoAnticipado(pedido.getIdRuta(), pedido.getFechaCoordinadaEntrega(), domicilio);
     }*/
 
-    return pedidoNuevo;
-  }
+        return pedidoNuevo;
+    }
 
 /*  @Transactional
   public PedidoListDTO createPedidoAnticipado(GuardarPedidoAnticipadoDTO pedido, Long idDomicilio) throws RecordNotFoundException{
@@ -189,69 +190,115 @@ public class PedidoServicio extends ServicioBaseImpl<Pedido> {
     return makePedidoListDTO(p);
   }*/
 
-  @Transactional
-  public PedidoListDTO detallarPedido(Long idPedido) throws RecordNotFoundException {
+    @Transactional
+    public PedidoListDTO detallarPedido(Long idPedido) throws RecordNotFoundException {
 
-    Pedido pedido = pedidoRepo.findById(idPedido).orElseThrow(()-> new RecordNotFoundException("El pedido no fue encontrado"));
+        Pedido pedido = pedidoRepo.findById(idPedido).orElseThrow(() -> new RecordNotFoundException("El pedido no fue encontrado"));
 
-    return makePedidoListDTO(pedido);
-  }
+        return makePedidoListDTO(pedido);
+    }
 
-  @Transactional
-  public PedidoListDTO aprobarPedido(/*AprobarPedidoDTO pedidoRequest,*/ Long idPedido) throws RecordNotFoundException {
+    @Transactional
+    public PedidoListDTO aprobarPedido(/*AprobarPedidoDTO pedidoRequest,*/ Long idPedido) throws RecordNotFoundException {
 
-    Pedido pedido = pedidoRepo.findById(idPedido).orElseThrow(()-> new RecordNotFoundException("El pedido no fue encontrado"));
+        Pedido pedido = pedidoRepo.findById(idPedido).orElseThrow(() -> new RecordNotFoundException("El pedido no fue encontrado"));
 
 /*    if(pedidoRequest.getTipoPedido().equalsIgnoreCase("Extraordinario")) {
       repartoServicio.crearRepartoAnticipado(pedidoRequest.getIdRuta(), pedido.getFechaCoordinadaEntrega(), pedido.getDomicilio());
     }*/
 
-    pedido.setEstadoPedido(estadoPedidoRepo.findByNombreEstadoPedido("Aprobado"));
+        pedido.setEstadoPedido(estadoPedidoRepo.findByNombreEstadoPedido("Aprobado"));
 
-    pedidoRepo.save(pedido);
+        pedidoRepo.save(pedido);
 
-    return makePedidoListDTO(pedido);
-  }
+        return makePedidoListDTO(pedido);
+    }
 
-  @Transactional
-  public PedidoListDTO rechazarPedido(Long idPedido) throws RecordNotFoundException {
+    @Transactional
+    public PedidoListDTO rechazarPedido(Long idPedido) throws RecordNotFoundException {
 
-    Pedido pedido = pedidoRepo.findById(idPedido).orElseThrow(()-> new RecordNotFoundException("El pedido no fue encontrado"));
+        Pedido pedido = pedidoRepo.findById(idPedido).orElseThrow(() -> new RecordNotFoundException("El pedido no fue encontrado"));
 
-    pedido.setEstadoPedido(estadoPedidoRepo.findByNombreEstadoPedido("Rechazado"));
+        pedido.setEstadoPedido(estadoPedidoRepo.findByNombreEstadoPedido("Rechazado"));
 
-    pedidoRepo.save(pedido);
+        pedidoRepo.save(pedido);
 
-    return makePedidoListDTO(pedido);
-  }
+        return makePedidoListDTO(pedido);
+    }
 
-  @Transactional
-  public void cancelarPedido(Long idPedido) throws RecordNotFoundException{
-    Pedido pedido = pedidoRepo.findById(idPedido).orElseThrow(()-> new RecordNotFoundException("El pedido no fue encontrado"));
+    @Transactional
+    public void cancelarPedido(Long idPedido) throws RecordNotFoundException {
+        Pedido pedido = pedidoRepo.findById(idPedido).orElseThrow(() -> new RecordNotFoundException("El pedido no fue encontrado"));
 
-    pedido.setEstadoPedido(estadoPedidoRepo.findByNombreEstadoPedido("Cancelado"));
+        pedido.setEstadoPedido(estadoPedidoRepo.findByNombreEstadoPedido("Cancelado"));
 
-    pedidoRepo.save(pedido);
-  }
+        pedidoRepo.save(pedido);
+    }
 
-  private PedidoListDTO makePedidoListDTO(Pedido pedido){
-    return PedidoListDTO.builder()
-            .id(pedido.getId())
-            .pedidoProductos(pedido.getPedidoProductos()
-                    .stream().map(pedidoProducto -> PedidoProductoDTO.builder()
-                            .cantidad(pedidoProducto.getCantidad())
-                            .nombreProducto(pedidoProducto.getProducto().getNombre())
-                            .idProducto(pedidoProducto.getProducto().getId())
-                            .build())
-                    .collect(Collectors.toList()))
-            .domicilio(DomicilioDTO.builder()
-                    .domicilio(pedido.getDomicilio().getCalle() + " " +
-                            pedido.getDomicilio().getNumero() + " " +
-                            pedido.getDomicilio().getPisoDepartamento())
-                    .build())
-            .fechaCoordinadaEntrega(pedido.getFechaCoordinadaEntrega())
-            .estadoPedido(pedido.getEstadoPedido().getNombreEstadoPedido())
-            .tipoPedido(pedido.getTipoPedido().getNombreTipoPedido())
-            .build();
-  }
+    private PedidoListDTO makePedidoListDTO(Pedido pedido) {
+        return PedidoListDTO.builder()
+                .id(pedido.getId())
+                .pedidoProductos(pedido.getPedidoProductos()
+                        .stream().map(pedidoProducto -> PedidoProductoDTO.builder()
+                                .cantidad(pedidoProducto.getCantidad())
+                                .nombreProducto(pedidoProducto.getProducto().getNombre())
+                                .idProducto(pedidoProducto.getProducto().getId())
+                                .build())
+                        .collect(Collectors.toList()))
+                .domicilio(DomicilioDTO.builder()
+                        .domicilio(formatAddress(pedido.getDomicilio().getCalle(), pedido.getDomicilio().getNumero(), pedido.getDomicilio().getPisoDepartamento(), pedido.getDomicilio().getLocalidad()))
+                        .nombreApellidoCliente(pedido.getDomicilio().getCliente().getNombre() + " " + pedido.getDomicilio().getCliente().getApellido())
+                        .build())
+                .fechaCoordinadaEntrega(pedido.getFechaCoordinadaEntrega())
+                .totalPedido(pedido.getPedidoProductos().stream().map(pp -> BigDecimal.valueOf(pp.getCantidad()).multiply(pp.getProducto().getPrecios().stream().filter(pr -> pr.getFechaFinVigencia() == null).findFirst().get().getPrecio())).collect(Collectors.toList()).stream().reduce(BigDecimal.ZERO, BigDecimal::add))
+                .estadoPedido(pedido.getEstadoPedido() != null ? pedido.getEstadoPedido().getNombreEstadoPedido() : "")
+                .tipoPedido(pedido.getTipoPedido().getNombreTipoPedido())
+                .fechaFinVigencia(pedido.getFechaFinVigencia())
+                .build();
+    }
+
+    private static String formatAddress(String calle, Integer numero, String piso, String localidad) {
+        StringBuilder formattedAddress = new StringBuilder(calle);
+
+        if (numero != null) {
+            formattedAddress.append(" ").append(numero);
+        }
+
+        if (piso != null && !piso.isEmpty()) {
+            formattedAddress.append(" ").append(piso);
+        }
+
+        if (localidad != null) {
+            formattedAddress.append(", ").append(localidad);
+        }
+
+        return formattedAddress.toString();
+    }
+
+    public List<PedidoExtraordinarioDomicilioDTO> getDomicilios() {
+        Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
+        List<Cliente> clientes = clienteRepo.findAllByEmpresa(empresa.getId());
+        List<PedidoExtraordinarioDomicilioDTO> domicilios = new ArrayList<>();
+        for (Cliente cliente : clientes) {
+            PedidoExtraordinarioDomicilioDTO domicilio = new PedidoExtraordinarioDomicilioDTO();
+            domicilio.setId(cliente.getDomicilio().getId());
+            domicilio.setCliente(cliente.getNombre() + " " + cliente.getApellido());
+            domicilio.setDiaDomicilios(cliente.getDomicilio().getDiaDomicilios().stream().map(dd -> dd.getDiaRuta().getDiaSemana().getId()).collect(Collectors.toList()));
+            domicilios.add(domicilio);
+        }
+        return domicilios;
+    }
+
+    public List<PedidoProductoDTO> listarProductos(Long idPedido) throws RecordNotFoundException {
+        Pedido pedido = pedidoRepo.findById(idPedido).orElseThrow(() -> new RecordNotFoundException("El pedido no fue encontrado"));
+
+        List<PedidoProductoDTO> productos = new ArrayList<>();
+        if (!pedido.getPedidoProductos().isEmpty()) {
+            for (PedidoProducto producto : pedido.getPedidoProductos()) {
+                productos.add(PedidoProductoDTO.builder().idProducto(producto.getProducto().getId()).nombreProducto(producto.getProducto().getNombre()).cantidad(producto.getCantidad()).precio(producto.getProducto().getPrecios().stream().filter(pr -> pr.getFechaFinVigencia() == null).findFirst().get().getPrecio()).build());
+            }
+        }
+
+        return productos;
+    }
 }

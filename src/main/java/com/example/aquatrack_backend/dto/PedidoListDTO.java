@@ -1,16 +1,15 @@
 package com.example.aquatrack_backend.dto;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-
-import org.springframework.format.annotation.DateTimeFormat;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -26,4 +25,5 @@ public class PedidoListDTO {
     private String tipoPedido;
     private List<PedidoProductoDTO> pedidoProductos;
     private BigDecimal totalPedido;
+    private LocalDateTime fechaFinVigencia;
 }

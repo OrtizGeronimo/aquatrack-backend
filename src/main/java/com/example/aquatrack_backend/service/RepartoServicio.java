@@ -26,7 +26,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.DayOfWeek;
@@ -246,7 +245,7 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
             entrega.setEntregaPedidos(new ArrayList<>());
             entrega.getEntregaPedidos().add(entregaPedido);
 
-            for (Pedido pedido : entrega.getDomicilio().getPedidos().stream().filter(pedido -> pedido.getTipoPedido().getId() != 1 && pedido.getFechaCoordinadaEntrega().equals(localDate)).collect(Collectors.toList())) {
+            for (Pedido pedido : entrega.getDomicilio().getPedidos().stream().filter(pedido -> pedido.getTipoPedido().getId() == 2 && pedido.getFechaCoordinadaEntrega().equals(localDate) && pedido.getEstadoPedido().getNombreEstadoPedido().equals("Aprobado")).collect(Collectors.toList())) {
                 entregaPedido = new EntregaPedido();
                 entregaPedido.setPedido(pedido);
                 entregaPedido.setEntrega(entrega);
@@ -751,12 +750,13 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
     public InputStreamResource reporte(Long id) throws RecordNotFoundException, ValidacionException {
         Reparto reparto = repartoRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El id del reparto ingresado no corresponde a uno existente"));
 
-        if (reparto.getEstadoReparto().getId() != 4 && reparto.getEstadoReparto().getId() != 6){
+        if (reparto.getEstadoReparto().getId() != 4 && reparto.getEstadoReparto().getId() != 6) {
             throw new ValidacionException("Solo se pueden realizar reportes de repartos Finalizados o Incompletos");
         }
 
         return new InputStreamResource(ReporteReparto.generarReporte(reparto));
     }
+
     public List<ListarRepartoMobileDTO> listarRepartosMobile(Long ruta, Long estado, LocalDate fechaEjecucionDesde, LocalDate fechaEjecucionHasta) throws UserUnauthorizedException {
         Persona persona = getUsuarioFromContext().getPersona();
         Empleado repartidor = (Empleado) persona;
@@ -794,8 +794,8 @@ public class RepartoServicio extends ServicioBaseImpl<Reparto> {
             response.setNombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido());
             response.setMontoEntregado(entrega.getMonto());
             if (entrega.getPago().getMedioPago() != null) {
-              response.setMontoRecaudado(entrega.getPago().getTotal());
-              response.setMedioPago(entrega.getPago().getMedioPago().getNombre());
+                response.setMontoRecaudado(entrega.getPago().getTotal());
+                response.setMedioPago(entrega.getPago().getMedioPago().getNombre());
             }
             response.setObservacionesEntrega(entrega.getObservaciones());
             return response;

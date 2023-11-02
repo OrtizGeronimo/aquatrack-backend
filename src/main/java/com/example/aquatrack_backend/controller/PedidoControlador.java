@@ -3,12 +3,16 @@ package com.example.aquatrack_backend.controller;
 import com.example.aquatrack_backend.dto.GuardarPedidoDTO;
 import com.example.aquatrack_backend.exception.PedidoNoValidoException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
+import com.example.aquatrack_backend.exception.UserUnauthorizedException;
 import com.example.aquatrack_backend.helpers.ValidationHelper;
 import com.example.aquatrack_backend.service.PedidoServicio;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping(path = "/pedidos")
@@ -31,8 +35,14 @@ public class PedidoControlador {
         return ResponseEntity.ok().body(pedidoServicio.getAllPedidos(page, size, mostrar_inactivos, nombreCliente, estadoPedido, tipoPedido, fechaCoordinadaEntregaDesde, fechaCoordinadaEntregaHasta));
     }
 
+    @GetMapping(value = "/mobile")
+    public ResponseEntity<?> findAllMobile(@RequestParam(required = false) Long estadoPedido,
+                                           @RequestParam(required = false) Long tipoPedido,
+                                           @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaCoordinadaEntrega) throws UserUnauthorizedException {
+        return ResponseEntity.ok().body(pedidoServicio.getAllPedidosMobile(estadoPedido, tipoPedido, fechaCoordinadaEntrega));
+    }
+
     @GetMapping("/parametro")
-    @PreAuthorize("hasAuthority('LISTAR_PEDIDOS')")
     public ResponseEntity<?> getParametrosBusqueda() {
         return ResponseEntity.ok().body(pedidoServicio.getParametrosBusqueda());
     }

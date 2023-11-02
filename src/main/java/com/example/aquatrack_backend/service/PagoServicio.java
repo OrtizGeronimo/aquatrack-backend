@@ -145,7 +145,7 @@ public class PagoServicio extends ServicioBaseImpl<Pago> {
 
         List<Pago> pagos = pagoRepo.findAllPagosFromClient(cliente.getDomicilio().getId(), idMedioPago, idEmpleado, fechaCreacionDesde, fechaCreacionHasta, montoDesde, montoHasta);
 
-        return pagos.stream().map(pago -> {
+        return pagos.stream().filter(p -> p.getMedioPago() != null).map(pago -> {
             PagoDTO response = new PagoDTO();
             response.setId(pago.getId());
             response.setFechaPago(pago.getFechaPago());

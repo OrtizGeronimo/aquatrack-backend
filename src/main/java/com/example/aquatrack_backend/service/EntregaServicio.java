@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -244,7 +245,8 @@ public class EntregaServicio extends ServicioBaseImpl<Entrega> {
             return allProducts.stream().map(pp -> PedidoProductoDTO.builder().idProducto(pp.getId()).nombreProducto(pp.getNombre()).cantidad(pp.getCantidad()).precio(pp.getPrecio()).build()).collect(Collectors.toList());
         }
 
-        return new ArrayList<>();
+        Optional<Pedido> pedidoExtraordinarioHoy = entrega.getDomicilio().getPedidos().stream().filter(p -> p.getTipoPedido().getId() == 2L && p.getEstadoPedido().getId() == 2L && p.getFechaCoordinadaEntrega().equals(LocalDate.now())).findFirst();
+        return pedidoExtraordinarioHoy.map(pedido -> pedido.getPedidoProductos().stream().map(pp -> PedidoProductoDTO.builder().idProducto(pp.getProducto().getId()).nombreProducto(pp.getProducto().getNombre()).cantidad(pp.getCantidad()).precio(pp.getProducto().getPrecios().stream().filter(pr -> pr.getFechaFinVigencia() == null).findFirst().get().getPrecio()).build()).collect(Collectors.toList())).orElseGet(ArrayList::new);
     }
 
     public List<PedidoProductoDTO> productosDomicilio(Long idEntrega) throws RecordNotFoundException {
@@ -307,8 +309,8 @@ public class EntregaServicio extends ServicioBaseImpl<Entrega> {
         response.setNombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido());
         response.setMontoEntregado(entrega.getMonto());
         if (entrega.getPago().getMedioPago() != null) {
-          response.setMontoRecaudado(entrega.getPago().getTotal());
-          response.setMedioPago(entrega.getPago().getMedioPago().getNombre());
+            response.setMontoRecaudado(entrega.getPago().getTotal());
+            response.setMedioPago(entrega.getPago().getMedioPago().getNombre());
         }
         response.setObservacionesEntrega(entrega.getObservaciones());
         return response;
@@ -351,7 +353,7 @@ public class EntregaServicio extends ServicioBaseImpl<Entrega> {
         }
 
         for (DomicilioProducto dp : entrega.getDomicilio().getProductoDomicilios()) {
-            if (dp.getCantidadDevolver() > 0) {
+            if (dp.getCantidadDevolver() != null && dp.getCantidadDevolver() > 0) {
                 productos.add(PedidoProductoDTO.builder().idProducto(dp.getProducto().getId()).nombreProducto(dp.getProducto().getNombre()).cantidadDevolver(dp.getCantidadDevolver()).build());
             }
         }
@@ -384,8 +386,8 @@ public class EntregaServicio extends ServicioBaseImpl<Entrega> {
         response.setNombreCliente(entrega.getDomicilio().getCliente().getNombre() + " " + entrega.getDomicilio().getCliente().getApellido());
         response.setMontoEntregado(entrega.getMonto());
         if (entrega.getPago().getMedioPago() != null) {
-          response.setMontoRecaudado(entrega.getPago().getTotal());
-          response.setMedioPago(entrega.getPago().getMedioPago().getNombre());
+            response.setMontoRecaudado(entrega.getPago().getTotal());
+            response.setMedioPago(entrega.getPago().getMedioPago().getNombre());
         }
         response.setObservacionesEntrega(entrega.getObservaciones());
         return response;

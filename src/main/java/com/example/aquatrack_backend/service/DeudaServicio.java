@@ -86,7 +86,7 @@ public class DeudaServicio extends ServicioBaseImpl<Deuda> {
         response.setMonto(deuda.getMonto());
         response.setFechaUltimaActualizacion(deuda.getFechaUltimaActualizacion());
 
-        response.setCambios(deuda.getDeudaPagos().stream().filter(deudaPago -> deudaPago.getPago() != null && !deudaPago.getMontoAdeudadoPago().equals(BigDecimal.ZERO) && deudaPago.getPago().getFechaFinVigencia() == null).map(deudaPago -> {
+        response.setCambios(deuda.getDeudaPagos().stream().filter(deudaPago -> deudaPago.getPago() != null && !(deudaPago.getMontoAdeudadoPago().compareTo(BigDecimal.ZERO) == 0) && deudaPago.getPago().getFechaFinVigencia() == null).map(deudaPago -> {
             DeudaPagoDTO dto = new DeudaPagoDTO();
             dto.setMonto(deudaPago.getMontoAdeudadoPago());
             dto.setId(deudaPago.getId());

@@ -3,6 +3,7 @@ package com.example.aquatrack_backend.service;
 import com.example.aquatrack_backend.dto.*;
 import com.example.aquatrack_backend.exception.PedidoNoValidoException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
+import com.example.aquatrack_backend.exception.UserUnauthorizedException;
 import com.example.aquatrack_backend.model.*;
 import com.example.aquatrack_backend.repo.*;
 import com.example.aquatrack_backend.validators.PedidoValidator;
@@ -14,9 +15,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -300,5 +303,31 @@ public class PedidoServicio extends ServicioBaseImpl<Pedido> {
         }
 
         return productos;
+    }
+
+    public List<PedidoListMobileDTO> getAllPedidosMobile(Long estadoPedido, Long tipoPedido, LocalDate fechaCoordinadaEntrega) throws UserUnauthorizedException {
+        Persona persona = getUsuarioFromContext().getPersona();
+        if (persona instanceof Empleado) {
+            throw new UserUnauthorizedException("Esta funcionalidad es exclusiva para clientes de Aquatrack.");
+        }
+
+        Cliente cliente = (Cliente) persona;
+        return pedidoRepo.pedidosCliente(cliente.getDomicilio().getId(), estadoPedido, tipoPedido, fechaCoordinadaEntrega)
+                .stream()
+                .map(p -> {
+                    PedidoListMobileDTO pedido = new PedidoListMobileDTO();
+                    pedido.setId(p.getId());
+                    pedido.setTipoPedido(p.getTipoPedido().getNombreTipoPedido());
+                    if (p.getTipoPedido().getId() == 2L) {
+                        pedido.setEstadoPedido(p.getEstadoPedido().getNombreEstadoPedido());
+                        pedido.setFechaCoordinadaEntrega(p.getFechaCoordinadaEntrega());
+                        Optional<EntregaPedido> entrega = p.getEntregaPedidos().stream().filter(e -> e.getEntrega().getEstadoEntrega().getId() == 3L).findFirst();
+                        pedido.setFechaHoraEntrega(entrega.map(entregaPedido -> entregaPedido.getEntrega().getFechaHoraVisita()).orElse(null));
+                    }
+                    pedido.setFechaFinVigencia(p.getFechaFinVigencia());
+                    pedido.setPrecio(p.getPedidoProductos().stream().map(pp -> BigDecimal.valueOf(pp.getCantidad()).multiply(pp.getProducto().getPrecios().stream().filter(pr -> pr.getFechaFinVigencia() == null).findFirst().get().getPrecio())).collect(Collectors.toList()).stream().reduce(BigDecimal.ZERO, BigDecimal::add));
+                    pedido.setProductos(p.getPedidoProductos().stream().map(producto -> PedidoProductoDTO.builder().idProducto(producto.getProducto().getId()).nombreProducto(producto.getProducto().getNombre()).cantidad(producto.getCantidad()).precio(producto.getProducto().getPrecios().stream().filter(pr -> pr.getFechaFinVigencia() == null).findFirst().get().getPrecio()).build()).collect(Collectors.toList()));
+                    return pedido;
+                }).collect(Collectors.toList());
     }
 }

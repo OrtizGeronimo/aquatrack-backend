@@ -1,7 +1,6 @@
 package com.example.aquatrack_backend.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,16 +11,12 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class GuardarPedidoDTO {
+public class GuardarPedidoMobileDTO {
     @NotNull
     private LocalDate fechaCoordinadaEntrega;
-    @NotNull
-    private Long idDomicilio;
     @NotEmpty
     @Valid
     private List<PedidoProductoDTO> pedidoProductos;
-    //private Long idRuta; //Caso de pedido extraordinario
 }

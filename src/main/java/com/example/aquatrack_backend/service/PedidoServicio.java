@@ -127,13 +127,26 @@ public class PedidoServicio extends ServicioBaseImpl<Pedido> {
     }
 
     @Transactional
-    public PedidoListDTO createPedidoExtraordinarioMobile(GuardarPedidoDTO pedido) throws PedidoNoValidoException {
+    public PedidoListMobileDTO createPedidoExtraordinarioMobile(GuardarPedidoMobileDTO pedidoCrear) throws PedidoNoValidoException, UserUnauthorizedException {
+        Persona persona = getUsuarioFromContext().getPersona();
+        if (persona instanceof Empleado) {
+            throw new UserUnauthorizedException("Esta funcionalidad es exclusiva para clientes de Aquatrack.");
+        }
 
-        Pedido pedidoNuevo = createPedidoExtraordinario(pedido);
+        Cliente cliente = (Cliente) persona;
+        Pedido pedidoNuevo = createPedidoExtraordinario(GuardarPedidoDTO.builder().idDomicilio(cliente.getDomicilio().getId()).pedidoProductos(pedidoCrear.getPedidoProductos()).fechaCoordinadaEntrega(pedidoCrear.getFechaCoordinadaEntrega()).build());
         pedidoNuevo.setEstadoPedido(estadoPedidoRepo.findByNombreEstadoPedido("Pendiente de aprobación"));
 
         Pedido p = pedidoRepo.save(pedidoNuevo);
-        return makePedidoListDTO(p);
+        PedidoListMobileDTO pedido = new PedidoListMobileDTO();
+        pedido.setId(p.getId());
+        pedido.setTipoPedido(p.getTipoPedido().getNombreTipoPedido());
+        pedido.setEstadoPedido(p.getEstadoPedido().getNombreEstadoPedido());
+        pedido.setFechaCoordinadaEntrega(p.getFechaCoordinadaEntrega());
+        pedido.setFechaFinVigencia(p.getFechaFinVigencia());
+        pedido.setPrecio(p.getPedidoProductos().stream().map(pp -> BigDecimal.valueOf(pp.getCantidad()).multiply(pp.getProducto().getPrecios().stream().filter(pr -> pr.getFechaFinVigencia() == null).findFirst().get().getPrecio())).collect(Collectors.toList()).stream().reduce(BigDecimal.ZERO, BigDecimal::add));
+        pedido.setProductos(p.getPedidoProductos().stream().map(producto -> PedidoProductoDTO.builder().idProducto(producto.getProducto().getId()).nombreProducto(producto.getProducto().getNombre()).cantidad(producto.getCantidad()).precio(producto.getProducto().getPrecios().stream().filter(pr -> pr.getFechaFinVigencia() == null).findFirst().get().getPrecio()).build()).collect(Collectors.toList()));
+        return pedido;
     }
 
     private Pedido createPedidoExtraordinario(GuardarPedidoDTO pedido) throws PedidoNoValidoException {
@@ -329,5 +342,27 @@ public class PedidoServicio extends ServicioBaseImpl<Pedido> {
                     pedido.setProductos(p.getPedidoProductos().stream().map(producto -> PedidoProductoDTO.builder().idProducto(producto.getProducto().getId()).nombreProducto(producto.getProducto().getNombre()).cantidad(producto.getCantidad()).precio(producto.getProducto().getPrecios().stream().filter(pr -> pr.getFechaFinVigencia() == null).findFirst().get().getPrecio()).build()).collect(Collectors.toList()));
                     return pedido;
                 }).collect(Collectors.toList());
+    }
+
+    public PedidoListMobileDTO cancelarPedidoMobile(Long idPedido) throws UserUnauthorizedException, RecordNotFoundException {
+        Persona persona = getUsuarioFromContext().getPersona();
+        if (persona instanceof Empleado) {
+            throw new UserUnauthorizedException("Esta funcionalidad es exclusiva para clientes de Aquatrack.");
+        }
+
+        Pedido p = pedidoRepo.findById(idPedido).orElseThrow(() -> new RecordNotFoundException("El pedido no fue encontrado"));
+
+        p.setEstadoPedido(estadoPedidoRepo.findByNombreEstadoPedido("Cancelado"));
+
+        pedidoRepo.save(p);
+        PedidoListMobileDTO pedido = new PedidoListMobileDTO();
+        pedido.setId(p.getId());
+        pedido.setTipoPedido(p.getTipoPedido().getNombreTipoPedido());
+        pedido.setEstadoPedido(p.getEstadoPedido().getNombreEstadoPedido());
+        pedido.setFechaCoordinadaEntrega(p.getFechaCoordinadaEntrega());
+        pedido.setFechaFinVigencia(p.getFechaFinVigencia());
+        pedido.setPrecio(p.getPedidoProductos().stream().map(pp -> BigDecimal.valueOf(pp.getCantidad()).multiply(pp.getProducto().getPrecios().stream().filter(pr -> pr.getFechaFinVigencia() == null).findFirst().get().getPrecio())).collect(Collectors.toList()).stream().reduce(BigDecimal.ZERO, BigDecimal::add));
+        pedido.setProductos(p.getPedidoProductos().stream().map(producto -> PedidoProductoDTO.builder().idProducto(producto.getProducto().getId()).nombreProducto(producto.getProducto().getNombre()).cantidad(producto.getCantidad()).precio(producto.getProducto().getPrecios().stream().filter(pr -> pr.getFechaFinVigencia() == null).findFirst().get().getPrecio()).build()).collect(Collectors.toList()));
+        return pedido;
     }
 }

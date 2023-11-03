@@ -1,6 +1,7 @@
 package com.example.aquatrack_backend.controller;
 
 import com.example.aquatrack_backend.dto.GuardarPedidoDTO;
+import com.example.aquatrack_backend.dto.GuardarPedidoMobileDTO;
 import com.example.aquatrack_backend.exception.PedidoNoValidoException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.UserUnauthorizedException;
@@ -75,8 +76,7 @@ public class PedidoControlador {
     }
 
     @PostMapping(value = "/mobile")
-    @PreAuthorize("hasAuthority('CREAR_PEDIDOS')")
-    public ResponseEntity<?> createExtraordinarioMobile(@RequestBody GuardarPedidoDTO pedido) throws PedidoNoValidoException {
+    public ResponseEntity<?> createExtraordinarioMobile(@RequestBody GuardarPedidoMobileDTO pedido) throws PedidoNoValidoException, UserUnauthorizedException {
         if (validationHelper.hasValidationErrors(pedido)) {
             return ResponseEntity.unprocessableEntity().body(validationHelper.getValidationErrors(pedido));
         }
@@ -113,6 +113,11 @@ public class PedidoControlador {
     public ResponseEntity<?> cancelarPedido(@PathVariable("id") Long idPedido) throws RecordNotFoundException {
         pedidoServicio.cancelarPedido(idPedido);
         return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping(value = "/{id}/mobile")
+    public ResponseEntity<?> cancelarPedidoMobile(@PathVariable("id") Long idPedido) throws RecordNotFoundException, UserUnauthorizedException {
+        return ResponseEntity.ok().body(pedidoServicio.cancelarPedidoMobile(idPedido));
     }
 
     @GetMapping(value = "/{id}/productos")

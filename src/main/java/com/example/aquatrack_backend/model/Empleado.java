@@ -16,22 +16,21 @@ import java.util.List;
 @Entity
 public class Empleado extends Persona {
 
+    private Integer legajo;
 
-  private Integer legajo;
+    private LocalDate fechaIngreso;
+    @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
+    private LocalDateTime fechaInicioVacaciones;
 
-  private LocalDate fechaIngreso;
-  @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
-  private LocalDateTime fechaInicioVacaciones;
+    @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
+    private LocalDateTime fechaFinVacaciones;
 
-  @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
-  private LocalDateTime fechaFinVacaciones;
+    @ManyToOne()
+    private TipoEmpleado tipo;
 
-  @ManyToOne()
-  private TipoEmpleado tipo;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "repartidor")
+    private List<Reparto> reparto;
 
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "repartidor")
-  private List<Reparto> reparto;
-
-  @OneToMany(mappedBy = "empleado")
-  private List<Pago> pagosRegistrados;
+    @OneToMany(mappedBy = "empleado")
+    private List<Pago> pagosRegistrados;
 }

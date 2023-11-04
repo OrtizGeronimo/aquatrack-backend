@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,11 +33,11 @@ public class DeudaServicio extends ServicioBaseImpl<Deuda> {
         super(repoBase);
     }
 
-    public DeudaDTO detalleDeudaMobile() {
-        Deuda deudaActual = ((Cliente) getUsuarioFromContext().getPersona()).getDomicilio().getDeuda();
+    public DeudaDTO detalleDeudaMobile() throws RecordNotFoundException {
+        Cliente cliente = clienteRepo.findById(((Cliente) getUsuarioFromContext().getPersona()).getId()).orElseThrow(() -> new RecordNotFoundException("No se encontró un cliente con el id"));
 
+        Deuda deudaActual = cliente.getDomicilio().getDeuda();
         DeudaDTO response = mapearDeuda(deudaActual);
-
 
         return response;
     }
@@ -67,7 +68,7 @@ public class DeudaServicio extends ServicioBaseImpl<Deuda> {
         BigDecimal nuevoMonto = BigDecimal.ZERO;
 
         for (DeudaPago deudaPago : deuda.getDeudaPagos()) {
-            if (deudaPago.getPago().getFechaFinVigencia() == null) {
+            if (deudaPago.getPago() != null && deudaPago.getPago().getFechaFinVigencia() == null) {
                 nuevoMonto = nuevoMonto.add(deudaPago.getMontoAdeudadoPago());
             }
         }
@@ -85,17 +86,14 @@ public class DeudaServicio extends ServicioBaseImpl<Deuda> {
         response.setMonto(deuda.getMonto());
         response.setFechaUltimaActualizacion(deuda.getFechaUltimaActualizacion());
 
-        response.setCambios(deuda.getDeudaPagos().stream().filter(deudaPago -> deudaPago.getPago().getFechaFinVigencia() == null).map(deudaPago -> {
+        response.setCambios(deuda.getDeudaPagos().stream().filter(deudaPago -> deudaPago.getPago() != null && !(deudaPago.getMontoAdeudadoPago().compareTo(BigDecimal.ZERO) == 0) && deudaPago.getPago().getFechaFinVigencia() == null).map(deudaPago -> {
             DeudaPagoDTO dto = new DeudaPagoDTO();
             dto.setMonto(deudaPago.getMontoAdeudadoPago());
             dto.setId(deudaPago.getId());
             dto.setFechaRegistro(deudaPago.getPago().getFechaPago());
-            dto.setPago(deudaPago.getPago().getId());
             return dto;
-        }).collect(Collectors.toList()));
+        }).sorted(Comparator.comparing(DeudaPagoDTO::getFechaRegistro).reversed()).collect(Collectors.toList()));
 
         return response;
     }
-
-
 }

@@ -47,9 +47,11 @@ VALUES (1, 'Pendiente'),
        (3, 'Aprobado');
 
 INSERT INTO estado_pedido(id, nombre_estado_pedido)
-VALUES (1, 'Pendiente'),
+VALUES (1, 'Pendiente de aprobación'),
        (2, 'Aprobado'),
-       (3, 'Rechazado');
+       (3, 'Rechazado'),
+       (4, 'Cancelado');
+
 
 INSERT INTO estado_reparto(id, nombre)
 VALUES (1, 'Pendiente de Asignación'),
@@ -72,7 +74,8 @@ VALUES (1, 'Oficinista'),
        (2, 'Repartidor');
 
 INSERT INTO tipo_pedido(id, nombre_tipo_pedido)
-VALUES (1, 'Atípico');
+VALUES (1, 'Habitual'),
+       (2, 'Extraordinario');
 
 INSERT INTO usuario (id, contraseña, direccion_email, fecha_creacion, fecha_fin_vigencia, validado)
 VALUES (1, '$2a$12$QxJltIw5pIXkdc8LzTck4O.4nZsMf2WjM4jsDm99JbMidBLtlFbrS', 'geroortiz@gmail.com', CURRENT_DATE, NULL,
@@ -99,8 +102,8 @@ VALUES (1, CURRENT_DATE, NULL, 'Administrador', 1),
        (15, CURRENT_DATE, NULL, 'Oficinista', 3),
        (16, CURRENT_DATE, NULL, 'Oficinista', 4);
 
-INSERT INTO permiso_rol(id, permiso_id, rol_id)
-values (1, 1, 1),
+INSERT INTO permiso_rol (id, permiso_id, rol_id)
+VALUES (1, 1, 1),
        (2, 2, 1),
        (3, 3, 1),
        (4, 4, 1),
@@ -371,7 +374,25 @@ values (1, 1, 1),
        (269, 29, 16),
        (270, 30, 16),
        (271, 31, 16),
-       (272, 32, 16);
+       (272, 32, 16),
+       (273, 5, 7),
+       (274, 6, 7),
+       (275, 9, 7),
+       (276, 13, 7),
+       (277, 17, 7),
+       (278, 21, 7),
+       (279, 25, 7),
+       (280, 23, 7),
+       (281, 27, 7),
+       (282, 29, 7),
+       (283, 31, 7),
+       (284, 34, 7),
+       (285, 36, 7),
+       (286, 37, 7),
+       (287, 38, 7),
+       (288, 39, 7),
+       (289, 40, 7),
+       (290, 43, 7);
 
 insert into rol_usuario(id, rol_id, usuario_id)
 values (1, 14, 1),

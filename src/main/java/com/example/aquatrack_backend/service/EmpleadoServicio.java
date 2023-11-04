@@ -1,6 +1,7 @@
 package com.example.aquatrack_backend.service;
 
 import com.example.aquatrack_backend.dto.*;
+import com.example.aquatrack_backend.exception.EntidadNoValidaException;
 import com.example.aquatrack_backend.exception.RecordNotFoundException;
 import com.example.aquatrack_backend.exception.UserUnauthorizedException;
 import com.example.aquatrack_backend.model.*;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,9 +63,14 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
     }
 
     @Transactional
-    public EmpleadoDTO createEmpleado(GuardarEmpleadoDTO empleado) throws RecordNotFoundException {
+    public EmpleadoDTO createEmpleado(GuardarEmpleadoDTO empleado) throws RecordNotFoundException, EntidadNoValidaException {
         Empleado empleadoNuevo = new Empleado();
         Usuario usuarioNuevo = new Usuario();
+        if (usuarioRepo.findByDireccionEmail(empleado.getUsuario().getDireccionEmail()).isPresent()) {
+            HashMap<String, String> errors = new HashMap<>();
+            errors.put("usuario.direccionEmail", "Ya existe un usuario con la dirección de mail ingresada.");
+            throw new EntidadNoValidaException(errors);
+        }
         TipoEmpleado tipo = tipoEmpleadoRepo.findById(empleado.getTipo()).orElseThrow(() -> new RecordNotFoundException("El tipo de empleado solicitado no fue encontrado"));
         Empresa empresa = ((Empleado) getUsuarioFromContext().getPersona()).getEmpresa();
         usuarioNuevo.setDireccionEmail(empleado.getUsuario().getDireccionEmail());
@@ -119,8 +126,14 @@ public class EmpleadoServicio extends ServicioBaseImpl<Empleado> {
         return response;
     }
 
-    public EmpleadoDTO update(Long id, GuardarEmpleadoDTO empleado) throws RecordNotFoundException {
+    public EmpleadoDTO update(Long id, GuardarEmpleadoDTO empleado) throws RecordNotFoundException, EntidadNoValidaException {
         Empleado empleadoExistente = empleadoRepo.findById(id).orElseThrow(() -> new RecordNotFoundException("El empleado no fue encontrado"));
+
+        if (!empleado.getUsuario().getDireccionEmail().equals(empleadoExistente.getUsuario().getDireccionEmail()) && usuarioRepo.findByDireccionEmail(empleado.getUsuario().getDireccionEmail()).isPresent()) {
+            HashMap<String, String> errors = new HashMap<>();
+            errors.put("usuario.direccionEmail", "Ya existe un usuario con la dirección de mail ingresada.");
+            throw new EntidadNoValidaException(errors);
+        }
 
         empleadoExistente.setTipo(tipoEmpleadoRepo.findById(empleado.getTipo()).get());
 

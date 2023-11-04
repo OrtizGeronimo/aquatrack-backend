@@ -10,9 +10,12 @@ import com.example.aquatrack_backend.helpers.ValidationHelper;
 import com.example.aquatrack_backend.service.EntregaServicio;
 import com.example.aquatrack_backend.service.RepartoServicio;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping(path = "/repartos")
@@ -52,12 +55,8 @@ public class RepartoControlador {
 
     @GetMapping("")
     @PreAuthorize("hasAuthority('LISTAR_REPARTOS')")
-    public ResponseEntity<?> listarRepartos(@RequestParam(required = false) Long ruta,
-                                            @RequestParam(required = false) Long repartidor,
-                                            @RequestParam(required = false) Long estado,
-                                            @RequestParam(defaultValue = "0") int page,
-                                            @RequestParam(defaultValue = "10") int size) throws RecordNotFoundException {
-        return ResponseEntity.ok().body(servicio.listarRepartos(estado, repartidor, ruta, page, size));
+    public ResponseEntity<?> listarRepartos(@RequestParam(required = false) Long ruta, @RequestParam(required = false) Long repartidor, @RequestParam(required = false) Long estado, @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaEjecucionDesde, @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaEjecucionHasta, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) throws RecordNotFoundException {
+        return ResponseEntity.ok().body(servicio.listarRepartos(estado, repartidor, ruta, fechaEjecucionDesde, fechaEjecucionHasta, page, size));
     }
 
     @PutMapping("/desginarHorario")
@@ -139,5 +138,15 @@ public class RepartoControlador {
     public ResponseEntity<?> actualizarUbicacion(@PathVariable("id") Long idReparto, @RequestBody UbicacionDTO ubicacion) throws RecordNotFoundException, ValidacionException {
         servicio.actualizarUbicacion(idReparto, ubicacion);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/listar-mobile")
+    public ResponseEntity<?> listarRepartosMobile(@RequestParam(required = false) Long ruta, @RequestParam(required = false) Long estado, @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaEjecucionDesde, @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaEjecucionHasta) throws RecordNotFoundException, ValidacionException, UserUnauthorizedException {
+        return ResponseEntity.ok().body(servicio.listarRepartosMobile(ruta, estado, fechaEjecucionDesde, fechaEjecucionHasta));
+    }
+
+    @GetMapping("/{id}/entregas-mobile")
+    public ResponseEntity<?> getEntregasMobile(@PathVariable("id") Long idReparto) throws RecordNotFoundException, ValidacionException {
+        return ResponseEntity.ok().body(servicio.getEntregasMobile(idReparto));
     }
 }

@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -93,20 +94,28 @@ public class PagoServicio extends ServicioBaseImpl<Pago> {
     }
 
     @Transactional
-    public PagoDTO cobrar(Long idEntrega, BigDecimal monto, Long idMedioPago) throws RecordNotFoundException, ValidacionException {
+    public void cobrar(Long idEntrega, BigDecimal monto, Long idMedioPago) throws RecordNotFoundException, ValidacionException {
         Entrega entrega = entregaRepo.findById(idEntrega).orElseThrow(() -> new RecordNotFoundException("No se encontró una entrega con el id " + idEntrega));
 
         Deuda deuda = entrega.getDomicilio().getDeuda();
 
-        BigDecimal diferencia = entrega.getMonto().subtract(monto);
+        BigDecimal diferencia = entrega.getMonto().subtract(Objects.requireNonNullElse(monto, BigDecimal.ZERO));
 
         if (diferencia.add(deuda.getMonto()).compareTo(deuda.getMontoMaximo()) > 0) {
             throw new ValidacionException("No se puede realizar el pago debido a que sumaría una deuda mayor al monto máximo");
         }
 
+        DeudaPago deudaPago = new DeudaPago();
+        deudaPago.setDeuda(deuda);
+        deudaPago.setMontoAdeudadoPago(diferencia);
+
         Pago pago = new Pago();
-        pago.setTotal(monto);
-        pago.setMedioPago(medioPagoRepo.findById(idMedioPago).orElseThrow(() -> new RecordNotFoundException("No se encontró un medio de pago con el id " + idMedioPago)));
+        if (monto != null) {
+            pago.setTotal(monto);
+            pago.setMedioPago(medioPagoRepo.findById(idMedioPago).orElseThrow(() -> new RecordNotFoundException("No se encontró un medio de pago con el id " + idMedioPago)));
+        } else {
+            pago.setTotal(BigDecimal.ZERO);
+        }
         pago.setFechaPago(LocalDateTime.now());
         pago.setEstadoPago(estadoPagoRepo.findByNombre("Aceptado"));
         Empleado empleado = (Empleado) getUsuarioFromContext().getPersona();
@@ -114,12 +123,7 @@ public class PagoServicio extends ServicioBaseImpl<Pago> {
         entrega.setPago(pago);
         pago.setEntrega(entrega);
         pagoRepo.save(pago);
-
-        DeudaPago deudaPago = new DeudaPago();
         deudaPago.setPago(pago);
-        deudaPago.setDeuda(deuda);
-        //se crea la deuda pago con la dif entre el precio de la entrega y lo que se pagó
-        deudaPago.setMontoAdeudadoPago(diferencia);
 
         List<DeudaPago> deudaPagos = new ArrayList<>();
 
@@ -133,14 +137,6 @@ public class PagoServicio extends ServicioBaseImpl<Pago> {
 
         deudaRepo.save(deuda);
         deudaServicio.recalcularDeuda(entrega.getDomicilio().getId());
-
-        PagoDTO response = new PagoDTO();
-        response.setId(pago.getId());
-        response.setFechaPago(pago.getFechaPago());
-        response.setTotal(pago.getTotal());
-        response.setMedioPago(pago.getMedioPago().getNombre());
-        return response;
-
     }
 
 
@@ -149,7 +145,7 @@ public class PagoServicio extends ServicioBaseImpl<Pago> {
 
         List<Pago> pagos = pagoRepo.findAllPagosFromClient(cliente.getDomicilio().getId(), idMedioPago, idEmpleado, fechaCreacionDesde, fechaCreacionHasta, montoDesde, montoHasta);
 
-        return pagos.stream().map(pago -> {
+        return pagos.stream().filter(p -> p.getMedioPago() != null).map(pago -> {
             PagoDTO response = new PagoDTO();
             response.setId(pago.getId());
             response.setFechaPago(pago.getFechaPago());

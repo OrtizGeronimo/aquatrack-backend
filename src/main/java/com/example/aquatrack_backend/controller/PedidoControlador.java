@@ -98,7 +98,7 @@ public class PedidoControlador {
 
     @PutMapping(value = "/{id}/aprobar")
     @PreAuthorize("hasAuthority('EDITAR_PEDIDOS')")
-    public ResponseEntity<?> aprobarPedido(/*@RequestBody AprobarPedidoDTO pedido,*/ @PathVariable("id") Long idPedido) throws RecordNotFoundException {
+    public ResponseEntity<?> aprobarPedido(@PathVariable("id") Long idPedido) throws RecordNotFoundException {
         return ResponseEntity.ok().body(pedidoServicio.aprobarPedido(/*pedido,*/ idPedido));
     }
 
@@ -111,8 +111,7 @@ public class PedidoControlador {
     @DeleteMapping(value = "/{id}")
     @PreAuthorize("hasAuthority('ELIMINAR_PEDIDOS')")
     public ResponseEntity<?> cancelarPedido(@PathVariable("id") Long idPedido) throws RecordNotFoundException {
-        pedidoServicio.cancelarPedido(idPedido);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().body(pedidoServicio.cancelarPedido(idPedido));
     }
 
     @DeleteMapping(value = "/{id}/mobile")

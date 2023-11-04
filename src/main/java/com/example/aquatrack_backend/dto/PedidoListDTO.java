@@ -20,6 +20,7 @@ public class PedidoListDTO {
     private Long id;
     @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
     private LocalDate fechaCoordinadaEntrega;
+    private Boolean entregable;
     private DomicilioDTO domicilio;
     private String estadoPedido;
     private String tipoPedido;

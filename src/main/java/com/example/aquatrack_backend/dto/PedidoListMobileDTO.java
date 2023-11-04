@@ -19,6 +19,7 @@ public class PedidoListMobileDTO {
     private String tipoPedido;
     private String estadoPedido;
     private LocalDateTime fechaHoraEntrega;
+    private Boolean entregable;
     private LocalDate fechaCoordinadaEntrega;
     private LocalDateTime fechaFinVigencia;
     private BigDecimal precio;

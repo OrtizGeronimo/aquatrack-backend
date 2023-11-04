@@ -26,7 +26,7 @@ public interface PedidoRepo extends RepoBase<Pedido> {
             "(:fechaCoordinadaDesde IS NULL OR :fechaCoordinadaDesde >= p.fecha_coordinada_entrega) AND " +
             "(:fechaCoordinadaHasta IS NULL OR :fechaCoordinadaHasta <= p.fecha_coordinada_entrega) " +
             "ORDER BY p.tipo_pedido_id DESC, p.fecha_coordinada_entrega DESC "
-            , countQuery = "SELECT COUNT(id) FROM pedidos"
+            , countQuery = "SELECT COUNT(id) FROM pedido"
             , nativeQuery = true
     )
     Page<Pedido> getAllPedidos(@Param("idEmpresa") Long idEmpresa,

@@ -43,34 +43,38 @@ public class PedidoValidator {
 
         HashMap<String, String> errors = new HashMap<>();
 
-        if(!validateProductosVigentes(pedido)){
+        if (!validateProductosVigentes(pedido)) {
             errors.put("root", "El pedido posee productos que no se encuentran vigentes.");
         }
 
-        if(!validateCantidadesProducto(pedido)){
+        if (!validateCantidadesProducto(pedido)) {
             errors.put("root", "El pedido excede la cantidad máxima en alguno de los productos.");
         }
 
-        if(!validateFechaCorrecta(pedido.getFechaCoordinadaEntrega(), domicilio)){
+        if (!validateFechaCorrecta(pedido.getFechaCoordinadaEntrega(), domicilio)) {
             errors.put("fechaCoordinadaEntrega", "La fecha del pedido no coincide con una visita planificada al mismo.");
         }
 
-        if(!validatePedidoUnico(pedido.getFechaCoordinadaEntrega(),  domicilio)){
+        if (!validatePedidoUnico(pedido.getFechaCoordinadaEntrega(), domicilio)) {
             errors.put("fechaCoordinadaEntrega", "El domicilio ya posee un pedido definido para la fecha ingresada.");
         }
 
-        if(!errors.isEmpty()){
+        if (LocalDate.now().isAfter(pedido.getFechaCoordinadaEntrega())) {
+            errors.put("fechaCoordinadaEntrega", "No puede elegir una fecha anterior al día de hoy.");
+        }
+
+        if (!errors.isEmpty()) {
             throw new PedidoNoValidoException(errors);
         }
     }
 
-    private boolean validateProductosVigentes(GuardarPedidoDTO pedido){
+    private boolean validateProductosVigentes(GuardarPedidoDTO pedido) {
 
         boolean checked = true;
 
-        for(PedidoProductoDTO pedidoProducto: pedido.getPedidoProductos()){
+        for (PedidoProductoDTO pedidoProducto : pedido.getPedidoProductos()) {
             LocalDateTime fecha = productoRepo.findById(pedidoProducto.getIdProducto()).get().getFechaFinVigencia();
-            if(fecha != null){
+            if (fecha != null) {
                 checked = false;
                 break;
             }
@@ -79,13 +83,13 @@ public class PedidoValidator {
         return checked;
     }
 
-    private boolean validateCantidadesProducto(GuardarPedidoDTO pedido){
+    private boolean validateCantidadesProducto(GuardarPedidoDTO pedido) {
 
         boolean checked = true;
 
-        for (PedidoProductoDTO pedidoProducto: pedido.getPedidoProductos()) {
+        for (PedidoProductoDTO pedidoProducto : pedido.getPedidoProductos()) {
             Integer cantidadProducto = productoRepo.findById(pedidoProducto.getIdProducto()).get().getMaximo();
-            if(pedidoProducto.getCantidad() > cantidadProducto){
+            if (pedidoProducto.getCantidad() > cantidadProducto) {
                 checked = false;
                 break;
             }
@@ -94,7 +98,7 @@ public class PedidoValidator {
         return checked;
     }
 
-    private boolean validateFechaCorrecta(LocalDate fechaPedido, Domicilio domicilio){
+    private boolean validateFechaCorrecta(LocalDate fechaPedido, Domicilio domicilio) {
 
         DayOfWeek dia = fechaPedido.getDayOfWeek();
 
@@ -102,8 +106,8 @@ public class PedidoValidator {
 
         boolean checked = false;
 
-        for (DiaDomicilio diaDomicilio: diaDomicilios) {
-            if(diaDomicilio.getDiaRuta().getDiaSemana().getId() == dia.getValue()){
+        for (DiaDomicilio diaDomicilio : diaDomicilios) {
+            if (diaDomicilio.getDiaRuta().getDiaSemana().getId() == dia.getValue()) {
                 checked = true;
                 break;
             }
@@ -123,8 +127,8 @@ public class PedidoValidator {
 
         boolean checked = true;
 
-        for (Pedido p: pedidos) {
-            if(p.getFechaCoordinadaEntrega().equals(fechaPedido)){
+        for (Pedido p : pedidos) {
+            if (p.getFechaCoordinadaEntrega().equals(fechaPedido)) {
                 checked = false;
                 break;
             }

@@ -138,15 +138,7 @@ public class PedidoServicio extends ServicioBaseImpl<Pedido> {
         pedidoNuevo.setEstadoPedido(estadoPedidoRepo.findByNombreEstadoPedido("Pendiente de aprobación"));
 
         Pedido p = pedidoRepo.save(pedidoNuevo);
-        PedidoListMobileDTO pedido = new PedidoListMobileDTO();
-        pedido.setId(p.getId());
-        pedido.setTipoPedido(p.getTipoPedido().getNombreTipoPedido());
-        pedido.setEstadoPedido(p.getEstadoPedido().getNombreEstadoPedido());
-        pedido.setFechaCoordinadaEntrega(p.getFechaCoordinadaEntrega());
-        pedido.setFechaFinVigencia(p.getFechaFinVigencia());
-        pedido.setPrecio(p.getPedidoProductos().stream().map(pp -> BigDecimal.valueOf(pp.getCantidad()).multiply(pp.getProducto().getPrecios().stream().filter(pr -> pr.getFechaFinVigencia() == null).findFirst().get().getPrecio())).collect(Collectors.toList()).stream().reduce(BigDecimal.ZERO, BigDecimal::add));
-        pedido.setProductos(p.getPedidoProductos().stream().map(producto -> PedidoProductoDTO.builder().idProducto(producto.getProducto().getId()).nombreProducto(producto.getProducto().getNombre()).cantidad(producto.getCantidad()).precio(producto.getProducto().getPrecios().stream().filter(pr -> pr.getFechaFinVigencia() == null).findFirst().get().getPrecio()).build()).collect(Collectors.toList()));
-        return pedido;
+        return makePedidoListMobileDTO(p);
     }
 
     private Pedido createPedidoExtraordinario(GuardarPedidoDTO pedido) throws PedidoNoValidoException {
@@ -215,19 +207,15 @@ public class PedidoServicio extends ServicioBaseImpl<Pedido> {
     }
 
     @Transactional
-    public PedidoListDTO aprobarPedido(/*AprobarPedidoDTO pedidoRequest,*/ Long idPedido) throws RecordNotFoundException {
+    public PedidoListDTO aprobarPedido(Long idPedido) throws RecordNotFoundException {
 
         Pedido pedido = pedidoRepo.findById(idPedido).orElseThrow(() -> new RecordNotFoundException("El pedido no fue encontrado"));
 
-/*    if(pedidoRequest.getTipoPedido().equalsIgnoreCase("Extraordinario")) {
-      repartoServicio.crearRepartoAnticipado(pedidoRequest.getIdRuta(), pedido.getFechaCoordinadaEntrega(), pedido.getDomicilio());
-    }*/
-
         pedido.setEstadoPedido(estadoPedidoRepo.findByNombreEstadoPedido("Aprobado"));
 
-        pedidoRepo.save(pedido);
+        Pedido p = pedidoRepo.save(pedido);
 
-        return makePedidoListDTO(pedido);
+        return makePedidoListDTO(p);
     }
 
     @Transactional
@@ -237,23 +225,25 @@ public class PedidoServicio extends ServicioBaseImpl<Pedido> {
 
         pedido.setEstadoPedido(estadoPedidoRepo.findByNombreEstadoPedido("Rechazado"));
 
-        pedidoRepo.save(pedido);
+        Pedido p = pedidoRepo.save(pedido);
 
-        return makePedidoListDTO(pedido);
+        return makePedidoListDTO(p);
     }
 
     @Transactional
-    public void cancelarPedido(Long idPedido) throws RecordNotFoundException {
+    public PedidoListDTO cancelarPedido(Long idPedido) throws RecordNotFoundException {
         Pedido pedido = pedidoRepo.findById(idPedido).orElseThrow(() -> new RecordNotFoundException("El pedido no fue encontrado"));
 
         pedido.setEstadoPedido(estadoPedidoRepo.findByNombreEstadoPedido("Cancelado"));
 
-        pedidoRepo.save(pedido);
+        Pedido p = pedidoRepo.save(pedido);
+        return makePedidoListDTO(p);
     }
 
     private PedidoListDTO makePedidoListDTO(Pedido pedido) {
         return PedidoListDTO.builder()
                 .id(pedido.getId())
+                .entregable(pedido.getEntregaPedidos() != null && pedido.getEntregaPedidos().stream().anyMatch(e -> e.getEntrega().getEstadoEntrega().getId() == 1L || e.getEntrega().getEstadoEntrega().getId() == 2L))
                 .pedidoProductos(pedido.getPedidoProductos()
                         .stream().map(pedidoProducto -> PedidoProductoDTO.builder()
                                 .cantidad(pedidoProducto.getCantidad())
@@ -271,6 +261,30 @@ public class PedidoServicio extends ServicioBaseImpl<Pedido> {
                 .tipoPedido(pedido.getTipoPedido().getNombreTipoPedido())
                 .fechaFinVigencia(pedido.getFechaFinVigencia())
                 .build();
+    }
+
+    private PedidoListMobileDTO makePedidoListMobileDTO(Pedido pedido) {
+        return PedidoListMobileDTO.builder()
+                .id(pedido.getId())
+                .entregable(pedido.getEntregaPedidos() != null && pedido.getEntregaPedidos().stream().anyMatch(e -> e.getEntrega().getEstadoEntrega().getId() == 1L || e.getEntrega().getEstadoEntrega().getId() == 2L))
+                .fechaHoraEntrega(pedido.getEntregaPedidos() != null ? getFechaHoraVisita(pedido.getEntregaPedidos().stream().filter(e -> e.getEntrega().getEstadoEntrega().getId() == 3L).findFirst()) : null)
+                .productos(pedido.getPedidoProductos()
+                        .stream().map(pedidoProducto -> PedidoProductoDTO.builder()
+                                .cantidad(pedidoProducto.getCantidad())
+                                .nombreProducto(pedidoProducto.getProducto().getNombre())
+                                .idProducto(pedidoProducto.getProducto().getId())
+                                .build())
+                        .collect(Collectors.toList()))
+                .fechaCoordinadaEntrega(pedido.getFechaCoordinadaEntrega())
+                .precio(pedido.getPedidoProductos().stream().map(pp -> BigDecimal.valueOf(pp.getCantidad()).multiply(pp.getProducto().getPrecios().stream().filter(pr -> pr.getFechaFinVigencia() == null).findFirst().get().getPrecio())).collect(Collectors.toList()).stream().reduce(BigDecimal.ZERO, BigDecimal::add))
+                .estadoPedido(pedido.getEstadoPedido() != null ? pedido.getEstadoPedido().getNombreEstadoPedido() : "")
+                .tipoPedido(pedido.getTipoPedido().getNombreTipoPedido())
+                .fechaFinVigencia(pedido.getFechaFinVigencia())
+                .build();
+    }
+
+    private LocalDateTime getFechaHoraVisita(Optional<EntregaPedido> entrega) {
+        return entrega.map(entregaPedido -> entregaPedido.getEntrega().getFechaHoraVisita()).orElse(null);
     }
 
     private static String formatAddress(String calle, Integer numero, String piso, String localidad) {
@@ -327,21 +341,7 @@ public class PedidoServicio extends ServicioBaseImpl<Pedido> {
         Cliente cliente = (Cliente) persona;
         return pedidoRepo.pedidosCliente(cliente.getDomicilio().getId(), estadoPedido, tipoPedido, fechaCoordinadaEntrega)
                 .stream()
-                .map(p -> {
-                    PedidoListMobileDTO pedido = new PedidoListMobileDTO();
-                    pedido.setId(p.getId());
-                    pedido.setTipoPedido(p.getTipoPedido().getNombreTipoPedido());
-                    if (p.getTipoPedido().getId() == 2L) {
-                        pedido.setEstadoPedido(p.getEstadoPedido().getNombreEstadoPedido());
-                        pedido.setFechaCoordinadaEntrega(p.getFechaCoordinadaEntrega());
-                        Optional<EntregaPedido> entrega = p.getEntregaPedidos().stream().filter(e -> e.getEntrega().getEstadoEntrega().getId() == 3L).findFirst();
-                        pedido.setFechaHoraEntrega(entrega.map(entregaPedido -> entregaPedido.getEntrega().getFechaHoraVisita()).orElse(null));
-                    }
-                    pedido.setFechaFinVigencia(p.getFechaFinVigencia());
-                    pedido.setPrecio(p.getPedidoProductos().stream().map(pp -> BigDecimal.valueOf(pp.getCantidad()).multiply(pp.getProducto().getPrecios().stream().filter(pr -> pr.getFechaFinVigencia() == null).findFirst().get().getPrecio())).collect(Collectors.toList()).stream().reduce(BigDecimal.ZERO, BigDecimal::add));
-                    pedido.setProductos(p.getPedidoProductos().stream().map(producto -> PedidoProductoDTO.builder().idProducto(producto.getProducto().getId()).nombreProducto(producto.getProducto().getNombre()).cantidad(producto.getCantidad()).precio(producto.getProducto().getPrecios().stream().filter(pr -> pr.getFechaFinVigencia() == null).findFirst().get().getPrecio()).build()).collect(Collectors.toList()));
-                    return pedido;
-                }).collect(Collectors.toList());
+                .map(this::makePedidoListMobileDTO).collect(Collectors.toList());
     }
 
     public PedidoListMobileDTO cancelarPedidoMobile(Long idPedido) throws UserUnauthorizedException, RecordNotFoundException {
@@ -354,15 +354,7 @@ public class PedidoServicio extends ServicioBaseImpl<Pedido> {
 
         p.setEstadoPedido(estadoPedidoRepo.findByNombreEstadoPedido("Cancelado"));
 
-        pedidoRepo.save(p);
-        PedidoListMobileDTO pedido = new PedidoListMobileDTO();
-        pedido.setId(p.getId());
-        pedido.setTipoPedido(p.getTipoPedido().getNombreTipoPedido());
-        pedido.setEstadoPedido(p.getEstadoPedido().getNombreEstadoPedido());
-        pedido.setFechaCoordinadaEntrega(p.getFechaCoordinadaEntrega());
-        pedido.setFechaFinVigencia(p.getFechaFinVigencia());
-        pedido.setPrecio(p.getPedidoProductos().stream().map(pp -> BigDecimal.valueOf(pp.getCantidad()).multiply(pp.getProducto().getPrecios().stream().filter(pr -> pr.getFechaFinVigencia() == null).findFirst().get().getPrecio())).collect(Collectors.toList()).stream().reduce(BigDecimal.ZERO, BigDecimal::add));
-        pedido.setProductos(p.getPedidoProductos().stream().map(producto -> PedidoProductoDTO.builder().idProducto(producto.getProducto().getId()).nombreProducto(producto.getProducto().getNombre()).cantidad(producto.getCantidad()).precio(producto.getProducto().getPrecios().stream().filter(pr -> pr.getFechaFinVigencia() == null).findFirst().get().getPrecio()).build()).collect(Collectors.toList()));
-        return pedido;
+        Pedido pp = pedidoRepo.save(p);
+        return makePedidoListMobileDTO(pp);
     }
 }

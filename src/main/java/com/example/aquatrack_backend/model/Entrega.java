@@ -24,6 +24,9 @@ public class Entrega {
 
     private String observaciones;
 
+    @DateTimeFormat(pattern = "dd-MM-YYYY' 'HH:mm:ss")
+    private LocalDateTime fechaCreacion = LocalDateTime.now();
+
     @DateTimeFormat(pattern = "dd-MM-YYYY HH:mm:ss")
     private LocalDateTime fechaHoraVisita;
 

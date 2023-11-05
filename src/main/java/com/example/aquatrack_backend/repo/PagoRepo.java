@@ -32,4 +32,7 @@ public interface PagoRepo extends RepoBase<Pago> {
                                       @Param("fechaCreacionHasta") LocalDate fechaCreacionHasta,
                                       @Param("montoDesde") BigDecimal montoDesde,
                                       @Param("montoHasta") BigDecimal montoHasta);
+
+    @Query(value = "SELECT sum(p.total) FROM pago p INNER JOIN empleado e ON e.id = p.empleado_id WHERE e.empresa_id = :id_empresa AND p.fecha_pago >= :fecha_desde AND p.fecha_pago <= :fecha_hasta", nativeQuery = true)
+    BigDecimal getRecaudado(@Param("fecha_desde") LocalDate fechaDesde, @Param("fecha_hasta") LocalDate fechaHasta, @Param("id_empresa") Long idEmpresa);
 }

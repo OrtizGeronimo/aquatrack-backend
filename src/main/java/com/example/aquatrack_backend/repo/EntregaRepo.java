@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.repo;
 
+import com.example.aquatrack_backend.dto.EntregaEstadoProjection;
 import com.example.aquatrack_backend.model.Entrega;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -47,4 +48,10 @@ public interface EntregaRepo extends RepoBase<Entrega> {
             "AND (:sinPagar = false OR p.total = 0) " +
             "AND e.estado_entrega_id = 3 ORDER BY fecha_hora_visita DESC", nativeQuery = true)
     List<Entrega> getEntregasProcesadasCliente(Long idDomicilio, LocalDate fechaVisitaDesde, LocalDate fechaVisitaHasta, boolean sinPagar);
+
+    @Query(value = "SELECT COUNT(*) FROM entrega e INNER JOIN reparto r ON e.reparto_id = r.id INNER JOIN ruta ru ON r.ruta_id = ru.id WHERE ru.empresa_id = :id_empresa AND e.estado_entrega_id = 3 AND e.fecha_creacion >= :fecha_desde AND e.fecha_creacion <= :fecha_hasta", nativeQuery = true)
+    Long countEntregas(@Param("fecha_desde") LocalDate fechaDesde, @Param("fecha_hasta") LocalDate fechaHasta, @Param("id_empresa") Long empresa_id);
+
+    @Query(value = "SELECT ee.nombre_estado_entrega as estado, COUNT(e.id) as cantidad FROM entrega e JOIN estado_entrega ee ON e.estado_entrega_id = ee.id JOIN reparto r ON r.id = e.reparto_id JOIN ruta ru ON ru.id = r.ruta_id WHERE ru.empresa_id = :id_empresa AND e.fecha_creacion >= :fecha_desde AND e.fecha_creacion <= :fecha_hasta AND e.estado_entrega_id IN (3, 4, 5) GROUP BY ee.id", nativeQuery = true)
+    List<EntregaEstadoProjection> getEntregasByEstado(@Param("fecha_desde") LocalDate fechaDesde, @Param("fecha_hasta") LocalDate fechaHasta, @Param("id_empresa") Long empresa_id);
 }

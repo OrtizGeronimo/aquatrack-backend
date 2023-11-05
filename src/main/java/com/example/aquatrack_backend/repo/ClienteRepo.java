@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -48,4 +49,7 @@ public interface ClienteRepo extends RepoBase<Cliente> {
             "WHERE cliente_id = :clienteId", nativeQuery = true)
     @Modifying
     void deleteClientDomicily(@Param("clienteId") Long clienteId);
+
+    @Query(value = "SELECT count(c.id) FROM cliente c WHERE c.empresa_id = :id_empresa AND c.fecha_creacion <= :fecha_hasta", nativeQuery = true)
+    Long cantidadClientes(@Param("fecha_hasta") LocalDate fechaHasta, @Param("id_empresa") Long idEmpresa);
 }

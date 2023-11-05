@@ -1,5 +1,6 @@
 package com.example.aquatrack_backend.repo;
 
+import com.example.aquatrack_backend.dto.ProductoEntregadoProjection;
 import com.example.aquatrack_backend.model.Producto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -7,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,5 +34,8 @@ public interface ProductoRepo extends RepoBase<Producto> {
     @Query(value = "SELECT count(*) as productos FROM producto p " +
             "WHERE p.codigo = :codigo AND p.empresa_id = :empresaId", nativeQuery = true)
     Integer validateCodigoUnico(@Param("codigo") String codigo, @Param("empresaId") Long empresaId);
+
+    @Query(value = "SELECT p.nombre as nombre, sum(ed.cantidad_entregada) as cantidad FROM producto p INNER JOIN entrega_detalle ed ON ed.producto_id = p.id INNER JOIN entrega e ON e.id = ed.entrega_id WHERE p.empresa_id = :id_empresa AND e.fecha_creacion >= :fecha_desde AND e.fecha_creacion <= :fecha_hasta GROUP BY (p.id)", nativeQuery = true)
+    List<ProductoEntregadoProjection> getProductosEntregados(@Param("fecha_desde") LocalDate fechaDesde, @Param("fecha_hasta") LocalDate fechaHasta, @Param("id_empresa") Long idEmpresa);
 }
 

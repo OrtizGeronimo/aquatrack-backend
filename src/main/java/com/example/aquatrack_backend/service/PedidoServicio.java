@@ -271,6 +271,7 @@ public class PedidoServicio extends ServicioBaseImpl<Pedido> {
                 .productos(pedido.getPedidoProductos()
                         .stream().map(pedidoProducto -> PedidoProductoDTO.builder()
                                 .cantidad(pedidoProducto.getCantidad())
+                                .precio(pedidoProducto.getProducto().getPrecios().stream().filter(pr -> pr.getFechaFinVigencia() == null).findFirst().get().getPrecio())
                                 .nombreProducto(pedidoProducto.getProducto().getNombre())
                                 .idProducto(pedidoProducto.getProducto().getId())
                                 .build())
